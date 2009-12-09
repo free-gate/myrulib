@@ -1,0 +1,2895 @@
+# depslib dependency file v1.0
+1259082286 source:/home/user/projects/MyRuLib/MyRuLib/BaseThread.cpp
+	"BaseThread.h"
+	"FbBookEvent.h"
+	"FbConst.h"
+	"FbParams.h"
+
+1259082286 /home/user/projects/MyRuLib/MyRuLib/BaseThread.h
+	<wx/wx.h>
+	<wx/wxsqlite3.h>
+	"FbThread.h"
+	"polarssl/md5.h"
+
+1250033142 /usr/include/wx-2.8/wx/wx.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/dynarray.h"
+	"wx/list.h"
+	"wx/hash.h"
+	"wx/string.h"
+	"wx/hashmap.h"
+	"wx/arrstr.h"
+	"wx/intl.h"
+	"wx/log.h"
+	"wx/event.h"
+	"wx/app.h"
+	"wx/utils.h"
+	"wx/stream.h"
+	"wx/memory.h"
+	"wx/math.h"
+	"wx/stopwatch.h"
+	"wx/module.h"
+	"wx/window.h"
+	"wx/containr.h"
+	"wx/panel.h"
+	"wx/toplevel.h"
+	"wx/frame.h"
+	"wx/gdicmn.h"
+	"wx/gdiobj.h"
+	"wx/region.h"
+	"wx/bitmap.h"
+	"wx/image.h"
+	"wx/colour.h"
+	"wx/font.h"
+	"wx/dc.h"
+	"wx/dcclient.h"
+	"wx/dcmemory.h"
+	"wx/dcprint.h"
+	"wx/dcscreen.h"
+	"wx/button.h"
+	"wx/menuitem.h"
+	"wx/menu.h"
+	"wx/pen.h"
+	"wx/brush.h"
+	"wx/palette.h"
+	"wx/icon.h"
+	"wx/cursor.h"
+	"wx/dialog.h"
+	"wx/timer.h"
+	"wx/settings.h"
+	"wx/msgdlg.h"
+	"wx/cmndata.h"
+	"wx/dataobj.h"
+	"wx/control.h"
+	"wx/ctrlsub.h"
+	"wx/bmpbuttn.h"
+	"wx/checkbox.h"
+	"wx/checklst.h"
+	"wx/choice.h"
+	"wx/scrolbar.h"
+	"wx/stattext.h"
+	"wx/statbmp.h"
+	"wx/statbox.h"
+	"wx/listbox.h"
+	"wx/radiobox.h"
+	"wx/radiobut.h"
+	"wx/textctrl.h"
+	"wx/slider.h"
+	"wx/gauge.h"
+	"wx/scrolwin.h"
+	"wx/dirdlg.h"
+	"wx/toolbar.h"
+	"wx/combobox.h"
+	"wx/layout.h"
+	"wx/sizer.h"
+	"wx/mdi.h"
+	"wx/statusbr.h"
+	"wx/choicdlg.h"
+	"wx/textdlg.h"
+	"wx/filedlg.h"
+	"wx/validate.h"
+	"wx/valtext.h"
+
+1250033142 /usr/include/wx-2.8/wx/defs.h
+	"wx/platform.h"
+	"wx/features.h"
+	"wx/version.h"
+	"wx/dlimpexp.h"
+	"wx/debug.h"
+	<stddef.h>
+	<sys/types.h>
+	<unistd.h>
+	"wx/msw/winundef.h"
+
+1250033142 /usr/include/wx-2.8/wx/platform.h
+	<stddef.h>
+	<AvailabilityMacros.h>
+	<unistd.h>
+	"wx/mac/carbon/config_xcode.h"
+	"wx/setup.h"
+	"wx/chkconf.h"
+	"wx/msw/wince/libraries.h"
+	"wx/msw/libraries.h"
+	"wx/msw/gccpriv.h"
+	<AvailabilityMacros.h>
+
+1250033142 /usr/lib/wx/include/gtk2-unicode-release-2.8/wx/setup.h
+
+1250033142 /usr/include/wx-2.8/wx/chkconf.h
+	"wx/palmos/chkconf.h"
+	"wx/msw/wince/chkconf.h"
+	"wx/msw/chkconf.h"
+	"wx/mac/chkconf.h"
+	"wx/os2/chkconf.h"
+	"wx/mgl/chkconf.h"
+	"wx/dfb/chkconf.h"
+	"wx/motif/chkconf.h"
+	"wx/x11/chkconf.h"
+	"wx/univ/chkconf.h"
+
+1250033142 /usr/include/wx-2.8/wx/features.h
+
+1250033142 /usr/include/wx-2.8/wx/version.h
+	"wx/cpp.h"
+
+1250033142 /usr/include/wx-2.8/wx/cpp.h
+
+1250033142 /usr/include/wx-2.8/wx/dlimpexp.h
+
+1250033142 /usr/include/wx-2.8/wx/debug.h
+	<assert.h>
+	<limits.h>
+	"wx/wxchar.h"
+
+1250033142 /usr/include/wx-2.8/wx/wxchar.h
+	"wx/platform.h"
+	"wx/dlimpexp.h"
+	<stdio.h>
+	<stdarg.h>
+	<sys/types.h>
+	<wchar.h>
+	<wcstr.h>
+	<stdlib.h>
+	<widec.h>
+	<ctype.h>
+	<memory.h>
+	<stddef.h>
+	<stddef.h>
+	<string.h>
+	<ctype.h>
+	<tchar.h>
+	<ctype.h>
+	<ctype.h>
+	<stdio.h>
+	<wctype.h>
+	<stdio.h>
+	<stdio.h>
+	<ctype.h>
+	<string.h>
+	<stdio.h>
+	<time.h>
+	<time.h>
+	<string.h>
+
+1250033142 /usr/include/wx-2.8/wx/object.h
+	"wx/memory.h"
+	"wx/xti.h"
+	"wx/msw/msvcrt.h"
+
+1250033142 /usr/include/wx-2.8/wx/memory.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/msgout.h"
+	<stddef.h>
+
+1250033142 /usr/include/wx-2.8/wx/string.h
+	"wx/defs.h"
+	<ctype.h>
+	<stdio.h>
+	<string.h>
+	<stdarg.h>
+	<limits.h>
+	<string.h>
+	<stdio.h>
+	<stdarg.h>
+	<limits.h>
+	<stdlib.h>
+	<strings.h>
+	<StringMgr.h>
+	"wx/wxchar.h"
+	"wx/buffer.h"
+	"wx/strconv.h"
+	"wx/beforestd.h"
+	<string>
+	"wx/afterstd.h"
+	"wx/arrstr.h"
+	"wx/iosfwrap.h"
+
+1250033142 /usr/include/wx-2.8/wx/buffer.h
+	"wx/wxchar.h"
+	<stdlib.h>
+
+1250033142 /usr/include/wx-2.8/wx/strconv.h
+	"wx/defs.h"
+	"wx/wxchar.h"
+	"wx/buffer.h"
+	"typeinfo.h"
+	<stdlib.h>
+	"wx/fontenc.h"
+
+1250033142 /usr/include/wx-2.8/wx/fontenc.h
+
+1250033142 /usr/include/wx-2.8/wx/beforestd.h
+
+1250033142 /usr/include/wx-2.8/wx/afterstd.h
+	"wx/msw/winundef.h"
+
+1250033142 /usr/include/wx-2.8/wx/arrstr.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/dynarray.h"
+
+1250033142 /usr/include/wx-2.8/wx/dynarray.h
+	"wx/defs.h"
+	"wx/beforestd.h"
+	<vector>
+	<algorithm>
+	"wx/afterstd.h"
+
+1250033142 /usr/include/wx-2.8/wx/iosfwrap.h
+	<iostream.h>
+	<iosfwd>
+	"wx/msw/winundef.h"
+
+1250033142 /usr/include/wx-2.8/wx/msgout.h
+	"wx/defs.h"
+	"wx/wxchar.h"
+
+1250033142 /usr/include/wx-2.8/wx/xti.h
+	"wx/defs.h"
+	"wx/memory.h"
+	"wx/flags.h"
+	"wx/string.h"
+	"wx/arrstr.h"
+	"wx/hashmap.h"
+	"wx/log.h"
+	"wx/intl.h"
+	<typeinfo>
+	"wx/dynarray.h"
+
+1250033142 /usr/include/wx-2.8/wx/hashmap.h
+	"wx/string.h"
+	<unordered_map>
+	<tr1/unordered_map>
+	<ext/hash_map>
+	<hash_map>
+	<stddef.h>
+
+1250033142 /usr/include/wx-2.8/wx/log.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/arrstr.h"
+	<time.h>
+	"wx/dynarray.h"
+	"wx/iosfwrap.h"
+	"wx/generic/logg.h"
+	"wx/cocoa/log.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/logg.h
+
+1250033142 /usr/include/wx-2.8/wx/intl.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/fontenc.h"
+
+1250033142 /usr/include/wx-2.8/wx/list.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+	"wx/beforestd.h"
+	<algorithm>
+	<iterator>
+	<list>
+	"wx/afterstd.h"
+
+1250033142 /usr/include/wx-2.8/wx/hash.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/list.h"
+	"wx/dynarray.h"
+
+1250033142 /usr/include/wx-2.8/wx/event.h
+	"wx/defs.h"
+	"wx/cpp.h"
+	"wx/object.h"
+	"wx/clntdata.h"
+	"wx/gdicmn.h"
+	"wx/cursor.h"
+	"wx/thread.h"
+	"wx/dynarray.h"
+
+1250033142 /usr/include/wx-2.8/wx/clntdata.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/hashmap.h"
+	"wx/vector.h"
+
+1250033142 /usr/include/wx-2.8/wx/vector.h
+	"wx/defs.h"
+
+1250033143 /usr/include/wx-2.8/wx/gdicmn.h
+	"wx/defs.h"
+	"wx/list.h"
+	"wx/string.h"
+	"wx/fontenc.h"
+	"wx/hashmap.h"
+	"wx/math.h"
+
+1250033142 /usr/include/wx-2.8/wx/math.h
+	"wx/defs.h"
+	<math.h>
+	<float.h>
+
+1250033143 /usr/include/wx-2.8/wx/cursor.h
+	"wx/defs.h"
+	"wx/palmos/cursor.h"
+	"wx/msw/cursor.h"
+	"wx/motif/cursor.h"
+	"wx/gtk/cursor.h"
+	"wx/gtk1/cursor.h"
+	"wx/x11/cursor.h"
+	"wx/mgl/cursor.h"
+	"wx/dfb/cursor.h"
+	"wx/mac/cursor.h"
+	"wx/cocoa/cursor.h"
+	"wx/os2/cursor.h"
+	"wx/utils.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/cursor.h
+	"wx/object.h"
+
+1250033142 /usr/include/wx-2.8/wx/utils.h
+	"wx/object.h"
+	"wx/list.h"
+	"wx/filefn.h"
+	"wx/gdicmn.h"
+	"wx/longlong.h"
+	"wx/platinfo.h"
+	<direct.h>
+	<dirent.h>
+	<unistd.h>
+	<stdio.h>
+
+1250033142 /usr/include/wx-2.8/wx/filefn.h
+	"wx/list.h"
+	"wx/arrstr.h"
+	"wx/msw/wince/time.h"
+	"wx/msw/private.h"
+	<time.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/types.h>
+	<utime.h>
+	<sys/stat.h>
+	<unistd.h>
+	<stat.h>
+	<unistd.h>
+	<unix.h>
+	<process.h>
+	"wx/os2/private.h"
+	<direct.h>
+	<io.h>
+	<unistd.h>
+	<unistd.h>
+	<dirent.h>
+	<direct.h>
+	<dos.h>
+	<io.h>
+	<direct.h>
+	<dos.h>
+	<io.h>
+	<io.h>
+	<unistd.h>
+	<dir.h>
+	<dir.h>
+	<unix.h>
+	<fcntl.h>
+	<sys/types.h>
+
+1250033142 /usr/include/wx-2.8/wx/longlong.h
+	"wx/defs.h"
+	"wx/string.h"
+	<limits.h>
+	"wx/iosfwrap.h"
+
+1250033142 /usr/include/wx-2.8/wx/platinfo.h
+	"wx/string.h"
+
+1250033142 /usr/include/wx-2.8/wx/thread.h
+	"wx/defs.h"
+
+1250033142 /usr/include/wx-2.8/wx/app.h
+	"wx/event.h"
+	"wx/build.h"
+	"wx/init.h"
+	"wx/intl.h"
+	"wx/palmos/app.h"
+	"wx/msw/app.h"
+	"wx/motif/app.h"
+	"wx/mgl/app.h"
+	"wx/dfb/app.h"
+	"wx/gtk/app.h"
+	"wx/gtk1/app.h"
+	"wx/x11/app.h"
+	"wx/mac/app.h"
+	"wx/cocoa/app.h"
+	"wx/os2/app.h"
+	"wx/univ/theme.h"
+
+1250033142 /usr/include/wx-2.8/wx/build.h
+	"wx/version.h"
+
+1250033142 /usr/include/wx-2.8/wx/init.h
+	"wx/defs.h"
+	"wx/wxchar.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/app.h
+
+1250033142 /usr/include/wx-2.8/wx/stream.h
+	"wx/defs.h"
+	<stdio.h>
+	"wx/object.h"
+	"wx/string.h"
+	"wx/filefn.h"
+
+1250033142 /usr/include/wx-2.8/wx/stopwatch.h
+	"wx/defs.h"
+	"wx/longlong.h"
+
+1250033142 /usr/include/wx-2.8/wx/module.h
+	"wx/object.h"
+	"wx/list.h"
+	"wx/dynarray.h"
+
+1250033143 /usr/include/wx-2.8/wx/window.h
+	"wx/event.h"
+	"wx/list.h"
+	"wx/cursor.h"
+	"wx/font.h"
+	"wx/colour.h"
+	"wx/region.h"
+	"wx/utils.h"
+	"wx/intl.h"
+	"wx/validate.h"
+	"wx/palette.h"
+	"wx/accel.h"
+	"wx/access.h"
+	"wx/palmos/window.h"
+	"wx/msw/window.h"
+	"wx/motif/window.h"
+	"wx/gtk/window.h"
+	"wx/gtk1/window.h"
+	"wx/x11/window.h"
+	"wx/mgl/window.h"
+	"wx/dfb/window.h"
+	"wx/mac/window.h"
+	"wx/cocoa/window.h"
+	"wx/os2/window.h"
+	"wx/univ/window.h"
+
+1250033143 /usr/include/wx-2.8/wx/font.h
+	"wx/defs.h"
+	"wx/fontenc.h"
+	"wx/gdiobj.h"
+	"wx/palmos/font.h"
+	"wx/msw/font.h"
+	"wx/motif/font.h"
+	"wx/gtk/font.h"
+	"wx/gtk1/font.h"
+	"wx/x11/font.h"
+	"wx/mgl/font.h"
+	"wx/dfb/font.h"
+	"wx/mac/font.h"
+	"wx/cocoa/font.h"
+	"wx/os2/font.h"
+
+1250033143 /usr/include/wx-2.8/wx/gdiobj.h
+	"wx/object.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/font.h
+
+1250033143 /usr/include/wx-2.8/wx/colour.h
+	"wx/defs.h"
+	"wx/gdiobj.h"
+	"wx/variant.h"
+	"wx/generic/colour.h"
+	"wx/msw/colour.h"
+	"wx/motif/colour.h"
+	"wx/gtk/colour.h"
+	"wx/gtk1/colour.h"
+	"wx/generic/colour.h"
+	"wx/generic/colour.h"
+	"wx/x11/colour.h"
+	"wx/mac/colour.h"
+	"wx/cocoa/colour.h"
+	"wx/os2/colour.h"
+
+1250033142 /usr/include/wx-2.8/wx/variant.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+	"wx/arrstr.h"
+	"wx/list.h"
+	"wx/cpp.h"
+	"wx/datetime.h"
+	"wx/db.h"
+	"wx/iosfwrap.h"
+
+1250033142 /usr/include/wx-2.8/wx/datetime.h
+	"wx/defs.h"
+	<time.h>
+	"wx/msw/wince/time.h"
+	<limits.h>
+	"wx/longlong.h"
+	"wx/dynarray.h"
+
+1250033143 /usr/include/wx-2.8/wx/db.h
+	"wx/defs.h"
+	"wx/string.h"
+	<afxwin.h>
+	"wx/msw/wrapwin.h"
+	"sql.h"
+	"sqlext.h"
+	"odbcinst.h"
+	"wx/msw/wrapwin.h"
+	"wx/isql.h"
+	"wx/isqlext.h"
+	<sql.h>
+	<sqlext.h>
+	<sql.h>
+	<sqlext.h>
+	"wx/object.h"
+
+1250033142 /usr/include/wx-2.8/wx/isql.h
+
+1250033142 /usr/include/wx-2.8/wx/isqlext.h
+	"wx/isql.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/colour.h
+
+1250033143 /usr/include/wx-2.8/wx/region.h
+	"wx/gdiobj.h"
+	"wx/gdicmn.h"
+	"wx/palmos/region.h"
+	"wx/msw/region.h"
+	"wx/gtk/region.h"
+	"wx/gtk1/region.h"
+	"wx/x11/region.h"
+	"wx/mgl/region.h"
+	"wx/dfb/region.h"
+	"wx/mac/region.h"
+	"wx/cocoa/region.h"
+	"wx/os2/region.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/region.h
+
+1250033143 /usr/include/wx-2.8/wx/validate.h
+	"wx/defs.h"
+	"wx/event.h"
+
+1250033143 /usr/include/wx-2.8/wx/palette.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/gdiobj.h"
+	"wx/palmos/palette.h"
+	"wx/msw/palette.h"
+	"wx/motif/palette.h"
+	"wx/generic/paletteg.h"
+	"wx/x11/palette.h"
+	"wx/mgl/palette.h"
+	"wx/mac/palette.h"
+	"wx/os2/palette.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/paletteg.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/gdiobj.h"
+	"wx/gdicmn.h"
+
+1250033143 /usr/include/wx-2.8/wx/accel.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/generic/accel.h"
+	"wx/msw/accel.h"
+	"wx/motif/accel.h"
+	"wx/gtk/accel.h"
+	"wx/gtk1/accel.h"
+	"wx/mac/accel.h"
+	"wx/generic/accel.h"
+	"wx/os2/accel.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/accel.h
+
+1250033143 /usr/include/wx-2.8/wx/gtk/accel.h
+	"wx/generic/accel.h"
+
+1250033143 /usr/include/wx-2.8/wx/access.h
+	"wx/defs.h"
+	"wx/variant.h"
+	"wx/msw/ole/access.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/window.h
+	"wx/dynarray.h"
+
+1250033142 /usr/include/wx-2.8/wx/containr.h
+
+1250033143 /usr/include/wx-2.8/wx/panel.h
+	"wx/generic/panelg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/panelg.h
+	"wx/window.h"
+	"wx/containr.h"
+
+1250033143 /usr/include/wx-2.8/wx/toplevel.h
+	"wx/window.h"
+	"wx/iconbndl.h"
+	"wx/palmos/toplevel.h"
+	"wx/msw/toplevel.h"
+	"wx/gtk/toplevel.h"
+	"wx/gtk1/toplevel.h"
+	"wx/x11/toplevel.h"
+	"wx/mgl/toplevel.h"
+	"wx/dfb/toplevel.h"
+	"wx/mac/toplevel.h"
+	"wx/cocoa/toplevel.h"
+	"wx/os2/toplevel.h"
+	"wx/motif/toplevel.h"
+	"wx/univ/toplevel.h"
+
+1250033143 /usr/include/wx-2.8/wx/iconbndl.h
+	"wx/dynarray.h"
+	"wx/gdicmn.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/toplevel.h
+
+1250033143 /usr/include/wx-2.8/wx/frame.h
+	"wx/toplevel.h"
+	"wx/univ/frame.h"
+	"wx/palmos/frame.h"
+	"wx/msw/frame.h"
+	"wx/gtk/frame.h"
+	"wx/gtk1/frame.h"
+	"wx/motif/frame.h"
+	"wx/mac/frame.h"
+	"wx/cocoa/frame.h"
+	"wx/os2/frame.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/frame.h
+
+1250033143 /usr/include/wx-2.8/wx/bitmap.h
+	"wx/string.h"
+	"wx/gdicmn.h"
+	"wx/colour.h"
+	"wx/variant.h"
+	"wx/palmos/bitmap.h"
+	"wx/msw/bitmap.h"
+	"wx/x11/bitmap.h"
+	"wx/gtk/bitmap.h"
+	"wx/gtk1/bitmap.h"
+	"wx/x11/bitmap.h"
+	"wx/mgl/bitmap.h"
+	"wx/dfb/bitmap.h"
+	"wx/mac/bitmap.h"
+	"wx/cocoa/bitmap.h"
+	"wx/os2/bitmap.h"
+	"wx/generic/mask.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/bitmap.h
+
+1250033143 /usr/include/wx-2.8/wx/image.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+	"wx/gdicmn.h"
+	"wx/hashmap.h"
+	"wx/stream.h"
+	"wx/variant.h"
+	"wx/imagbmp.h"
+	"wx/imagpng.h"
+	"wx/imaggif.h"
+	"wx/imagpcx.h"
+	"wx/imagjpeg.h"
+	"wx/imagtga.h"
+	"wx/imagtiff.h"
+	"wx/imagpnm.h"
+	"wx/imagxpm.h"
+	"wx/imagiff.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagbmp.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagpng.h
+	"wx/defs.h"
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imaggif.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagpcx.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagjpeg.h
+	"wx/defs.h"
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagtga.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagtiff.h
+	"wx/defs.h"
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagpnm.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagxpm.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/imagiff.h
+	"wx/image.h"
+
+1250033143 /usr/include/wx-2.8/wx/dc.h
+	"wx/object.h"
+	"wx/intl.h"
+	"wx/cursor.h"
+	"wx/font.h"
+	"wx/colour.h"
+	"wx/bitmap.h"
+	"wx/brush.h"
+	"wx/pen.h"
+	"wx/palette.h"
+	"wx/list.h"
+	"wx/dynarray.h"
+	"wx/math.h"
+	"wx/palmos/dc.h"
+	"wx/msw/dc.h"
+	"wx/motif/dc.h"
+	"wx/gtk/dc.h"
+	"wx/gtk1/dc.h"
+	"wx/x11/dc.h"
+	"wx/mgl/dc.h"
+	"wx/dfb/dc.h"
+	"wx/mac/dc.h"
+	"wx/cocoa/dc.h"
+	"wx/os2/dc.h"
+	"wx/dcgraph.h"
+
+1250033143 /usr/include/wx-2.8/wx/brush.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/gdiobj.h"
+	"wx/palmos/brush.h"
+	"wx/msw/brush.h"
+	"wx/x11/brush.h"
+	"wx/gtk/brush.h"
+	"wx/gtk1/brush.h"
+	"wx/mgl/brush.h"
+	"wx/dfb/brush.h"
+	"wx/mac/brush.h"
+	"wx/cocoa/brush.h"
+	"wx/os2/brush.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/brush.h
+
+1250033143 /usr/include/wx-2.8/wx/pen.h
+	"wx/defs.h"
+	"wx/palmos/pen.h"
+	"wx/msw/pen.h"
+	"wx/x11/pen.h"
+	"wx/gtk/pen.h"
+	"wx/gtk1/pen.h"
+	"wx/mgl/pen.h"
+	"wx/dfb/pen.h"
+	"wx/mac/pen.h"
+	"wx/cocoa/pen.h"
+	"wx/os2/pen.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/pen.h
+	"wx/gdiobj.h"
+	"wx/gdicmn.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dc.h
+
+1250033143 /usr/include/wx-2.8/wx/dcgraph.h
+	"wx/geometry.h"
+	"wx/dynarray.h"
+	"wx/graphics.h"
+
+1250033143 /usr/include/wx-2.8/wx/geometry.h
+	"wx/defs.h"
+	"wx/utils.h"
+	"wx/gdicmn.h"
+	"wx/math.h"
+
+1250033143 /usr/include/wx-2.8/wx/graphics.h
+	"wx/defs.h"
+	"wx/geometry.h"
+	"wx/dynarray.h"
+
+1250033143 /usr/include/wx-2.8/wx/dcclient.h
+	"wx/defs.h"
+	"wx/palmos/dcclient.h"
+	"wx/msw/dcclient.h"
+	"wx/motif/dcclient.h"
+	"wx/gtk/dcclient.h"
+	"wx/gtk1/dcclient.h"
+	"wx/x11/dcclient.h"
+	"wx/mgl/dcclient.h"
+	"wx/dfb/dcclient.h"
+	"wx/mac/dcclient.h"
+	"wx/cocoa/dcclient.h"
+	"wx/os2/dcclient.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dcclient.h
+	"wx/dc.h"
+	"wx/region.h"
+
+1250033143 /usr/include/wx-2.8/wx/dcmemory.h
+	"wx/bitmap.h"
+	"wx/palmos/dcmemory.h"
+	"wx/msw/dcmemory.h"
+	"wx/motif/dcmemory.h"
+	"wx/gtk/dcmemory.h"
+	"wx/gtk1/dcmemory.h"
+	"wx/x11/dcmemory.h"
+	"wx/mgl/dcmemory.h"
+	"wx/dfb/dcmemory.h"
+	"wx/mac/dcmemory.h"
+	"wx/cocoa/dcmemory.h"
+	"wx/os2/dcmemory.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dcmemory.h
+	"wx/dcclient.h"
+
+1250033143 /usr/include/wx-2.8/wx/dcprint.h
+	"wx/defs.h"
+	"wx/palmos/dcprint.h"
+	"wx/msw/dcprint.h"
+	"wx/os2/dcprint.h"
+	"wx/mac/dcprint.h"
+
+1250033143 /usr/include/wx-2.8/wx/dcscreen.h
+	"wx/defs.h"
+	"wx/palmos/dcscreen.h"
+	"wx/msw/dcscreen.h"
+	"wx/motif/dcscreen.h"
+	"wx/gtk/dcscreen.h"
+	"wx/gtk1/dcscreen.h"
+	"wx/x11/dcscreen.h"
+	"wx/mgl/dcscreen.h"
+	"wx/dfb/dcscreen.h"
+	"wx/mac/dcscreen.h"
+	"wx/cocoa/dcscreen.h"
+	"wx/os2/dcscreen.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dcscreen.h
+	"wx/dcclient.h"
+
+1250033143 /usr/include/wx-2.8/wx/button.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/button.h"
+	"wx/msw/button.h"
+	"wx/motif/button.h"
+	"wx/gtk/button.h"
+	"wx/gtk1/button.h"
+	"wx/mac/button.h"
+	"wx/cocoa/button.h"
+	"wx/os2/button.h"
+	"wx/palmos/button.h"
+
+1250033143 /usr/include/wx-2.8/wx/control.h
+	"wx/defs.h"
+	"wx/window.h"
+	"wx/univ/control.h"
+	"wx/palmos/control.h"
+	"wx/msw/control.h"
+	"wx/motif/control.h"
+	"wx/gtk/control.h"
+	"wx/gtk1/control.h"
+	"wx/mac/control.h"
+	"wx/cocoa/control.h"
+	"wx/os2/control.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/control.h
+
+1250033143 /usr/include/wx-2.8/wx/gtk/button.h
+
+1250033143 /usr/include/wx-2.8/wx/menuitem.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/univ/menuitem.h"
+	"wx/palmos/menuitem.h"
+	"wx/msw/menuitem.h"
+	"wx/motif/menuitem.h"
+	"wx/gtk/menuitem.h"
+	"wx/gtk1/menuitem.h"
+	"wx/mac/menuitem.h"
+	"wx/cocoa/menuitem.h"
+	"wx/os2/menuitem.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/menuitem.h
+	"wx/bitmap.h"
+
+1250033143 /usr/include/wx-2.8/wx/menu.h
+	"wx/defs.h"
+	"wx/list.h"
+	"wx/window.h"
+	"wx/menuitem.h"
+	"wx/univ/menu.h"
+	"wx/palmos/menu.h"
+	"wx/msw/menu.h"
+	"wx/motif/menu.h"
+	"wx/gtk/menu.h"
+	"wx/gtk1/menu.h"
+	"wx/mac/menu.h"
+	"wx/cocoa/menu.h"
+	"wx/os2/menu.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/menu.h
+
+1250033143 /usr/include/wx-2.8/wx/icon.h
+	"wx/iconloc.h"
+	"wx/generic/icon.h"
+	"wx/msw/icon.h"
+	"wx/motif/icon.h"
+	"wx/generic/icon.h"
+	"wx/generic/icon.h"
+	"wx/generic/icon.h"
+	"wx/generic/icon.h"
+	"wx/generic/icon.h"
+	"wx/mac/icon.h"
+	"wx/cocoa/icon.h"
+	"wx/os2/icon.h"
+	"wx/variant.h"
+
+1250033142 /usr/include/wx-2.8/wx/iconloc.h
+	"wx/string.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/icon.h
+	"wx/bitmap.h"
+
+1250033143 /usr/include/wx-2.8/wx/dialog.h
+	"wx/defs.h"
+	"wx/containr.h"
+	"wx/toplevel.h"
+	"wx/univ/dialog.h"
+	"wx/palmos/dialog.h"
+	"wx/msw/dialog.h"
+	"wx/motif/dialog.h"
+	"wx/gtk/dialog.h"
+	"wx/gtk1/dialog.h"
+	"wx/mac/dialog.h"
+	"wx/cocoa/dialog.h"
+	"wx/os2/dialog.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dialog.h
+	"wx/defs.h"
+
+1250033142 /usr/include/wx-2.8/wx/timer.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/longlong.h"
+	"wx/event.h"
+	"wx/stopwatch.h"
+	"wx/window.h"
+	"wx/msw/timer.h"
+	"wx/motif/timer.h"
+	"wx/gtk/timer.h"
+	"wx/gtk1/timer.h"
+	"wx/generic/timer.h"
+	"wx/cocoa/timer.h"
+	"wx/mac/timer.h"
+	"wx/os2/timer.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/timer.h
+
+1250033143 /usr/include/wx-2.8/wx/generic/timer.h
+
+1250033143 /usr/include/wx-2.8/wx/settings.h
+	"wx/colour.h"
+	"wx/font.h"
+
+1250033143 /usr/include/wx-2.8/wx/msgdlg.h
+	"wx/defs.h"
+	"wx/generic/msgdlgg.h"
+	"wx/generic/msgdlgg.h"
+	"wx/palmos/msgdlg.h"
+	"wx/msw/msgdlg.h"
+	"wx/motif/msgdlg.h"
+	"wx/gtk/msgdlg.h"
+	"wx/generic/msgdlgg.h"
+	"wx/generic/msgdlgg.h"
+	"wx/mac/msgdlg.h"
+	"wx/cocoa/msgdlg.h"
+	"wx/os2/msgdlg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/msgdlgg.h
+	"wx/defs.h"
+	"wx/dialog.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/msgdlg.h
+	"wx/defs.h"
+	"wx/dialog.h"
+
+1250033143 /usr/include/wx-2.8/wx/cmndata.h
+	"wx/window.h"
+	"wx/font.h"
+	"wx/encinfo.h"
+	"wx/colour.h"
+	"wx/gdicmn.h"
+	"wx/stream.h"
+
+1250033143 /usr/include/wx-2.8/wx/encinfo.h
+	"wx/string.h"
+
+1250033143 /usr/include/wx-2.8/wx/dataobj.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/bitmap.h"
+	"wx/list.h"
+	"wx/arrstr.h"
+	"wx/msw/ole/dataform.h"
+	"wx/motif/dataform.h"
+	"wx/gtk/dataform.h"
+	"wx/gtk1/dataform.h"
+	"wx/x11/dataform.h"
+	"wx/mac/dataform.h"
+	"wx/cocoa/dataform.h"
+	"wx/os2/dataform.h"
+	"wx/msw/ole/dataobj.h"
+	"wx/motif/dataobj.h"
+	"wx/x11/dataobj.h"
+	"wx/gtk/dataobj.h"
+	"wx/gtk1/dataobj.h"
+	"wx/mac/dataobj.h"
+	"wx/cocoa/dataobj.h"
+	"wx/os2/dataobj.h"
+	"wx/msw/ole/dataobj2.h"
+	"wx/gtk/dataobj2.h"
+	"wx/gtk1/dataobj2.h"
+	"wx/x11/dataobj2.h"
+	"wx/motif/dataobj2.h"
+	"wx/mac/dataobj2.h"
+	"wx/cocoa/dataobj2.h"
+	"wx/os2/dataobj2.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dataform.h
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dataobj.h
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dataobj2.h
+
+1250033143 /usr/include/wx-2.8/wx/ctrlsub.h
+	"wx/defs.h"
+	"wx/control.h"
+
+1250033143 /usr/include/wx-2.8/wx/bmpbuttn.h
+	"wx/defs.h"
+	"wx/bitmap.h"
+	"wx/button.h"
+	"wx/univ/bmpbuttn.h"
+	"wx/msw/bmpbuttn.h"
+	"wx/motif/bmpbuttn.h"
+	"wx/gtk/bmpbuttn.h"
+	"wx/gtk1/bmpbuttn.h"
+	"wx/mac/bmpbuttn.h"
+	"wx/cocoa/bmpbuttn.h"
+	"wx/os2/bmpbuttn.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/bmpbuttn.h
+
+1250033143 /usr/include/wx-2.8/wx/checkbox.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/checkbox.h"
+	"wx/msw/checkbox.h"
+	"wx/motif/checkbox.h"
+	"wx/gtk/checkbox.h"
+	"wx/gtk1/checkbox.h"
+	"wx/mac/checkbox.h"
+	"wx/cocoa/checkbox.h"
+	"wx/os2/checkbox.h"
+	"wx/palmos/checkbox.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/checkbox.h
+
+1250033143 /usr/include/wx-2.8/wx/checklst.h
+	"wx/listbox.h"
+	"wx/univ/checklst.h"
+	"wx/msw/wince/checklst.h"
+	"wx/msw/checklst.h"
+	"wx/motif/checklst.h"
+	"wx/gtk/checklst.h"
+	"wx/gtk1/checklst.h"
+	"wx/mac/checklst.h"
+	"wx/cocoa/checklst.h"
+	"wx/os2/checklst.h"
+
+1250033143 /usr/include/wx-2.8/wx/listbox.h
+	"wx/defs.h"
+	"wx/ctrlsub.h"
+	"wx/univ/listbox.h"
+	"wx/msw/listbox.h"
+	"wx/motif/listbox.h"
+	"wx/gtk/listbox.h"
+	"wx/gtk1/listbox.h"
+	"wx/mac/listbox.h"
+	"wx/os2/listbox.h"
+	"wx/cocoa/listbox.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/listbox.h
+
+1250033143 /usr/include/wx-2.8/wx/gtk/checklst.h
+
+1250033143 /usr/include/wx-2.8/wx/choice.h
+	"wx/defs.h"
+	"wx/ctrlsub.h"
+	"wx/univ/choice.h"
+	"wx/msw/wince/choicece.h"
+	"wx/msw/choice.h"
+	"wx/motif/choice.h"
+	"wx/gtk/choice.h"
+	"wx/gtk1/choice.h"
+	"wx/mac/choice.h"
+	"wx/cocoa/choice.h"
+	"wx/os2/choice.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/choice.h
+
+1250033143 /usr/include/wx-2.8/wx/scrolbar.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/scrolbar.h"
+	"wx/msw/scrolbar.h"
+	"wx/motif/scrolbar.h"
+	"wx/gtk/scrolbar.h"
+	"wx/gtk1/scrolbar.h"
+	"wx/mac/scrolbar.h"
+	"wx/cocoa/scrolbar.h"
+	"wx/os2/scrolbar.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/scrolbar.h
+	"wx/defs.h"
+
+1250033143 /usr/include/wx-2.8/wx/stattext.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/stattext.h"
+	"wx/msw/stattext.h"
+	"wx/motif/stattext.h"
+	"wx/gtk/stattext.h"
+	"wx/gtk1/stattext.h"
+	"wx/mac/stattext.h"
+	"wx/cocoa/stattext.h"
+	"wx/os2/stattext.h"
+	"wx/palmos/stattext.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/stattext.h
+
+1250033143 /usr/include/wx-2.8/wx/statbmp.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/bitmap.h"
+	"wx/icon.h"
+	"wx/univ/statbmp.h"
+	"wx/msw/statbmp.h"
+	"wx/motif/statbmp.h"
+	"wx/gtk/statbmp.h"
+	"wx/gtk1/statbmp.h"
+	"wx/mac/statbmp.h"
+	"wx/cocoa/statbmp.h"
+	"wx/os2/statbmp.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/statbmp.h
+	"wx/icon.h"
+
+1250033143 /usr/include/wx-2.8/wx/statbox.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/statbox.h"
+	"wx/msw/statbox.h"
+	"wx/motif/statbox.h"
+	"wx/gtk/statbox.h"
+	"wx/gtk1/statbox.h"
+	"wx/mac/statbox.h"
+	"wx/cocoa/statbox.h"
+	"wx/os2/statbox.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/statbox.h
+
+1250033143 /usr/include/wx-2.8/wx/radiobox.h
+	"wx/ctrlsub.h"
+	"wx/dynarray.h"
+	"wx/univ/radiobox.h"
+	"wx/msw/radiobox.h"
+	"wx/motif/radiobox.h"
+	"wx/gtk/radiobox.h"
+	"wx/gtk1/radiobox.h"
+	"wx/mac/radiobox.h"
+	"wx/cocoa/radiobox.h"
+	"wx/os2/radiobox.h"
+	"wx/palmos/radiobox.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/radiobox.h
+	"wx/bitmap.h"
+	"wx/list.h"
+
+1250033143 /usr/include/wx-2.8/wx/radiobut.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/radiobut.h"
+	"wx/msw/radiobut.h"
+	"wx/motif/radiobut.h"
+	"wx/gtk/radiobut.h"
+	"wx/gtk1/radiobut.h"
+	"wx/mac/radiobut.h"
+	"wx/cocoa/radiobut.h"
+	"wx/os2/radiobut.h"
+	"wx/palmos/radiobut.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/radiobut.h
+
+1250033143 /usr/include/wx-2.8/wx/textctrl.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/dynarray.h"
+	"wx/gdicmn.h"
+	"wx/ioswrap.h"
+	"wx/x11/textctrl.h"
+	"wx/univ/textctrl.h"
+	"wx/msw/wince/textctrlce.h"
+	"wx/msw/textctrl.h"
+	"wx/motif/textctrl.h"
+	"wx/gtk/textctrl.h"
+	"wx/gtk1/textctrl.h"
+	"wx/mac/textctrl.h"
+	"wx/cocoa/textctrl.h"
+	"wx/os2/textctrl.h"
+
+1250033142 /usr/include/wx-2.8/wx/ioswrap.h
+	<iostream.h>
+	<iostream>
+	"wx/msw/winundef.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/textctrl.h
+
+1250033143 /usr/include/wx-2.8/wx/slider.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/slider.h"
+	"wx/msw/slider95.h"
+	"wx/motif/slider.h"
+	"wx/gtk/slider.h"
+	"wx/gtk1/slider.h"
+	"wx/mac/slider.h"
+	"wx/cocoa/slider.h"
+	"wx/os2/slider.h"
+	"wx/palmos/slider.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/slider.h
+
+1250033143 /usr/include/wx-2.8/wx/gauge.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/gauge.h"
+	"wx/msw/gauge95.h"
+	"wx/motif/gauge.h"
+	"wx/gtk/gauge.h"
+	"wx/gtk1/gauge.h"
+	"wx/mac/gauge.h"
+	"wx/cocoa/gauge.h"
+	"wx/os2/gauge.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/gauge.h
+
+1250033143 /usr/include/wx-2.8/wx/scrolwin.h
+	"wx/panel.h"
+	"wx/gtk/scrolwin.h"
+	"wx/gtk1/scrolwin.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/scrolwin.h
+
+1250033143 /usr/include/wx-2.8/wx/dirdlg.h
+	"wx/dialog.h"
+	"wx/generic/dirdlgg.h"
+	"wx/generic/dirdlgg.h"
+	"wx/generic/dirdlgg.h"
+	"wx/msw/dirdlg.h"
+	"wx/gtk/dirdlg.h"
+	"wx/generic/dirdlgg.h"
+	"wx/mac/dirdlg.h"
+	"wx/cocoa/dirdlg.h"
+	"wx/generic/dirdlgg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/dirdlgg.h
+	"wx/dialog.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/dirdlg.h
+	"wx/generic/dirdlgg.h"
+
+1250033143 /usr/include/wx-2.8/wx/toolbar.h
+	"wx/defs.h"
+	"wx/tbarbase.h"
+	"wx/univ/toolbar.h"
+	"wx/palmos/toolbar.h"
+	"wx/msw/tbar95.h"
+	"wx/msw/wince/tbarwce.h"
+	"wx/motif/toolbar.h"
+	"wx/gtk/tbargtk.h"
+	"wx/gtk1/tbargtk.h"
+	"wx/mac/toolbar.h"
+	"wx/cocoa/toolbar.h"
+	"wx/os2/toolbar.h"
+
+1250033143 /usr/include/wx-2.8/wx/tbarbase.h
+	"wx/defs.h"
+	"wx/bitmap.h"
+	"wx/list.h"
+	"wx/control.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/tbargtk.h
+
+1250033143 /usr/include/wx-2.8/wx/combobox.h
+	"wx/defs.h"
+	"wx/textctrl.h"
+	"wx/ctrlsub.h"
+	"wx/univ/combobox.h"
+	"wx/msw/combobox.h"
+	"wx/motif/combobox.h"
+	"wx/gtk/combobox.h"
+	"wx/gtk1/combobox.h"
+	"wx/mac/combobox.h"
+	"wx/cocoa/combobox.h"
+	"wx/os2/combobox.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/combobox.h
+
+1250033143 /usr/include/wx-2.8/wx/layout.h
+	"wx/object.h"
+
+1250033143 /usr/include/wx-2.8/wx/sizer.h
+	"wx/defs.h"
+	"wx/window.h"
+
+1250033143 /usr/include/wx-2.8/wx/mdi.h
+	"wx/defs.h"
+	"wx/generic/mdig.h"
+	"wx/msw/mdi.h"
+	"wx/motif/mdi.h"
+	"wx/gtk/mdi.h"
+	"wx/gtk1/mdi.h"
+	"wx/mac/mdi.h"
+	"wx/cocoa/mdi.h"
+	"wx/generic/mdig.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/mdi.h
+	"wx/frame.h"
+
+1250033143 /usr/include/wx-2.8/wx/statusbr.h
+	"wx/defs.h"
+	"wx/window.h"
+	"wx/list.h"
+	"wx/dynarray.h"
+	"wx/univ/statusbr.h"
+	"wx/palmos/statusbr.h"
+	"wx/msw/statbr95.h"
+	"wx/generic/statusbr.h"
+	"wx/mac/statusbr.h"
+	"wx/generic/statusbr.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/statusbr.h
+	"wx/defs.h"
+	"wx/pen.h"
+	"wx/arrstr.h"
+
+1250033143 /usr/include/wx-2.8/wx/choicdlg.h
+	"wx/generic/choicdgg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/choicdgg.h
+	"wx/dynarray.h"
+	"wx/dialog.h"
+
+1250033143 /usr/include/wx-2.8/wx/textdlg.h
+	"wx/generic/textdlgg.h"
+	"wx/numdlg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/textdlgg.h
+	"wx/defs.h"
+	"wx/dialog.h"
+	"wx/valtext.h"
+
+1250033143 /usr/include/wx-2.8/wx/valtext.h
+	"wx/defs.h"
+	"wx/textctrl.h"
+	"wx/validate.h"
+
+1250033143 /usr/include/wx-2.8/wx/numdlg.h
+	"wx/defs.h"
+	"wx/generic/numdlgg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/numdlgg.h
+	"wx/defs.h"
+	"wx/dialog.h"
+
+1250033143 /usr/include/wx-2.8/wx/filedlg.h
+	"wx/defs.h"
+	"wx/dialog.h"
+	"wx/arrstr.h"
+	"wx/generic/filedlgg.h"
+	"wx/msw/filedlg.h"
+	"wx/motif/filedlg.h"
+	"wx/gtk/filedlg.h"
+	"wx/generic/filedlgg.h"
+	"wx/gtk1/filedlg.h"
+	"wx/mac/filedlg.h"
+	"wx/cocoa/filedlg.h"
+	"wx/os2/filedlg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/filedlgg.h
+	"wx/listctrl.h"
+	"wx/datetime.h"
+	"wx/filefn.h"
+	"wx/filedlg.h"
+
+1250033143 /usr/include/wx-2.8/wx/listctrl.h
+	"wx/defs.h"
+	"wx/listbase.h"
+	"wx/msw/listctrl.h"
+	"wx/mac/carbon/listctrl.h"
+	"wx/generic/listctrl.h"
+
+1250033143 /usr/include/wx-2.8/wx/listbase.h
+	"wx/colour.h"
+	"wx/font.h"
+	"wx/gdicmn.h"
+	"wx/event.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/listctrl.h
+	"wx/textctrl.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/filedlg.h
+	"wx/generic/filedlgg.h"
+
+1255632560 /home/user/projects/MyRuLib/WxSQLite3/wx/wxsqlite3.h
+	<wx/datetime.h>
+	<wx/buffer.h>
+	<wx/regex.h>
+	<wx/string.h>
+	"wx/wxsqlite3def.h"
+
+1250033142 /usr/include/wx-2.8/wx/regex.h
+	"wx/defs.h"
+	"wx/string.h"
+
+1255632560 /home/user/projects/MyRuLib/WxSQLite3/wx/wxsqlite3def.h
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbThread.h
+
+1255717189 /home/user/projects/MyRuLib/MyRuLib/polarssl/md5.h
+
+1260037586 /home/user/projects/MyRuLib/MyRuLib/FbBookEvent.h
+	<wx/wx.h>
+	<wx/wxsqlite3.h>
+	"FbBookData.h"
+
+1259786368 /home/user/projects/MyRuLib/MyRuLib/FbBookData.h
+	<wx/wx.h>
+	<wx/treectrl.h>
+	<wx/wxsqlite3.h>
+
+1250033143 /usr/include/wx-2.8/wx/treectrl.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/treebase.h"
+	"wx/textctrl.h"
+	"wx/generic/treectlg.h"
+	"wx/palmos/treectrl.h"
+	"wx/msw/treectrl.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+	"wx/generic/treectlg.h"
+
+1250033143 /usr/include/wx-2.8/wx/treebase.h
+	"wx/defs.h"
+	"wx/window.h"
+	"wx/event.h"
+	"wx/dynarray.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/treectlg.h
+	"wx/scrolwin.h"
+	"wx/pen.h"
+
+1260049362 /home/user/projects/MyRuLib/MyRuLib/FbConst.h
+	<wx/wx.h>
+
+1259088185 /home/user/projects/MyRuLib/MyRuLib/FbParams.h
+	<wx/wx.h>
+	<wx/arrimpl.cpp>
+	<wx/wxsqlite3.h>
+	"FbDatabase.h"
+
+1250033142 /usr/include/wx-2.8/wx/arrimpl.cpp
+
+1259867529 /home/user/projects/MyRuLib/MyRuLib/FbDatabase.h
+	<wx/wx.h>
+	<wx/wxsqlite3.h>
+
+1257617282 source:/home/user/projects/MyRuLib/MyRuLib/BookExtractInfo.cpp
+	"BookExtractInfo.h"
+
+1257617282 /home/user/projects/MyRuLib/MyRuLib/BookExtractInfo.h
+	<wx/wx.h>
+	<wx/filename.h>
+	<wx/arrimpl.cpp>
+	<wx/wxsqlite3.h>
+	"FbDatabase.h"
+
+1250033142 /usr/include/wx-2.8/wx/filename.h
+	"wx/arrstr.h"
+	"wx/filefn.h"
+	"wx/datetime.h"
+	"wx/intl.h"
+
+1259009621 source:/home/user/projects/MyRuLib/MyRuLib/ExpThread.cpp
+	"ExpThread.h"
+	"FbManager.h"
+	"ZipReader.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/ExpThread.h
+	<wx/wx.h>
+	<wx/thread.h>
+	<wx/arrimpl.cpp>
+	<wx/filename.h>
+	"BaseThread.h"
+
+1259387647 /home/user/projects/MyRuLib/MyRuLib/FbManager.h
+	<wx/wx.h>
+	<wx/listbox.h>
+	<wx/wxsqlite3.h>
+	"wx/treelistctrl.h"
+
+1258873795 /home/user/projects/MyRuLib/MyRuLib/wx/treelistctrl.h
+	<wx/treectrl.h>
+	<wx/control.h>
+	<wx/pen.h>
+	<wx/listctrl.h>
+
+1259480520 /home/user/projects/MyRuLib/MyRuLib/ZipReader.h
+	<wx/wx.h>
+	<wx/wfstream.h>
+	<wx/zipstrm.h>
+	<wx/arrimpl.cpp>
+	"FbDatabase.h"
+
+1250033142 /usr/include/wx-2.8/wx/wfstream.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+	"wx/stream.h"
+	"wx/file.h"
+	"wx/ffile.h"
+
+1250033142 /usr/include/wx-2.8/wx/file.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/filefn.h"
+	"wx/strconv.h"
+
+1250033142 /usr/include/wx-2.8/wx/ffile.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/filefn.h"
+	"wx/convauto.h"
+	<stdio.h>
+
+1250033142 /usr/include/wx-2.8/wx/convauto.h
+	"wx/strconv.h"
+
+1250033142 /usr/include/wx-2.8/wx/zipstrm.h
+	"wx/defs.h"
+	"wx/archive.h"
+	"wx/filename.h"
+
+1250033142 /usr/include/wx-2.8/wx/archive.h
+	"wx/defs.h"
+	"wx/stream.h"
+	"wx/filename.h"
+	<iterator>
+	<utility>
+
+1259867529 source:/home/user/projects/MyRuLib/MyRuLib/ExternalDlg.cpp
+	<wx/filename.h>
+	<wx/artprov.h>
+	<wx/arrimpl.cpp>
+	"ExternalDlg.h"
+	"FbParams.h"
+	"FbConst.h"
+
+1250033143 /usr/include/wx-2.8/wx/artprov.h
+	"wx/string.h"
+	"wx/bitmap.h"
+	"wx/icon.h"
+
+1259009622 /home/user/projects/MyRuLib/MyRuLib/ExternalDlg.h
+	<wx/wx.h>
+	<wx/intl.h>
+	<wx/string.h>
+	<wx/stattext.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/textctrl.h>
+	<wx/bitmap.h>
+	<wx/image.h>
+	<wx/icon.h>
+	<wx/bmpbuttn.h>
+	<wx/button.h>
+	<wx/sizer.h>
+	<wx/dialog.h>
+	"FbBookList.h"
+	"FbBookData.h"
+	"ExpThread.h"
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbWindow.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbBookList.h
+	<wx/wx.h>
+	"wx/treelistctrl.h"
+	<wx/arrimpl.cpp>
+	<wx/wxsqlite3.h>
+	"FbTreeListCtrl.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/FbTreeListCtrl.h
+	<wx/wx.h>
+	"wx/treelistctrl.h"
+	<wx/arrimpl.cpp>
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbWindow.h
+	<wx/wx.h>
+	<wx/dialog.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+
+1250033144 /usr/include/wx-2.8/wx/aui/tabmdi.h
+	"wx/frame.h"
+	"wx/panel.h"
+	"wx/notebook.h"
+	"wx/icon.h"
+	"wx/aui/auibook.h"
+
+1250033143 /usr/include/wx-2.8/wx/notebook.h
+	"wx/defs.h"
+	"wx/bookctrl.h"
+	"wx/univ/notebook.h"
+	"wx/msw/notebook.h"
+	"wx/generic/notebook.h"
+	"wx/gtk/notebook.h"
+	"wx/gtk1/notebook.h"
+	"wx/mac/notebook.h"
+	"wx/cocoa/notebook.h"
+	"wx/os2/notebook.h"
+
+1250033143 /usr/include/wx-2.8/wx/bookctrl.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/dynarray.h"
+	"wx/notebook.h"
+	"wx/choicebk.h"
+
+1250033143 /usr/include/wx-2.8/wx/choicebk.h
+	"wx/defs.h"
+	"wx/bookctrl.h"
+	"wx/choice.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/notebook.h
+	"wx/event.h"
+	"wx/control.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/notebook.h
+	"wx/list.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/auibook.h
+	"wx/defs.h"
+	"wx/aui/framemanager.h"
+	"wx/aui/dockart.h"
+	"wx/aui/floatpane.h"
+	"wx/control.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/framemanager.h
+	"wx/defs.h"
+	"wx/dynarray.h"
+	"wx/gdicmn.h"
+	"wx/window.h"
+	"wx/timer.h"
+	"wx/sizer.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/dockart.h
+	"wx/defs.h"
+	"wx/pen.h"
+	"wx/brush.h"
+	"wx/bitmap.h"
+	"wx/colour.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/floatpane.h
+	"wx/defs.h"
+	"wx/frame.h"
+	"wx/minifram.h"
+
+1250033143 /usr/include/wx-2.8/wx/minifram.h
+	"wx/defs.h"
+	"wx/palmos/minifram.h"
+	"wx/msw/minifram.h"
+	"wx/motif/minifram.h"
+	"wx/gtk/minifram.h"
+	"wx/gtk1/minifram.h"
+	"wx/x11/minifram.h"
+	"wx/mac/minifram.h"
+	"wx/os2/minifram.h"
+	"wx/frame.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/minifram.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/bitmap.h"
+	"wx/frame.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmlwin.h
+	"wx/defs.h"
+	"wx/window.h"
+	"wx/scrolwin.h"
+	"wx/config.h"
+	"wx/stopwatch.h"
+	"wx/html/winpars.h"
+	"wx/html/htmlcell.h"
+	"wx/filesys.h"
+	"wx/html/htmlfilt.h"
+	"wx/filename.h"
+	"wx/bitmap.h"
+
+1250033142 /usr/include/wx-2.8/wx/config.h
+	"wx/confbase.h"
+	"wx/msw/regconf.h"
+	"wx/msw/iniconf.h"
+	"wx/palmos/prefconf.h"
+	"wx/fileconf.h"
+
+1250033142 /usr/include/wx-2.8/wx/confbase.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/string.h"
+
+1250033142 /usr/include/wx-2.8/wx/fileconf.h
+	"wx/defs.h"
+	"wx/textfile.h"
+	"wx/string.h"
+	"wx/confbase.h"
+
+1250033142 /usr/include/wx-2.8/wx/textfile.h
+	"wx/defs.h"
+	"wx/textbuf.h"
+	"wx/file.h"
+
+1250033142 /usr/include/wx-2.8/wx/textbuf.h
+	"wx/defs.h"
+	"wx/arrstr.h"
+	"wx/convauto.h"
+	"wx/string.h"
+	"wx/dynarray.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/winpars.h
+	"wx/defs.h"
+	"wx/module.h"
+	"wx/font.h"
+	"wx/html/htmlpars.h"
+	"wx/html/htmlcell.h"
+	"wx/encconv.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmlpars.h
+	"wx/defs.h"
+	"wx/html/htmltag.h"
+	"wx/filesys.h"
+	"wx/hash.h"
+	"wx/fontenc.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmltag.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/arrstr.h"
+
+1250033142 /usr/include/wx-2.8/wx/filesys.h
+	"wx/defs.h"
+	"wx/stream.h"
+	"wx/datetime.h"
+	"wx/filename.h"
+	"wx/hashmap.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmlcell.h
+	"wx/defs.h"
+	"wx/html/htmltag.h"
+	"wx/html/htmldefs.h"
+	"wx/window.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmldefs.h
+	"wx/defs.h"
+
+1250033142 /usr/include/wx-2.8/wx/encconv.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/fontenc.h"
+	"wx/dynarray.h"
+
+1250033144 /usr/include/wx-2.8/wx/html/htmlfilt.h
+	"wx/defs.h"
+	"wx/filesys.h"
+
+1259082286 source:/home/user/projects/MyRuLib/MyRuLib/FbAboutDlg.cpp
+	"FbAboutDlg.h"
+	<wx/artprov.h>
+	"FbLogoBitmap.h"
+	"FbConst.h"
+	"MyRuLibApp.h"
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbAboutDlg.h
+	<wx/wx.h>
+	"FbWindow.h"
+
+1256932859 /home/user/projects/MyRuLib/MyRuLib/FbLogoBitmap.h
+	"res/nocheck.xpm"
+	"res/checked.xpm"
+	"res/checkout.xpm"
+	"res/home.xpm"
+	<wx/wx.h>
+
+1255717189 /home/user/projects/MyRuLib/MyRuLib/res/nocheck.xpm
+
+1255717189 /home/user/projects/MyRuLib/MyRuLib/res/checked.xpm
+
+1255717189 /home/user/projects/MyRuLib/MyRuLib/res/checkout.xpm
+
+1255717952 /home/user/projects/MyRuLib/MyRuLib/res/home.xpm
+
+1259082286 /home/user/projects/MyRuLib/MyRuLib/MyRuLibApp.h
+	<wx/wx.h>
+	<wx/thread.h>
+	<wx/filename.h>
+	"FbDatabase.h"
+
+1260049405 source:/home/user/projects/MyRuLib/MyRuLib/FbAuthorDlg.cpp
+	"FbAuthorDlg.h"
+	"FbConst.h"
+
+1259868118 /home/user/projects/MyRuLib/MyRuLib/FbAuthorDlg.h
+	"FbWindow.h"
+	"ImpContext.h"
+	"FbDatabase.h"
+
+1259867529 /home/user/projects/MyRuLib/MyRuLib/ImpContext.h
+	<wx/wx.h>
+	<wx/arrimpl.cpp>
+	<wx/thread.h>
+	"ParseCtx.h"
+	"FbDatabase.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/ParseCtx.h
+	<expat.h>
+	<wx/wx.h>
+
+1255717188 /home/user/projects/MyRuLib/Expat/expat.h
+	<stdlib.h>
+	"expat_external.h"
+
+1255717188 /home/user/projects/MyRuLib/Expat/expat_external.h
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbAuthorList.cpp
+	"FbAuthorList.h"
+	"FbClientData.h"
+	"ImpContext.h"
+	"FbManager.h"
+	"FbConst.h"
+	"FbAuthorDlg.h"
+	"FbBookEvent.h"
+	"FbReplaceDlg.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbAuthorList.h
+	<wx/wx.h>
+	<wx/listbox.h>
+	<wx/wxsqlite3.h>
+	"FbTreeListCtrl.h"
+	"FbUpdateThread.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/FbClientData.h
+	<wx/clntdata.h>
+
+1260050590 source:/home/user/projects/MyRuLib/MyRuLib/FbAuthorThread.cpp
+	"FbAuthorThread.h"
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbManager.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbAuthorThread.h
+	<wx/wx.h>
+	<wx/wxsqlite3.h>
+	"FbThread.h"
+	"FbBookEvent.h"
+
+1257604846 source:/home/user/projects/MyRuLib/MyRuLib/FbBookData.cpp
+	"FbBookData.h"
+
+1260037737 source:/home/user/projects/MyRuLib/MyRuLib/FbBookEvent.cpp
+	"FbBookEvent.h"
+	"MyRuLibApp.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbBookList.cpp
+	<wx/imaglist.h>
+	"FbBookList.h"
+	"FbConst.h"
+	"FbBookData.h"
+	"FbLogoBitmap.h"
+
+1250033143 /usr/include/wx-2.8/wx/imaglist.h
+	"wx/generic/imaglist.h"
+	"wx/msw/imaglist.h"
+	"wx/mac/imaglist.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/imaglist.h
+	"wx/defs.h"
+	"wx/list.h"
+	"wx/icon.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbBookMenu.cpp
+	"FbBookMenu.h"
+	"FbMenu.h"
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbBookEvent.h"
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbBookMenu.h
+	<wx/wx.h>
+	<wx/menu.h>
+	<wx/arrimpl.cpp>
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbMenu.h
+	<wx/wx.h>
+	<wx/artprov.h>
+
+1259872519 source:/home/user/projects/MyRuLib/MyRuLib/FbBookPanel.cpp
+	"FbBookPanel.h"
+	"FbConst.h"
+	"FbManager.h"
+	"FbFrameHtml.h"
+	"InfoCash.h"
+	"FbBookMenu.h"
+	"MyRuLibApp.h"
+	"FbDownloader.h"
+	"FbUpdateThread.h"
+	"FbEditBook.h"
+
+1259786368 /home/user/projects/MyRuLib/MyRuLib/FbBookPanel.h
+	<wx/wx.h>
+	<wx/splitter.h>
+	<wx/html/htmlwin.h>
+	"FbBookList.h"
+	"FbBookData.h"
+	"FbParams.h"
+
+1250033143 /usr/include/wx-2.8/wx/splitter.h
+	"wx/event.h"
+	"wx/generic/splitter.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/splitter.h
+	"wx/window.h"
+	"wx/containr.h"
+
+1259786368 /home/user/projects/MyRuLib/MyRuLib/FbFrameHtml.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/splitter.h>
+	<wx/html/htmlwin.h>
+	"FbBookData.h"
+	"FbWindow.h"
+
+1259260595 /home/user/projects/MyRuLib/MyRuLib/InfoCash.h
+	<wx/wx.h>
+	<wx/arrimpl.cpp>
+	<wx/thread.h>
+	<wx/html/htmlwin.h>
+	"FbConst.h"
+	"FbBookThread.h"
+
+1259082286 /home/user/projects/MyRuLib/MyRuLib/FbBookThread.h
+	<wx/wx.h>
+	<wx/thread.h>
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbDownloader.h
+	<wx/wx.h>
+	<wx/url.h>
+	<wx/sstream.h>
+
+1250033143 /usr/include/wx-2.8/wx/url.h
+	"wx/defs.h"
+	"wx/uri.h"
+	"wx/protocol/protocol.h"
+	"wx/protocol/http.h"
+
+1250033142 /usr/include/wx-2.8/wx/uri.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+
+1250033143 /usr/include/wx-2.8/wx/protocol/protocol.h
+	"wx/defs.h"
+	"wx/object.h"
+	"wx/string.h"
+	"wx/stream.h"
+	"wx/socket.h"
+
+1250033143 /usr/include/wx-2.8/wx/socket.h
+	"wx/defs.h"
+	"wx/event.h"
+	"wx/sckaddr.h"
+	"wx/gsocket.h"
+	"wx/list.h"
+
+1250033143 /usr/include/wx-2.8/wx/sckaddr.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/gsocket.h"
+	<sys/socket.h>
+	<sys/un.h>
+
+1250033142 /usr/include/wx-2.8/wx/gsocket.h
+	"wx/defs.h"
+	"wx/dlimpexp.h"
+	<stddef.h>
+	<sys/types.h>
+	<stdlib.h>
+	"wx/msw/gsockmsw.h"
+	"wx/mac/gsockmac.h"
+	"wx/unix/gsockunx.h"
+
+1250033143 /usr/include/wx-2.8/wx/unix/gsockunx.h
+	"wx/setup.h"
+	"wx/gsocket.h"
+	"gsocket.h"
+
+1250033142 /usr/include/wx-2.8/wx/protocol/http.h
+	"wx/defs.h"
+	"wx/hashmap.h"
+	"wx/protocol/protocol.h"
+
+1250033142 /usr/include/wx-2.8/wx/sstream.h
+	"wx/stream.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbUpdateThread.h
+	<wx/wx.h>
+	"FbThread.h"
+	"FbBookEvent.h"
+	"FbDatabase.h"
+
+1259786368 /home/user/projects/MyRuLib/MyRuLib/FbEditBook.h
+	"FbWindow.h"
+	<wx/sizer.h>
+
+1257604846 source:/home/user/projects/MyRuLib/MyRuLib/FbBookThread.cpp
+	"FbBookThread.h"
+	"InfoCash.h"
+
+1259786368 source:/home/user/projects/MyRuLib/MyRuLib/FbCalendar.cpp
+	"FbConst.h"
+	"FbCalendar.h"
+
+1259786368 /home/user/projects/MyRuLib/MyRuLib/FbCalendar.h
+	<wx/intl.h>
+	<wx/calctrl.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/string.h>
+	<wx/treectrl.h>
+	<wx/sizer.h>
+	<wx/panel.h>
+	"FbTreeListCtrl.h"
+
+1250033144 /usr/include/wx-2.8/wx/calctrl.h
+	"wx/defs.h"
+	"wx/dateevt.h"
+	"wx/colour.h"
+	"wx/font.h"
+	"wx/generic/calctrl.h"
+
+1250033144 /usr/include/wx-2.8/wx/dateevt.h
+	"wx/event.h"
+	"wx/datetime.h"
+	"wx/window.h"
+
+1250033144 /usr/include/wx-2.8/wx/generic/calctrl.h
+	"wx/control.h"
+	"wx/dcclient.h"
+
+1259009622 source:/home/user/projects/MyRuLib/MyRuLib/FbConfigDlg.cpp
+	<wx/artprov.h>
+	<wx/statline.h>
+	<wx/string.h>
+	<wx/stattext.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/textctrl.h>
+	<wx/bitmap.h>
+	<wx/image.h>
+	<wx/icon.h>
+	<wx/bmpbuttn.h>
+	<wx/button.h>
+	<wx/sizer.h>
+	<wx/checkbox.h>
+	<wx/textdlg.h>
+	"FbConfigDlg.h"
+	"FbParams.h"
+	"ZipReader.h"
+
+1250033143 /usr/include/wx-2.8/wx/statline.h
+	"wx/defs.h"
+	"wx/control.h"
+	"wx/univ/statline.h"
+	"wx/msw/statline.h"
+	"wx/gtk/statline.h"
+	"wx/gtk1/statline.h"
+	"wx/os2/statline.h"
+	"wx/mac/statline.h"
+	"wx/cocoa/statline.h"
+	"wx/generic/statline.h"
+
+1250033144 /usr/include/wx-2.8/wx/gtk/statline.h
+	"wx/defs.h"
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbConfigDlg.h
+	<wx/wx.h>
+	<wx/dialog.h>
+	<wx/listctrl.h>
+	<wx/arrimpl.cpp>
+	"FbDatabase.h"
+	"FbWindow.h"
+
+1260049346 source:/home/user/projects/MyRuLib/MyRuLib/FbConst.cpp
+	"FbConst.h"
+
+1259387184 source:/home/user/projects/MyRuLib/MyRuLib/FbDataOpenDlg.cpp
+	"FbDataOpenDlg.h"
+	<wx/artprov.h>
+	"FbLogoBitmap.h"
+	"FbConst.h"
+
+1259387184 /home/user/projects/MyRuLib/MyRuLib/FbDataOpenDlg.h
+	<wx/wx.h>
+	"FbWindow.h"
+
+1259082286 source:/home/user/projects/MyRuLib/MyRuLib/FbDataPath.cpp
+	"FbDataPath.h"
+	"MyRuLibApp.h"
+	"FbParams.h"
+
+1259082286 /home/user/projects/MyRuLib/MyRuLib/FbDataPath.h
+	<wx/wx.h>
+	<wx/filename.h>
+	<wx/stdpaths.h>
+
+1250033142 /usr/include/wx-2.8/wx/stdpaths.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/filefn.h"
+	"wx/msw/stdpaths.h"
+	"wx/mac/corefoundation/stdpaths.h"
+	"wx/os2/stdpaths.h"
+	"wx/unix/stdpaths.h"
+	"wx/palmos/stdpaths.h"
+
+1250033142 /usr/include/wx-2.8/wx/unix/stdpaths.h
+
+1260110922 source:/home/user/projects/MyRuLib/MyRuLib/FbDatabase.cpp
+	"FbDatabase.h"
+	"FbConst.h"
+	"MyRuLibApp.h"
+	"FbDataPath.h"
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbDownloader.cpp
+	"FbDownloader.h"
+	"MyRuLibApp.h"
+	"FbBookEvent.h"
+	"InfoCash.h"
+	"FbConst.h"
+	"FbParams.h"
+	"FbDatabase.h"
+	"BaseThread.h"
+	"polarssl/md5.h"
+	<wx/filename.h>
+	<wx/wfstream.h>
+	<wx/zipstrm.h>
+	"FbDataPath.h"
+
+1259786368 source:/home/user/projects/MyRuLib/MyRuLib/FbEditBook.cpp
+	"FbEditBook.h"
+	<wx/artprov.h>
+	<wx/string.h>
+	<wx/checkbox.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/textctrl.h>
+	<wx/stattext.h>
+	<wx/bitmap.h>
+	<wx/image.h>
+	<wx/icon.h>
+	<wx/statbmp.h>
+	<wx/button.h>
+	<wx/dialog.h>
+
+1260050243 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameAuthor.cpp
+	"FbFrameAuthor.h"
+	<wx/artprov.h>
+	<wx/splitter.h>
+	"FbConst.h"
+	"FbManager.h"
+	"InfoCash.h"
+	"FbClientData.h"
+	"ExternalDlg.h"
+	"FbMainMenu.h"
+	"FbWindow.h"
+	"FbAuthorThread.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameAuthor.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/listbox.h>
+	<wx/splitter.h>
+	<wx/html/htmlwin.h>
+	"FbFrameBase.h"
+	"FbAuthorList.h"
+	"FbManager.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameBase.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	"FbBookPanel.h"
+	"FbBookEvent.h"
+	"FbParams.h"
+	"FbWindow.h"
+	"FbThread.h"
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbFrameBaseThread.h
+	<wx/wx.h>
+	"FbThread.h"
+	"FbFrameBase.h"
+
+1259088740 /home/user/projects/MyRuLib/MyRuLib/FbMainMenu.h
+	<wx/wx.h>
+	"FbMenu.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameBase.cpp
+	"FbFrameBase.h"
+	"FbConst.h"
+	"FbMainMenu.h"
+	"ExternalDlg.h"
+	"FbMainFrame.h"
+	"InfoCash.h"
+
+1259957247 /home/user/projects/MyRuLib/MyRuLib/FbMainFrame.h
+	<wx/wx.h>
+	<wx/aui/aui.h>
+	<wx/toolbar.h>
+	<wx/textctrl.h>
+	"ProgressBar.h"
+	"LimitedTextCtrl.h"
+	"FbFrameAuthor.h"
+	"FbLogoBitmap.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/aui.h
+	"wx/aui/framemanager.h"
+	"wx/aui/dockart.h"
+	"wx/aui/floatpane.h"
+	"wx/aui/auibar.h"
+	"wx/aui/auibook.h"
+	"wx/aui/tabmdi.h"
+
+1250033144 /usr/include/wx-2.8/wx/aui/auibar.h
+	"wx/defs.h"
+	"wx/control.h"
+
+1259082286 /home/user/projects/MyRuLib/MyRuLib/ProgressBar.h
+	<wx/wx.h>
+	<wx/statusbr.h>
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/LimitedTextCtrl.h
+	<wx/textctrl.h>
+
+1259867529 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameBaseThread.cpp
+	"FbFrameBaseThread.h"
+	"FbConst.h"
+	"FbBookEvent.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameDate.cpp
+	"FbFrameDate.h"
+	<wx/artprov.h>
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbManager.h"
+	"FbMainMenu.h"
+	"FbCalendar.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameDate.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+	<wx/textctrl.h>
+	<wx/sizer.h>
+	<wx/splitter.h>
+	<wx/wxsqlite3.h>
+	"wx/treelistctrl.h"
+	"FbFrameBase.h"
+	"FbTreeListCtrl.h"
+	"FbBookEvent.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameDownld.cpp
+	"FbFrameDownld.h"
+	<wx/artprov.h>
+	"FbBookMenu.h"
+	"FbMainMenu.h"
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbManager.h"
+	"FbDownloader.h"
+	"FbUpdateThread.h"
+	"res/start.xpm"
+	"res/pause.xpm"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameDownld.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+	<wx/textctrl.h>
+	<wx/sizer.h>
+	<wx/splitter.h>
+	<wx/wxsqlite3.h>
+	"wx/treelistctrl.h"
+	"FbFrameBase.h"
+	"FbTreeListCtrl.h"
+	"FbBookEvent.h"
+
+1256327803 /home/user/projects/MyRuLib/MyRuLib/res/start.xpm
+
+1256327803 /home/user/projects/MyRuLib/MyRuLib/res/pause.xpm
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameFolder.cpp
+	"FbFrameFolder.h"
+	<wx/artprov.h>
+	"FbBookMenu.h"
+	"FbMainMenu.h"
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbManager.h"
+	"FbDownloader.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameFolder.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+	<wx/textctrl.h>
+	<wx/sizer.h>
+	<wx/splitter.h>
+	<wx/wxsqlite3.h>
+	"wx/treelistctrl.h"
+	"FbFrameBase.h"
+	"FbTreeListCtrl.h"
+	"FbBookEvent.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameGenres.cpp
+	"FbFrameGenres.h"
+	<wx/artprov.h>
+	"FbConst.h"
+	"FbDatabase.h"
+	"FbManager.h"
+	"FbGenres.h"
+	"FbMainMenu.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameGenres.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+	<wx/textctrl.h>
+	<wx/sizer.h>
+	<wx/splitter.h>
+	<wx/wxsqlite3.h>
+	"wx/treelistctrl.h"
+	"FbFrameBase.h"
+	"FbTreeListCtrl.h"
+	"FbBookEvent.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/FbGenres.h
+	<wx/wx.h>
+	"wx/treelistctrl.h"
+
+1259786368 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameHtml.cpp
+	<wx/fs_mem.h>
+	"FbFrameHtml.h"
+	"FbDatabase.h"
+	"FbConst.h"
+	"FbParams.h"
+	"FbMainMenu.h"
+	"BaseThread.h"
+	"MyRuLibApp.h"
+	"InfoCash.h"
+	"FbBookEvent.h"
+	<wx/wfstream.h>
+	<wx/txtstrm.h>
+	<wx/panel.h>
+	<wx/sizer.h>
+	<wx/textctrl.h>
+	"res/modify.xpm"
+	"res/delete.xpm"
+
+1250033142 /usr/include/wx-2.8/wx/fs_mem.h
+	"wx/defs.h"
+	"wx/filesys.h"
+
+1250033142 /usr/include/wx-2.8/wx/txtstrm.h
+	"wx/stream.h"
+	"wx/convauto.h"
+
+1256327803 /home/user/projects/MyRuLib/MyRuLib/res/modify.xpm
+
+1256327803 /home/user/projects/MyRuLib/MyRuLib/res/delete.xpm
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameInfo.cpp
+	"FbFrameInfo.h"
+	"FbDatabase.h"
+	"FbBookEvent.h"
+	"FbConst.h"
+	"FbParams.h"
+	"FbMainMenu.h"
+	"BaseThread.h"
+	"MyRuLibApp.h"
+	<wx/wfstream.h>
+	<wx/txtstrm.h>
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbFrameInfo.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	"FbWindow.h"
+	"FbFrameHtml.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameSearch.cpp
+	"FbFrameSearch.h"
+	<wx/artprov.h>
+	<wx/mimetype.h>
+	"FbConst.h"
+	"FbMainMenu.h"
+	"FbDatabase.h"
+	"FbManager.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbFrameSearch.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/html/htmlwin.h>
+	<wx/textctrl.h>
+	<wx/sizer.h>
+	<wx/splitter.h>
+	<wx/wxsqlite3.h>
+	"FbFrameBase.h"
+
+1250033142 /usr/include/wx-2.8/wx/mimetype.h
+	"wx/defs.h"
+	"wx/string.h"
+	"wx/dynarray.h"
+	"wx/arrstr.h"
+
+1257604846 source:/home/user/projects/MyRuLib/MyRuLib/FbGenres.cpp
+	"FbGenres.h"
+
+1260111179 source:/home/user/projects/MyRuLib/MyRuLib/FbImportThread.cpp
+	"FbImportThread.h"
+	<wx/zipstrm.h>
+	<wx/dir.h>
+	<wx/list.h>
+	"FbConst.h"
+	"FbGenres.h"
+	"FbParams.h"
+	"ZipReader.h"
+	"polarssl/md5.h"
+	"wx/base64.h"
+
+1259260595 /home/user/projects/MyRuLib/MyRuLib/FbImportThread.h
+	<wx/wx.h>
+	<wx/wxsqlite3.h>
+	"BaseThread.h"
+	"ImpContext.h"
+	"FbDatabase.h"
+
+1250033142 /usr/include/wx-2.8/wx/dir.h
+	"wx/longlong.h"
+	"wx/string.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/wx/base64.h
+	"wx/string.h"
+	"wx/buffer.h"
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbLogStream.cpp
+	"FbLogStream.h"
+	"MyRuLibApp.h"
+	"FbConst.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/FbLogStream.h
+	<wx/wx.h>
+	<wx/log.h>
+	<wx/thread.h>
+	<wx/wfstream.h>
+	<wx/txtstrm.h>
+
+1260049483 source:/home/user/projects/MyRuLib/MyRuLib/FbMainFrame.cpp
+	"FbMainFrame.h"
+	<wx/splitter.h>
+	<wx/dirdlg.h>
+	<wx/stattext.h>
+	<wx/dcclient.h>
+	<wx/artprov.h>
+	"FbConst.h"
+	"MyRuLibApp.h"
+	"FbManager.h"
+	"SettingsDlg.h"
+	"FbImportThread.h"
+	"FbDataOpenDlg.h"
+	"FbFrameSearch.h"
+	"FbFrameDate.h"
+	"FbFrameGenres.h"
+	"FbFrameFolder.h"
+	"FbFrameDownld.h"
+	"FbFrameSequen.h"
+	"FbFrameInfo.h"
+	"FbMainMenu.h"
+	"FbConfigDlg.h"
+	"FbDownloader.h"
+	"FbUpdateThread.h"
+	"InfoCash.h"
+	"FbAboutDlg.h"
+
+1258873795 /home/user/projects/MyRuLib/MyRuLib/SettingsDlg.h
+	<wx/wx.h>
+	<wx/dialog.h>
+	<wx/listctrl.h>
+	<wx/arrimpl.cpp>
+	<wx/fontpicker.h>
+	"FbDatabase.h"
+	"FbWindow.h"
+
+1250033143 /usr/include/wx-2.8/wx/fontpicker.h
+	"wx/defs.h"
+	"wx/pickerbase.h"
+	"wx/gtk/fontpicker.h"
+	"wx/generic/fontpickerg.h"
+
+1250033143 /usr/include/wx-2.8/wx/pickerbase.h
+	"wx/control.h"
+	"wx/sizer.h"
+	"wx/containr.h"
+
+1250033143 /usr/include/wx-2.8/wx/gtk/fontpicker.h
+	"wx/generic/fontpickerg.h"
+
+1250033143 /usr/include/wx-2.8/wx/generic/fontpickerg.h
+	"wx/button.h"
+	"wx/cmndata.h"
+
+1259957517 source:/home/user/projects/MyRuLib/MyRuLib/FbMainMenu.cpp
+	"FbMainMenu.h"
+	"FbConst.h"
+
+1259387567 source:/home/user/projects/MyRuLib/MyRuLib/FbManager.cpp
+	"FbManager.h"
+	<wx/zipstrm.h>
+	"FbDatabase.h"
+	"ZipReader.h"
+	<wx/mimetype.h>
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbMenu.cpp
+	"FbMenu.h"
+	"FbConst.h"
+
+1259088093 source:/home/user/projects/MyRuLib/MyRuLib/FbParams.cpp
+	<wx/stdpaths.h>
+	<wx/filename.h>
+	"FbParams.h"
+	"MyRuLibApp.h"
+	"FbDataPath.h"
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbTreeListCtrl.cpp
+	"FbTreeListCtrl.h"
+
+1260049514 source:/home/user/projects/MyRuLib/MyRuLib/FbUpdateThread.cpp
+	"FbUpdateThread.h"
+	"FbConst.h"
+
+1259009622 source:/home/user/projects/MyRuLib/MyRuLib/FbViewerDlg.cpp
+	"FbViewerDlg.h"
+	<wx/artprov.h>
+
+1258873794 /home/user/projects/MyRuLib/MyRuLib/FbViewerDlg.h
+	<wx/wx.h>
+	<wx/intl.h>
+	<wx/string.h>
+	<wx/stattext.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/textctrl.h>
+	<wx/bitmap.h>
+	<wx/image.h>
+	<wx/icon.h>
+	<wx/bmpbuttn.h>
+	<wx/button.h>
+	<wx/sizer.h>
+	<wx/checkbox.h>
+	<wx/dialog.h>
+	"FbWindow.h"
+
+1258873794 source:/home/user/projects/MyRuLib/MyRuLib/FbWindow.cpp
+	"FbWindow.h"
+	"FbParams.h"
+
+1259867529 source:/home/user/projects/MyRuLib/MyRuLib/ImpContext.cpp
+	"ImpContext.h"
+	"FbManager.h"
+	"FbConst.h"
+
+1259260595 source:/home/user/projects/MyRuLib/MyRuLib/InfoCash.cpp
+	"InfoCash.h"
+	<wx/buffer.h>
+	<wx/fs_mem.h>
+	<wx/mstream.h>
+	<wx/mimetype.h>
+	"wx/base64.h"
+	"InfoThread.h"
+	"TitleThread.h"
+	"res/ico_pdf.xpm"
+	"res/ico_djvu.xpm"
+
+1250033142 /usr/include/wx-2.8/wx/mstream.h
+	"wx/defs.h"
+	"wx/stream.h"
+
+1258873795 /home/user/projects/MyRuLib/MyRuLib/InfoThread.h
+	<wx/wx.h>
+	<wx/thread.h>
+	"FbBookThread.h"
+	"ParseCtx.h"
+
+1257604846 /home/user/projects/MyRuLib/MyRuLib/TitleThread.h
+	<wx/wx.h>
+	<wx/thread.h>
+	"FbBookThread.h"
+	"FbDatabase.h"
+
+1256154947 /home/user/projects/MyRuLib/MyRuLib/res/ico_pdf.xpm
+
+1256154947 /home/user/projects/MyRuLib/MyRuLib/res/ico_djvu.xpm
+
+1259260595 source:/home/user/projects/MyRuLib/MyRuLib/InfoThread.cpp
+	"InfoThread.h"
+	"ZipReader.h"
+	"InfoCash.h"
+	"ParseCtx.h"
+
+1257604846 source:/home/user/projects/MyRuLib/MyRuLib/LimitedTextCtrl.cpp
+	"LimitedTextCtrl.h"
+
+1259260830 source:/home/user/projects/MyRuLib/MyRuLib/MyRuLibApp.cpp
+	<wx/app.h>
+	<wx/image.h>
+	<wx/fs_mem.h>
+	"MyRuLibApp.h"
+	"FbDataPath.h"
+	"FbMainFrame.h"
+	"FbLogStream.h"
+	"FbParams.h"
+	"ZipReader.h"
+	"FbDataOpenDlg.h"
+
+1257604846 source:/home/user/projects/MyRuLib/MyRuLib/ParseCtx.cpp
+	"ParseCtx.h"
+
+1259082286 source:/home/user/projects/MyRuLib/MyRuLib/ProgressBar.cpp
+	"ProgressBar.h"
+
+1259082286 source:/home/user/projects/MyRuLib/MyRuLib/SettingsDlg.cpp
+	<wx/artprov.h>
+	<wx/statline.h>
+	<wx/string.h>
+	<wx/stattext.h>
+	<wx/gdicmn.h>
+	<wx/font.h>
+	<wx/colour.h>
+	<wx/settings.h>
+	<wx/textctrl.h>
+	<wx/bitmap.h>
+	<wx/image.h>
+	<wx/icon.h>
+	<wx/bmpbuttn.h>
+	<wx/button.h>
+	<wx/sizer.h>
+	<wx/checkbox.h>
+	<wx/panel.h>
+	<wx/radiobox.h>
+	<wx/notebook.h>
+	<wx/textdlg.h>
+	<wx/settings.h>
+	"FbManager.h"
+	"FbParams.h"
+	"FbConst.h"
+	"FbBookEvent.h"
+	"SettingsDlg.h"
+	"ZipReader.h"
+	"MyRuLibApp.h"
+	"FbViewerDlg.h"
+
+1258873795 source:/home/user/projects/MyRuLib/MyRuLib/TitleThread.cpp
+	"TitleThread.h"
+	"FbGenres.h"
+	"FbManager.h"
+	"InfoCash.h"
+	"ZipReader.h"
+	"BookExtractInfo.h"
+
+1259480560 source:/home/user/projects/MyRuLib/MyRuLib/ZipReader.cpp
+	<wx/dir.h>
+	<wx/thread.h>
+	"BaseThread.h"
+	"ZipReader.h"
+	"FbParams.h"
+	"FbManager.h"
+	"InfoCash.h"
+	"FbConst.h"
+	"BookExtractInfo.h"
+	"FbDatabase.h"
+	"MyRuLibApp.h"
+	"FbDataPath.h"
+	"FbDownloader.h"
+
+1255717189 source:/home/user/projects/MyRuLib/MyRuLib/md5.c
+	"polarssl/config.h"
+	"polarssl/md5.h"
+	<string.h>
+	<stdio.h>
+
+1255717189 /home/user/projects/MyRuLib/MyRuLib/polarssl/config.h
+
+1255717189 source:/home/user/projects/MyRuLib/MyRuLib/wx/base64.cpp
+	"wx/wxprec.h"
+	"base64.h"
+
+1250033142 /usr/include/wx-2.8/wx/wxprec.h
+	"wx/defs.h"
+	"wx/wxchar.h"
+	"wx/msw/wrapwin.h"
+	"wx/msw/wrapcctl.h"
+	"wx/msw/wrapcdlg.h"
+	"wx/msw/private.h"
+	"wx/msw/missing.h"
+	<PalmOS.h>
+	"wx/os2/private.h"
+	"wx/mgl/private.h"
+	"wx/wx.h"
+
+1259867529 source:/home/user/projects/MyRuLib/MyRuLib/wx/treelistctrl.cpp
+	"wx/wxprec.h"
+	<wx/treebase.h>
+	<wx/timer.h>
+	<wx/textctrl.h>
+	<wx/imaglist.h>
+	<wx/settings.h>
+	<wx/dcclient.h>
+	<wx/dcscreen.h>
+	<wx/scrolwin.h>
+	<wx/dcmemory.h>
+	<wx/renderer.h>
+	<wx/apptrait.h>
+	<wx/dcbuffer.h>
+	"wx/mac/private.h"
+	"treelistctrl.h"
+	<wx/app.h>
+	<wx/dynarray.h>
+	<wx/arrimpl.cpp>
+
+1250033143 /usr/include/wx-2.8/wx/renderer.h
+	"wx/gdicmn.h"
+	"wx/colour.h"
+	"wx/font.h"
+	"wx/bitmap.h"
+	"wx/string.h"
+
+1250033142 /usr/include/wx-2.8/wx/apptrait.h
+	"wx/string.h"
+	"wx/platinfo.h"
+	"wx/palmos/apptbase.h"
+	"wx/msw/apptbase.h"
+	"wx/unix/apptbase.h"
+	"wx/mac/apptbase.h"
+	"wx/os2/apptbase.h"
+	"wx/palmos/apptrait.h"
+	"wx/msw/apptrait.h"
+	"wx/os2/apptrait.h"
+	"wx/unix/apptrait.h"
+	"wx/mac/apptrait.h"
+	"wx/msdos/apptrait.h"
+
+1250033142 /usr/include/wx-2.8/wx/unix/apptbase.h
+
+1250033142 /usr/include/wx-2.8/wx/unix/apptrait.h
+
+1250033144 /usr/include/wx-2.8/wx/dcbuffer.h
+	"wx/dcmemory.h"
+	"wx/dcclient.h"
+	"wx/window.h"
+
+1259953147 /home/user/projects/MyRuLib/MyRuLib/FbReplaceDlg.h
+	"FbWindow.h"
+	"FbTreeListCtrl.h"
+	"FbDatabase.h"
+	"FbBookEvent.h"
+
+1259953147 source:/home/user/projects/MyRuLib/MyRuLib/FbReplaceDlg.cpp
+	"FbReplaceDlg.h"
+	<wx/artprov.h>
+	"FbAuthorThread.h"
+	"FbAuthorList.h"
+	"FbConst.h"
+	"FbAuthorDlg.h"
+
+1260052145 /home/user/projects/MyRuLib/MyRuLib/FbFrameSequen.h
+	<wx/wx.h>
+	<wx/toolbar.h>
+	<wx/aui/tabmdi.h>
+	<wx/listbox.h>
+	<wx/splitter.h>
+	<wx/html/htmlwin.h>
+	"FbFrameBase.h"
+	"FbAuthorList.h"
+	"FbManager.h"
+
+1260110402 source:/home/user/projects/MyRuLib/MyRuLib/FbFrameSequen.cpp
+	"FbFrameSequen.h"
+	<wx/artprov.h>
+	<wx/splitter.h>
+	"FbConst.h"
+	"FbManager.h"
+	"InfoCash.h"
+	"FbClientData.h"
+	"ExternalDlg.h"
+	"FbMainMenu.h"
+	"FbWindow.h"
+

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="myrulib" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="LinDebug">
+				<Option platforms="Unix;" />
+				<Option output="../build/LinDebug/myrulib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../build/LinDebug/" />
+				<Option object_output="../build/LinDebug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-Wall" />
+					<Add option="`wx-config --cflags`" />
+				</Compiler>
+				<Linker>
+					<Add option="`wx-config --libs`" />
+					<Add directory="../build/LinDebug" />
+				</Linker>
+			</Target>
+			<Target title="LinRelease">
+				<Option platforms="Unix;" />
+				<Option output="../build/LinRelease/myrulib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../build/LinRelease/" />
+				<Option object_output="../build/LinRelease/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="`wx-config --cflags`" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="`wx-config --libs`" />
+					<Add directory="../build/LinRelease" />
+				</Linker>
+			</Target>
+			<Target title="WinDebug">
+				<Option platforms="Windows;" />
+				<Option output="../build/WinDebug/myrulib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../build/WinDebug/" />
+				<Option object_output="../build/WinDebug/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-pipe" />
+					<Add option='[[if (PLATFORM == PLATFORM_MSW &amp;&amp; (GetCompilerFactory().GetCompilerVersionString(_T(&quot;gcc&quot;)) &gt;= _T(&quot;4.0.0&quot;))) print(_T(&quot;-Wno-attributes&quot;));]]' />
+					<Add option="-D__GNUWIN32__" />
+					<Add option="-D__WXMSW__" />
+					<Add option="-DwxUSE_UNICODE" />
+					<Add directory="$(WXWIN)/lib/gcc_lib/mswud" />
+					<Add directory="$(WXWIN)/include" />
+					<Add directory="$(WXWIN)/contrib/include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(WXWIN)/lib/gcc_lib/mswud" />
+					<Add directory="$(WXWIN)/include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libwxmsw28u_aui.a" />
+					<Add library="libwxmsw28u_adv.a" />
+					<Add library="libwxmsw28u_html.a" />
+					<Add library="libwxmsw28u_core.a" />
+					<Add library="libwxbase28u_net.a" />
+					<Add library="libwxbase28u.a" />
+					<Add library="libwxtiff.a" />
+					<Add library="libwxjpeg.a" />
+					<Add library="libwxpng.a" />
+					<Add library="libwxzlib.a" />
+					<Add library="libwxregexu.a" />
+					<Add library="libwinmm.a" />
+					<Add library="libcomctl32.a" />
+					<Add library="librpcrt4.a" />
+					<Add library="libwsock32.a" />
+					<Add library="liboleacc.a" />
+					<Add library="libkernel32.a" />
+					<Add library="libuser32.a" />
+					<Add library="libgdi32.a" />
+					<Add library="libwinspool.a" />
+					<Add library="libcomdlg32.a" />
+					<Add library="libadvapi32.a" />
+					<Add library="libshell32.a" />
+					<Add library="libole32.a" />
+					<Add library="liboleaut32.a" />
+					<Add library="libuuid.a" />
+					<Add library="libshlwapi.a" />
+					<Add directory="$(WXWIN)/lib/gcc_lib" />
+					<Add directory="../build/WinDebug/" />
+				</Linker>
+			</Target>
+			<Target title="WinRelease">
+				<Option platforms="Windows;" />
+				<Option output="../build/WinRelease/myrulib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../build/WinRelease/" />
+				<Option object_output="../build/WinRelease/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-pipe" />
+					<Add option='[[if (PLATFORM == PLATFORM_MSW &amp;&amp; (GetCompilerFactory().GetCompilerVersionString(_T(&quot;gcc&quot;)) &gt;= _T(&quot;4.0.0&quot;))) print(_T(&quot;-Wno-attributes&quot;));]]' />
+					<Add option="-D__GNUWIN32__" />
+					<Add option="-D__WXMSW__" />
+					<Add option="-DwxUSE_UNICODE" />
+					<Add directory="$(WXWIN)/lib/gcc_lib/mswu" />
+					<Add directory="$(WXWIN)/include" />
+					<Add directory="$(WXWIN)/contrib/include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(WXWIN)/lib/gcc_lib/mswu" />
+					<Add directory="$(WXWIN)/include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="libwxmsw28u_adv.a" />
+					<Add library="libwxmsw28u_aui.a" />
+					<Add library="libwxmsw28u_html.a" />
+					<Add library="libwxmsw28u_core.a" />
+					<Add library="libwxbase28u_net.a" />
+					<Add library="libwxbase28u.a" />
+					<Add library="libwxtiff.a" />
+					<Add library="libwxjpeg.a" />
+					<Add library="libwxpng.a" />
+					<Add library="libwxzlib.a" />
+					<Add library="libwxregexu.a" />
+					<Add library="libwinmm.a" />
+					<Add library="libcomctl32.a" />
+					<Add library="librpcrt4.a" />
+					<Add library="libwsock32.a" />
+					<Add library="liboleacc.a" />
+					<Add library="libkernel32.a" />
+					<Add library="libuser32.a" />
+					<Add library="libgdi32.a" />
+					<Add library="libwinspool.a" />
+					<Add library="libcomdlg32.a" />
+					<Add library="libadvapi32.a" />
+					<Add library="libshell32.a" />
+					<Add library="libole32.a" />
+					<Add library="liboleaut32.a" />
+					<Add library="libuuid.a" />
+					<Add library="libshlwapi.a" />
+					<Add directory="$(WXWIN)/lib/gcc_lib" />
+					<Add directory="../build/WinRelease/" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-DDONT_USE_DATABASE_LAYER_EXCEPTIONS" />
+			<Add directory="../SQLite3" />
+			<Add directory="../Expat" />
+			<Add directory="../WxSQLite3" />
+		</Compiler>
+		<Linker>
+			<Add option="`wx-config --libs`" />
+			<Add library="libWxSQLite3.a" />
+			<Add library="libSQLite3.a" />
+			<Add library="libExpat.a" />
+		</Linker>
+		<Unit filename="BaseThread.cpp" />
+		<Unit filename="BaseThread.h" />
+		<Unit filename="BookExtractInfo.cpp" />
+		<Unit filename="BookExtractInfo.h" />
+		<Unit filename="ExpThread.cpp" />
+		<Unit filename="ExpThread.h" />
+		<Unit filename="ExternalDlg.cpp" />
+		<Unit filename="ExternalDlg.h" />
+		<Unit filename="FbAboutDlg.cpp" />
+		<Unit filename="FbAboutDlg.h" />
+		<Unit filename="FbAuthorDlg.cpp" />
+		<Unit filename="FbAuthorDlg.h" />
+		<Unit filename="FbAuthorList.cpp" />
+		<Unit filename="FbAuthorList.h" />
+		<Unit filename="FbAuthorThread.cpp" />
+		<Unit filename="FbAuthorThread.h" />
+		<Unit filename="FbBookData.cpp" />
+		<Unit filename="FbBookData.h" />
+		<Unit filename="FbBookEvent.cpp" />
+		<Unit filename="FbBookEvent.h" />
+		<Unit filename="FbBookList.cpp" />
+		<Unit filename="FbBookList.h" />
+		<Unit filename="FbBookMenu.cpp" />
+		<Unit filename="FbBookMenu.h" />
+		<Unit filename="FbBookPanel.cpp" />
+		<Unit filename="FbBookPanel.h" />
+		<Unit filename="FbBookThread.cpp" />
+		<Unit filename="FbBookThread.h" />
+		<Unit filename="FbCalendar.cpp" />
+		<Unit filename="FbCalendar.h" />
+		<Unit filename="FbConfigDlg.cpp" />
+		<Unit filename="FbConfigDlg.h" />
+		<Unit filename="FbConst.cpp" />
+		<Unit filename="FbConst.h" />
+		<Unit filename="FbDataOpenDlg.cpp" />
+		<Unit filename="FbDataOpenDlg.h" />
+		<Unit filename="FbDataPath.cpp" />
+		<Unit filename="FbDataPath.h" />
+		<Unit filename="FbDatabase.cpp" />
+		<Unit filename="FbDatabase.h" />
+		<Unit filename="FbDownloader.cpp" />
+		<Unit filename="FbDownloader.h" />
+		<Unit filename="FbEditBook.cpp" />
+		<Unit filename="FbEditBook.h" />
+		<Unit filename="FbFrameAuthor.cpp" />
+		<Unit filename="FbFrameAuthor.h" />
+		<Unit filename="FbFrameBase.cpp" />
+		<Unit filename="FbFrameBase.h" />
+		<Unit filename="FbFrameDate.cpp" />
+		<Unit filename="FbFrameDate.h" />
+		<Unit filename="FbFrameDownld.cpp" />
+		<Unit filename="FbFrameDownld.h" />
+		<Unit filename="FbFrameFolder.cpp" />
+		<Unit filename="FbFrameFolder.h" />
+		<Unit filename="FbFrameGenres.cpp" />
+		<Unit filename="FbFrameGenres.h" />
+		<Unit filename="FbFrameHtml.cpp" />
+		<Unit filename="FbFrameHtml.h" />
+		<Unit filename="FbFrameInfo.cpp" />
+		<Unit filename="FbFrameInfo.h" />
+		<Unit filename="FbFrameSearch.cpp" />
+		<Unit filename="FbFrameSearch.h" />
+		<Unit filename="FbFrameSequen.cpp" />
+		<Unit filename="FbFrameSequen.h" />
+		<Unit filename="FbGenres.cpp" />
+		<Unit filename="FbGenres.h" />
+		<Unit filename="FbImportThread.cpp" />
+		<Unit filename="FbImportThread.h" />
+		<Unit filename="FbLogStream.cpp" />
+		<Unit filename="FbLogStream.h" />
+		<Unit filename="FbLogoBitmap.h" />
+		<Unit filename="FbMainFrame.cpp" />
+		<Unit filename="FbMainFrame.h" />
+		<Unit filename="FbMainMenu.cpp" />
+		<Unit filename="FbMainMenu.h" />
+		<Unit filename="FbManager.cpp" />
+		<Unit filename="FbManager.h" />
+		<Unit filename="FbMenu.cpp" />
+		<Unit filename="FbMenu.h" />
+		<Unit filename="FbParams.cpp" />
+		<Unit filename="FbParams.h" />
+		<Unit filename="FbReplaceDlg.cpp" />
+		<Unit filename="FbReplaceDlg.h" />
+		<Unit filename="FbThread.h" />
+		<Unit filename="FbTreeListCtrl.cpp" />
+		<Unit filename="FbTreeListCtrl.h" />
+		<Unit filename="FbUpdateThread.cpp" />
+		<Unit filename="FbUpdateThread.h" />
+		<Unit filename="FbViewerDlg.cpp" />
+		<Unit filename="FbViewerDlg.h" />
+		<Unit filename="FbWindow.cpp" />
+		<Unit filename="FbWindow.h" />
+		<Unit filename="ImpContext.cpp" />
+		<Unit filename="ImpContext.h" />
+		<Unit filename="InfoCash.cpp" />
+		<Unit filename="InfoCash.h" />
+		<Unit filename="InfoThread.cpp" />
+		<Unit filename="InfoThread.h" />
+		<Unit filename="LimitedTextCtrl.cpp" />
+		<Unit filename="LimitedTextCtrl.h" />
+		<Unit filename="MyRuLibApp.cpp" />
+		<Unit filename="MyRuLibApp.h" />
+		<Unit filename="ParseCtx.cpp" />
+		<Unit filename="ParseCtx.h" />
+		<Unit filename="ProgressBar.cpp" />
+		<Unit filename="ProgressBar.h" />
+		<Unit filename="SettingsDlg.cpp" />
+		<Unit filename="SettingsDlg.h" />
+		<Unit filename="TitleThread.cpp" />
+		<Unit filename="TitleThread.h" />
+		<Unit filename="ZipReader.cpp" />
+		<Unit filename="ZipReader.h" />
+		<Unit filename="md5.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="res/checked.xpm" />
+		<Unit filename="res/checkout.xpm" />
+		<Unit filename="res/nocheck.xpm" />
+		<Unit filename="res/resource.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="WinDebug" />
+			<Option target="WinRelease" />
+		</Unit>
+		<Unit filename="sha1/sha1.h" />
+		<Unit filename="wx/base64.cpp" />
+		<Unit filename="wx/base64.h" />
+		<Unit filename="wx/treelistctrl.cpp" />
+		<Unit filename="wx/treelistctrl.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
