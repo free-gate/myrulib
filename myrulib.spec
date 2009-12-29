@@ -20,10 +20,10 @@ export and so on.
 %setup
 
 %build
-%make_build
+%make_build CFLAGS="%optflags" CXXFLAGS="%optflags"
 
 %install
-make DESTDIR=%buildroot install
+%makeinstall_std
 mkdir -p %buildroot/usr/share/icons/hicolor/32x32/apps/
 install MyRuLib/desktop/home-32x32.png %buildroot/usr/share/icons/hicolor/32x32/apps/myrulib.png
 mkdir -p  %buildroot/usr/share/icons/hicolor/64x64/apps/
