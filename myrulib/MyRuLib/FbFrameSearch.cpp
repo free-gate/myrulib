@@ -4,7 +4,6 @@
 #include "FbConst.h"
 #include "FbMainMenu.h"
 #include "FbDatabase.h"
-#include "FbManager.h"
 
 BEGIN_EVENT_TABLE(FbFrameSearch, FbFrameBase)
 	EVT_COMMAND(ID_FOUND_NOTHING, fbEVT_BOOK_ACTION, FbFrameSearch::OnFoundNothing)
@@ -37,40 +36,6 @@ void FbFrameSearch::CreateControls()
 	FbFrameBase::CreateControls();
 }
 
-void * FbFrameSearch::SearchThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
-
-	EmptyBooks();
-
-	wxString condition = wxT("SEARCH_T(books.title)");
-	if (!m_author.IsEmpty()) condition += wxT(" AND SEARCH_A(authors.search_name)");
-	wxString sql = GetSQL(condition);
-
-	try {
-		FbCommonDatabase database;
-		InitDatabase(database);
-		FbSearchFunction sfTitle(m_title);
-		FbSearchFunction sfAuthor(m_author);
-		database.CreateFunction(wxT("SEARCH_T"), 1, sfTitle);
-		database.CreateFunction(wxT("SEARCH_A"), 1, sfAuthor);
-		wxSQLite3Statement stmt = database.PrepareStatement(sql);
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
-		if (result.Eof()) {
-			FbCommandEvent(fbEVT_BOOK_ACTION, ID_FOUND_NOTHING).Post(m_frame);
-			return NULL;
-		}
-		FillBooks(result);
-	}
-	catch (wxSQLite3Exception & e) {
-		wxLogError(e.GetMessage());
-	}
-
-
-	return NULL;
-}
-
 void FbFrameSearch::Execute(wxAuiMDIParentFrame * parent, const wxString &title, const wxString &author)
 {
 	if ( title.IsEmpty() ) return;
@@ -86,7 +51,7 @@ void FbFrameSearch::Execute(wxAuiMDIParentFrame * parent, const wxString &title,
 
 void FbFrameSearch::UpdateBooklist()
 {
-	( new SearchThread(this, m_BooksPanel->GetListMode(), m_title, m_author) )->Execute();
+	FbMasterSearch(m_title, m_author).Show(this);
 }
 
 void FbFrameSearch::OnFoundNothing(wxCommandEvent& event)

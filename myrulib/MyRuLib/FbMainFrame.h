@@ -1,12 +1,3 @@
-/***************************************************************
- * Name:	  MyRuLibMain.h
- * Purpose:   Defines Application Frame
- * Author:	Kandrashin Denis (mail@kandr.ru)
- * Created:   2009-05-05
- * Copyright: Kandrashin Denis (www.lintest.ru)
- * License:
- **************************************************************/
-
 #ifndef __FBMAINFRAME_H__
 #define __FBMAINFRAME_H__
 
@@ -32,7 +23,7 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		bool Create(wxWindow * parent, wxWindowID id, const wxString & title);
 		void CreateControls();
 		void LoadIcon();
-		wxAuiToolBar * CreateToolBar();
+		wxToolBar * CreateToolBar();
 		void TogglePaneVisibility(const wxString &pane_name, bool show);
 		void ShowPane(const wxString &pane_name);
 		void FindAuthor(const wxString &text);
@@ -40,11 +31,12 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		wxWindow * FindFrameById(const int id, bool bActivate = false);
 		void OpenDatabase(const wxString &filename);
 		void SetAccelerators();
+		void OpenLastPage();
+		void SetTabArt(int id);
 	private:
 		wxTextCtrl m_FindAuthor;
 		wxTextCtrl m_FindTitle;
 		ProgressBar m_ProgressBar;
-		wxAuiToolBar * m_ToolBar;
 		wxAuiManager m_FrameManager;
 		LimitedTextCtrl m_LOGTextCtrl;
 	private:
@@ -61,6 +53,7 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		void OnFindTitleEnter(wxCommandEvent& event);
 		void OnFullScreen(wxCommandEvent& event);
 		void OnFullScreenUpdate(wxUpdateUIEvent& event);
+		void OnMenuFrame(wxCommandEvent& event);
 		void OnMenuNothing(wxCommandEvent& event);
 		void OnMenuAuthor(wxCommandEvent& event);
 		void OnMenuConfig(wxCommandEvent& event);
@@ -81,6 +74,8 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		void OnUpdateFolder(FbFolderEvent & event);
 		void OnOpenAuthor(FbOpenEvent & event);
 		void OnOpenSequence(FbOpenEvent & event);
+		void OnTabArt(wxCommandEvent & event);
+		void OnTabArtUpdate(wxUpdateUIEvent& event);
 		void OnVacuum(wxCommandEvent & event);
 		void OnUpdateFonts(wxCommandEvent & event);
 		void OnProgress(FbProgressEvent & event);

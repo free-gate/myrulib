@@ -13,6 +13,7 @@
 #include <wx/listctrl.h>
 #include <wx/arrimpl.cpp>
 #include <wx/fontpicker.h>
+#include <wx/spinctrl.h>
 #include "FbDatabase.h"
 #include "FbWindow.h"
 
@@ -24,10 +25,14 @@ class SettingsDlg : private FbDialog
 	private:
 		enum ID {
 			ID_AUTO_DOWNLD = 1000,
+			ID_TEMP_DEL,
+			ID_TEMP_DIR_TXT,
+			ID_TEMP_DIR_BTN,
 			ID_DOWNLOAD_DIR_TXT,
 			ID_DOWNLOAD_DIR_BTN,
 			ID_USE_PROXY,
 			ID_PROXY_ADDR,
+			ID_HTTP_IMAGES,
 			ID_LIBRUSEC_URL,
 			ID_EXTERNAL_TXT,
 			ID_EXTERNAL_BTN,
@@ -46,10 +51,11 @@ class SettingsDlg : private FbDialog
 			ID_FONT_HTML,
 			ID_FONT_TOOL,
 			ID_FONT_DLG,
-			ID_COLUMN_TYPE,
-			ID_COLUMN_SYZE,
-			ID_COLUMN_GENRE,
-			ID_COLUMN_RATING,
+			ID_REMOVE_FILES,
+			ID_AUTOHIDE_COLUMN,
+			ID_LIMIT_CHECK,
+			ID_LIMIT_COUNT,
+			ID_SAVE_FULLPATH,
 		};
 		class FbPanelFont: public wxPanel
 		{

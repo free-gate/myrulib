@@ -1,14 +1,5 @@
-/***************************************************************
- * Name:	  MyRuLibApp.h
- * Purpose:   Defines Application Class
- * Author:	Kandrashin Denis (mail@kandr.ru)
- * Created:   2009-05-05
- * Copyright: Kandrashin Denis (www.lintest.ru)
- * License:
- **************************************************************/
-
-#ifndef MYRULIBAPP_H
-#define MYRULIBAPP_H
+#ifndef __MYRULIBAPP_H__
+#define __MYRULIBAPP_H__
 
 #include <wx/wx.h>
 #include <wx/thread.h>
@@ -27,6 +18,7 @@ private:
 	void OpenLog();
 	wxFileName GetDatabaseFilename(FbDatabase &database);
 	void SetAppData(const wxString &filename);
+	void LoadBlankImage();
 private:
 	wxCriticalSection m_section;
 	wxString m_datafile;
@@ -34,4 +26,4 @@ private:
 
 DECLARE_APP(MyRuLibApp)
 
-#endif // MYRULIBAPP_H
+#endif // __MYRULIBAPP_H__

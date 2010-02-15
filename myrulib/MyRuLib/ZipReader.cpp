@@ -3,14 +3,14 @@
 #include "BaseThread.h"
 #include "ZipReader.h"
 #include "FbParams.h"
-#include "FbManager.h"
 #include "InfoCash.h"
 #include "FbConst.h"
-#include "BookExtractInfo.h"
+#include "FbExtractInfo.h"
 #include "FbDatabase.h"
 #include "MyRuLibApp.h"
 #include "FbDataPath.h"
 #include "FbDownloader.h"
+#include <wx/wxsqlite3.h>
 
 class ZipThread : public BaseThread
 {
@@ -41,7 +41,7 @@ void *ZipThread::Entry()
 {
 	wxCriticalSectionLocker enter(zips.sm_queue);
 
-	wxSleep(3);
+	Sleep(3000);
 
 	DoStart(0, m_dirname);
 
@@ -59,37 +59,38 @@ ZipReader::ZipReader(int id, bool bShowError, bool bInfoOnly)
 {
 	FbCommonDatabase database;
 
-	OpenDownload(database);
+	OpenDownload(database, bInfoOnly);
 	if (IsOK()) return;
 
-	BookExtractArray items(database, id);
+	FbExtractArray items(database, id);
 
-	wxString file_name;
+	wxString name_info;
 	wxString sLibraryDir = FbParams::GetText(DB_LIBRARY_DIR);
 
 	for (size_t i = 0; i<items.Count(); i++) {
-		BookExtractInfo & item = items[i];
+		FbExtractItem & item = items[i];
+		if (i==0) name_info = item.NameInfo();
 		if (item.id_archive) {
 			if ( bInfoOnly && (item.book_name.Right(4).Lower()!=wxT(".fb2")) )
 				item.book_name = GetInfoName(item.book_name);
-			wxFileName zip_file = item.GetZip(sLibraryDir);
-			m_zipOk = zip_file.FileExists();
+			wxFileName zip_file;
+			m_zipOk = item.FindZip(sLibraryDir, zip_file);
 			if (m_zipOk) OpenZip(zip_file.GetFullPath(), item.book_name);
 		} else if (item.librusec) {
 			wxString zip_name = zips.FindZip(item.book_name);
-			if (!zip_name.IsEmpty()) {
-				wxFileName zip_file = zip_name;
-				zip_file.SetPath(sLibraryDir);
-				m_zipOk = zip_file.FileExists();
-				if (m_zipOk) OpenZip(zip_file.GetFullPath(), item.book_name);
-			}
+			if (zip_name.IsEmpty()) continue;
+			wxFileName zip_file = zip_name;
+			zip_file.SetPath(sLibraryDir);
+			m_zipOk = zip_file.FileExists();
+			if (m_zipOk) OpenZip(zip_file.GetFullPath(), item.book_name);
 		} else {
-			wxFileName book_file = item.GetBook(sLibraryDir);
-			if (book_file.FileExists()) OpenFile(book_file.GetFullPath());
+			wxFileName book_file;
+			m_zipOk = item.FindBook(sLibraryDir, book_file);
+			if (m_zipOk) OpenFile(book_file.GetFullPath());
 		}
 		if (IsOK()) return;
 	}
-	if (bShowError) wxLogError(_("Book open error (%d) not found %s"), id, file_name.c_str());
+	if (bShowError) wxLogError(_("Book not found %s"), name_info.c_str());
 }
 
 ZipReader::~ZipReader()
@@ -127,22 +128,22 @@ void ZipReader::Init()
 	return;
 }
 
-void ZipReader::OpenDownload(FbDatabase &database)
+void ZipReader::OpenDownload(FbDatabase &database, bool bInfoOnly)
 {
-	wxString md5sum;
-
 	{
-		wxString sql = wxT("SELECT md5sum FROM books WHERE id=?");
+		wxString sql = wxT("SELECT md5sum, file_type FROM books WHERE id=?");
 		wxSQLite3Statement stmt = database.PrepareStatement(sql);
 		stmt.Bind(1, m_id);
 		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		if ( result.NextRow() ) md5sum = result.GetString(0);
-		else return;
+		if ( result.NextRow() ) {
+			m_md5sum = result.GetString(0);
+			if (result.GetString(1).Lower() == wxT("fb2")) bInfoOnly = false;
+		} else return;
 	}
 
-	wxFileName zip_file = FbDownloader::GetFilename(md5sum, false);
+	wxFileName zip_file = FbDownloader::GetFilename(m_md5sum, false);
 	m_zipOk = zip_file.FileExists();
-	if (m_zipOk) {
+	if (m_zipOk && !bInfoOnly) {
 		m_file = new wxFFileInputStream(zip_file.GetFullPath());
 		m_zip = NULL;
 		m_result = m_file;
@@ -156,9 +157,11 @@ void ZipReader::OpenDownload(FbDatabase &database)
 		m_file = new wxFFileInputStream(zip_file.GetFullPath());
 		m_zip = new wxZipInputStream(*m_file, conv);
 		m_result = m_zip;
-		if (wxZipEntry * entry = m_zip->GetNextEntry()) {
-			m_fileOk = m_zip->OpenEntry(*entry);
+		while (wxZipEntry * entry = m_zip->GetNextEntry()) {
+			bool ok = (entry->GetInternalName().Right(4).Lower() == wxT(".fbd")) == bInfoOnly;
+			if (ok) m_fileOk = m_zip->OpenEntry(*entry);
 			delete entry;
+			if (ok) break;
 		}
 	}
 }
@@ -246,8 +249,12 @@ void ZipCollection::SetDir(const wxString &dirname)
 		return;
 	}
 
-	ZipTraverser traverser(this);
-	dir.Traverse(traverser);
+	try {
+		ZipTraverser traverser(this);
+		dir.Traverse(traverser);
+	} catch (wxSQLite3Exception & e) {
+		wxLogError(e.GetMessage());
+	}
 
 	wxLogInfo(_("Finish scan directory %s"), m_dirname.c_str());
 }
@@ -255,6 +262,8 @@ void ZipCollection::SetDir(const wxString &dirname)
 void ZipCollection::AddZip(FbCommonDatabase & database, const wxString &filename)
 {
 	wxLogInfo(_("Scan zip %s"), filename.c_str());
+
+	wxSQLite3Transaction trans(&database, WXSQLITE_TRANSACTION_EXCLUSIVE);
 
 	wxFileName zip_file = filename;
 	m_thread->DoStep(zip_file.GetFullName());
@@ -271,8 +280,6 @@ void ZipCollection::AddZip(FbCommonDatabase & database, const wxString &filename
 		if (result.NextRow()) return ;
 		id = database.NewId(DB_NEW_ZIPFILE);
 	}
-
-	FbAutoCommit transaction(database);
 
 	int count = 0;
 	{
@@ -300,6 +307,8 @@ void ZipCollection::AddZip(FbCommonDatabase & database, const wxString &filename
 	}
 
 	InfoCash::Empty();
+
+	trans.Commit();
 }
 
 wxString ZipCollection::FindZip(const wxString &filename)

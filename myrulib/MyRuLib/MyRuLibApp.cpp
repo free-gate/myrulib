@@ -1,22 +1,15 @@
-/***************************************************************
- * Name:	  MyRuLibApp.cpp
- * Purpose:   Code for Application Class
- * Author:	Kandrashin Denis (mail@kandr.ru)
- * Created:   2009-05-05
- * Copyright: Kandrashin Denis (www.lintest.ru)
- * License:
- **************************************************************/
-
+#include "MyRuLibApp.h"
 #include <wx/app.h>
 #include <wx/image.h>
 #include <wx/fs_mem.h>
-#include "MyRuLibApp.h"
+#include <wx/fs_inet.h>
 #include "FbDataPath.h"
 #include "FbMainFrame.h"
 #include "FbLogStream.h"
 #include "FbParams.h"
 #include "ZipReader.h"
 #include "FbDataOpenDlg.h"
+#include "FbUpdateThread.h"
 
 IMPLEMENT_APP(MyRuLibApp)
 
@@ -33,12 +26,29 @@ bool MyRuLibApp::OnInit()
 
 	::wxInitAllImageHandlers();
 	wxFileSystem::AddHandler(new wxMemoryFSHandler);
+	wxFileSystem::AddHandler(new wxInternetFSHandler);
+	LoadBlankImage();
 
 	FbMainFrame * frame = new FbMainFrame;
 	SetTopWindow(frame);
 	frame->Show();
 
 	return true;
+}
+
+void MyRuLibApp::LoadBlankImage()
+{
+	/* XPM */
+	static const char * blank_xpm[] = {
+	/* columns rows colors chars-per-pixel */
+	"1 1 1 1",
+	"- c None",
+	/* pixels */
+	"-",
+	};
+
+	wxBitmap bitmap(blank_xpm);
+	wxMemoryFSHandler::AddFile(wxT("blank"), bitmap, wxBITMAP_TYPE_PNG);
 }
 
 wxFileName MyRuLibApp::GetDatabaseFilename(FbDatabase &database)
@@ -96,7 +106,8 @@ bool MyRuLibApp::OpenDatabase(const wxString &filename)
 		SetAppData(filename);
 		FbParams params;
 		params.LoadParams();
-		params.AddRecent(filename);
+		params.AddRecent(filename, FbParams::GetText(DB_LIBRARY_TITLE));
+		(new FbTextThread)->Execute();
 		ZipReader::Init();
 	} catch (wxSQLite3Exception & e) {
 		wxLogError(wxT("Database error: ") + e.GetMessage());

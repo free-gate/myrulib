@@ -4,7 +4,6 @@
 #include "FbMainMenu.h"
 #include "FbConst.h"
 #include "FbDatabase.h"
-#include "FbManager.h"
 #include "FbDownloader.h"
 #include "FbUpdateThread.h"
 #include "res/start.xpm"
@@ -42,8 +41,7 @@ void FbFrameDownld::CreateControls()
 	splitter->SetSashGravity(0.33);
 	bSizer1->Add(splitter, 1, wxEXPAND);
 
-	long style = wxTR_HIDE_ROOT | wxTR_FULL_ROW_HIGHLIGHT | wxSUNKEN_BORDER | wxTR_NO_BUTTONS;
-	m_MasterList = new FbTreeListCtrl(splitter, ID_MASTER_LIST, style);
+	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST);
 	m_MasterList->AddColumn (_("Папки"), 100, wxALIGN_LEFT);
 	m_MasterList->SetFocus();
 
@@ -83,50 +81,12 @@ void FbFrameDownld::FillFolders(const int iCurrent)
 	m_MasterList->DeleteRoot();
 
 	wxTreeItemId root = m_MasterList->AddRoot(wxEmptyString);
-	m_MasterList->AppendItem(root, wxT("Очередь"), -1, -1, new FbFolderData(1, FT_DOWNLOAD));
-	m_MasterList->AppendItem(root, wxT("Готово"), -1, -1, new FbFolderData(-1, FT_DOWNLOAD));
-	m_MasterList->AppendItem(root, wxT("Ошибки"), -1, -1, new FbFolderData(-2, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, wxT("Очередь"), -1, -1, new FbMasterFolder(1, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, wxT("Готово"), -1, -1, new FbMasterFolder(-1, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, wxT("Ошибки"), -1, -1, new FbMasterFolder(-2, FT_DOWNLOAD));
 	m_MasterList->Expand(root);
 
 	m_MasterList->Thaw();
-}
-
-FbThreadSkiper FbFrameDownld::DownldThread::sm_skiper;
-
-wxString FbFrameDownld::DownldThread::GetOrder()
-{
-	if (m_folder==1) return wxT("download");
-	return BaseThread::GetOrder();
-}
-
-void * FbFrameDownld::DownldThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
-
-	if (sm_skiper.Skipped(m_number)) return NULL;
-	EmptyBooks();
-
-	wxString condition;
-	condition = wxT("books.md5sum IN(SELECT DISTINCT md5sum FROM states WHERE download");
-	condition += ( m_folder==1 ? wxT(">=?)") : wxT("=?)") );
-
-	wxString sql = GetSQL(condition);
-
-	try {
-		FbCommonDatabase database;
-		InitDatabase(database);
-		wxSQLite3Statement stmt = database.PrepareStatement(sql);
-		stmt.Bind(1, m_folder);
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
-		if (sm_skiper.Skipped(m_number)) return NULL;
-		FillBooks(result);
-	}
-	catch (wxSQLite3Exception & e) {
-		wxLogError(e.GetMessage());
-	}
-
-	return NULL;
 }
 
 void FbFrameDownld::OnFolderSelected(wxTreeEvent & event)
@@ -134,41 +94,25 @@ void FbFrameDownld::OnFolderSelected(wxTreeEvent & event)
 	wxTreeItemId selected = event.GetItem();
 	if (selected.IsOk()) {
 		m_BooksPanel->EmptyBooks();
-		FbFolderData * data = (FbFolderData*) m_MasterList->GetItemData(selected);
+		FbMasterData * data = m_MasterList->GetItemData(selected);
 		if (data) {
 			bool enabled = data->GetId() > 0;
 			m_ToolBar->EnableTool(wxID_UP,   enabled);
 			m_ToolBar->EnableTool(wxID_DOWN, enabled);
-			FillByFolder(data);
+			data->Show(this);
 		}
 	}
 }
 
 void FbFrameDownld::UpdateBooklist()
 {
-	FbFolderData * data = GetSelected();
-	if (data) FillByFolder(data);
-}
-
-void FbFrameDownld::FillByFolder(FbFolderData * data)
-{
-	m_BooksPanel->SetFolder( data->GetId() );
-	m_BooksPanel->SetType( FT_DOWNLOAD );
-	( new DownldThread(this, m_BooksPanel->GetListMode(), data) )->Execute();
-}
-
-FbFolderData * FbFrameDownld::GetSelected()
-{
-	wxTreeItemId item = m_MasterList->GetSelection();
-	if (item.IsOk())
-		return (FbFolderData * ) m_MasterList->GetItemData(item);
-	else
-		return NULL;
+	FbMasterData * data = m_MasterList->GetSelectedData();
+	if (data) data->Show(this);
 }
 
 void FbFrameDownld::UpdateFolder(const int iFolder, const FbFolderType type)
 {
-	FbFolderData * data = GetSelected();
+	FbMasterData * data = m_MasterList->GetSelectedData();
 	if (!data) return;
 	if (data->GetType()!= type) return;
 
@@ -182,7 +126,7 @@ void FbFrameDownld::UpdateFolder(const int iFolder, const FbFolderType type)
 			break;
 	}
 
-	if (bNeedUpdate) FillByFolder(data);
+	if (bNeedUpdate) data->Show(this);
 }
 
 void FbFrameDownld::OnStart(wxCommandEvent & event)

@@ -18,10 +18,11 @@ FbMenuBar::MenuFrame::MenuFrame()
 FbMenuBar::MenuLib::MenuLib()
 {
 	Append(ID_MENU_DB_OPEN, _("Открыть (создать) коллекцию"));
-	Append(wxID_ANY, _("Открыть повторно"), new MenuRecent());
+	Append(ID_RECENT_ALL, _("Открыть повторно"), new MenuRecent());
 	AppendSeparator();
-	Append(ID_MENU_DB_INFO, _("Информация о коллекции"));
-	Append(ID_MENU_VACUUM,  _("Реструктуризация БД"));
+	Append(ID_MENU_DB_INFO,  _("Информация о коллекции"));
+	Append(ID_MENU_OPTIMIZE, _("Удалить пустые значения"));
+	Append(ID_MENU_VACUUM,   _("Реструктуризация БД"));
 	AppendSeparator();
 	Append(ID_MENU_CONFIG, _("Параметры"));
 }
@@ -57,6 +58,8 @@ FbMainMenu::MenuFile::MenuFile()
 
 FbMainMenu::MenuView::MenuView()
 {
+	Append(wxID_ANY, _("Вкладки"), new MenuTabArt());
+	AppendSeparator();
 	Append(ID_FULLSCREEN, _("Полноэкранный режим\tF11"));
 	Append(ID_LOG_TEXTCTRL, _("Окно сообщений\tF12"));
 }
@@ -75,19 +78,19 @@ FbFrameMenu::MenuBook::MenuBook()
 	Append(wxID_SELECTALL, _("Выделить все\tCtrl+A"));
 	Append(ID_UNSELECTALL, _("Отменить выделение"));
 	AppendSeparator();
+	Append(ID_ORDER_MENU, _("Сортировка"), new FbMenuSort());
+	AppendCheckItem(ID_FILTER_USE, _("Использовать фильтр"));
+	Append(ID_FILTER_NOT, _("Удалить фильтр"));
+	AppendSeparator();
 	Append(ID_EDIT_COMMENTS, _("Комментарии"));
 }
 
 FbFrameMenu::MenuView::MenuView()
 {
-	AppendRadioItem(ID_MODE_TREE, _("&Иерархия авторов и серий"));
-	AppendRadioItem(ID_MODE_LIST, _("&Простой список"));
-	AppendSeparator();
-	Append(ID_ORDER_MENU, _("Сортировка"), new FbMenuSort());
-	Append(wxID_ANY, _("Фильтр"), new FbMenuFilter());
-	AppendSeparator();
-	AppendRadioItem(ID_SPLIT_VERTICAL, _("&Просмотр справа"));
-	AppendRadioItem(ID_SPLIT_HORIZONTAL, _("&Просмотр снизу"));
+	Append(wxID_ANY, _("Список книг"), new MenuListMode());
+	Append(wxID_ANY, _("Область просмотра"), new MenuPreview());
+	Append(wxID_ANY, _("Вкладки"), new MenuTabArt());
+	Append(ID_SHOW_COLUMNS, _("Колонки таблицы"));
 	AppendSeparator();
 	Append(ID_FULLSCREEN, _("Полноэкранный режим\tF11"));
 	Append(ID_LOG_TEXTCTRL, _("Окно сообщений\tF12"));
@@ -102,6 +105,27 @@ FbMenuBar::MenuRecent::MenuRecent()
 	Append(ID_RECENT_5);
 }
 
+FbMenuBar::MenuListMode::MenuListMode()
+{
+	AppendRadioItem(ID_MODE_TREE, _("&Иерархический"));
+	AppendRadioItem(ID_MODE_LIST, _("&Простой список"));
+}
+
+FbMenuBar::MenuTabArt::MenuTabArt()
+{
+	AppendRadioItem(ID_ART_DEFAULT,  _("Стандартные"));
+	AppendRadioItem(ID_ART_COMPACT,  _("Компактные"));
+	AppendRadioItem(ID_ART_STANDART, _("Выпуклые"));
+	AppendRadioItem(ID_ART_TOOLBAR,  _("Кнопочные"));
+}
+
+FbMenuBar::MenuPreview::MenuPreview()
+{
+	AppendRadioItem(ID_SPLIT_VERTICAL,   _("&Справа"));
+	AppendRadioItem(ID_SPLIT_HORIZONTAL, _("&Внизу"));
+	AppendRadioItem(ID_SPLIT_NOTHING,    _("&Отсутствует"));
+}
+
 FbMenuBar::MenuWindow::MenuWindow()
 {
 	Append(ID_WINDOW_CLOSE,    _("Закрыть окно"));
@@ -110,3 +134,4 @@ FbMenuBar::MenuWindow::MenuWindow()
 	Append(ID_WINDOW_NEXT,     _("Следующее"));
 	Append(ID_WINDOW_PREV,     _("Предыдущее"));
 }
+

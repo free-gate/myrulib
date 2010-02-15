@@ -4,6 +4,14 @@
 #include <wx/wx.h>
 #include <wx/wxsqlite3.h>
 
+wxString Lower(const wxString & input);
+
+wxString Upper(const wxString & input);
+
+wxString & MakeLower(wxString & data);
+
+wxString & MakeUpper(wxString & data);
+
 enum FbDatabaseKey {
 	DB_LIBRARY_TITLE = 1,
 	DB_LIBRARY_VERSION = 2,
@@ -14,9 +22,15 @@ enum FbDatabaseKey {
 	DB_NEW_SEQUENCE = 7,
 	DB_LIBRARY_DIR = 9,
 	DB_LIBRARY_DESCR = 10,
+	DB_DOWNLOAD_HOST = 11,
+	DB_DOWNLOAD_USER = 12,
+	DB_DOWNLOAD_PASS = 13,
 	DB_NEW_ZIPFILE = 25,
 	DB_WANRAIK_DIR = 26,
 	DB_BOOKS_COUNT = 27,
+	DB_LAST_BOOK = 30,
+	DB_LANG_LIST = 31,
+	DB_TYPE_LIST = 32,
 };
 
 class FbLowerFunction : public wxSQLite3ScalarFunction
@@ -33,11 +47,12 @@ class FbSearchFunction: public wxSQLite3ScalarFunction
 {
 	public:
 		FbSearchFunction(const wxString & input);
+		static bool IsFullText(const wxString &text);
+		static wxString AddAsterisk(const wxString &text);
 	protected:
 		virtual void Execute(wxSQLite3FunctionContext& ctx);
 	private:
-		void Decompose(const wxString &text, wxArrayString &list);
-		wxString Lower(const wxString & text);
+		static void Decompose(const wxString &text, wxArrayString &list);
 		wxArrayString m_masks;
 };
 
@@ -49,6 +64,7 @@ class FbDatabase: public wxSQLite3Database
 		int NewId(const int iParam, int iIncrement = 1);
 		wxString GetText(const int param);
 		static const wxString & GetConfigName();
+		void CreateFullText();
 	private:
 		static wxCriticalSection sm_queue;
 };
@@ -71,6 +87,7 @@ class FbCommonDatabase: public FbDatabase
 	public:
 		FbCommonDatabase();
 		void AttachConfig();
+		wxString GetMd5(int id);
 };
 
 class FbLocalDatabase: public FbDatabase

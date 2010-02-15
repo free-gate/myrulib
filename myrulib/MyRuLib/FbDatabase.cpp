@@ -4,10 +4,94 @@
 #include "FbDataPath.h"
 #include "FbGenres.h"
 
-#define DB_DATABASE_VERSION 8
+#define DB_DATABASE_VERSION 10
 #define DB_CONFIG_VERSION 2
 
+wxString Lower(const wxString & input)
+{
+#if defined(__WIN32__)
+	int len = input.length() + 1;
+	wxChar * buf = new wxChar[len];
+	wxStrcpy(buf, input.c_str());
+	CharLower(buf);
+	wxString output = buf;
+	delete [] buf;
+	return output;
+#else
+	return input.Lower();
+#endif
+}
+
+wxString Upper(const wxString & input)
+{
+#if defined(__WIN32__)
+	int len = input.length() + 1;
+	wxChar * buf = new wxChar[len];
+	wxStrcpy(buf, input.c_str());
+	CharUpper(buf);
+	wxString output = buf;
+	delete [] buf;
+	return output;
+#else
+	return input.Upper();
+#endif
+}
+
+wxString & MakeLower(wxString & data)
+{
+#if defined(__WIN32__)
+	int len = data.length() + 1;
+	wxChar * buf = new wxChar[len];
+	wxStrcpy(buf, data.c_str());
+	CharLower(buf);
+	data = buf;
+	delete [] buf;
+#else
+	data.MakeLower();
+#endif
+	return data;
+}
+
+wxString & MakeUpper(wxString & data)
+{
+#if defined(__WIN32__)
+	int len = data.length() + 1;
+	wxChar * buf = new wxChar[len];
+	wxStrcpy(buf, data.c_str());
+	CharUpper(buf);
+	data = buf;
+	delete [] buf;
+#else
+	data.MakeUpper();
+#endif
+	return data;
+}
+
 wxCriticalSection FbDatabase::sm_queue;
+
+void FbDatabase::CreateFullText()
+{
+	if ( TableExists(wxT("fts_book")) ) return;
+
+	wxSQLite3Transaction trans(this, WXSQLITE_TRANSACTION_EXCLUSIVE);
+
+	ExecuteUpdate(wxT("DROP TABLE IF EXISTS fts_auth"));
+	ExecuteUpdate(wxT("CREATE VIRTUAL TABLE fts_auth USING fts3"));
+
+	ExecuteUpdate(wxT("DROP TABLE IF EXISTS fts_book"));
+	ExecuteUpdate(wxT("CREATE VIRTUAL TABLE fts_book USING fts3"));
+
+	ExecuteUpdate(wxT("DROP TABLE IF EXISTS fts_seqn"));
+	ExecuteUpdate(wxT("CREATE VIRTUAL TABLE fts_seqn USING fts3"));
+
+	FbLowerFunction	lower;
+	CreateFunction(wxT("LOW"), 1, lower);
+	ExecuteUpdate(wxT("INSERT INTO fts_auth(docid, content) SELECT DISTINCT id, LOW(search_name) FROM authors"));
+	ExecuteUpdate(wxT("INSERT INTO fts_book(docid, content) SELECT DISTINCT id, LOW(title) FROM books"));
+	ExecuteUpdate(wxT("INSERT INTO fts_seqn(docid, content) SELECT DISTINCT id, LOW(value) FROM sequences"));
+
+	trans.Commit();
+}
 
 void FbMainDatabase::CreateDatabase()
 {
@@ -84,6 +168,8 @@ void FbMainDatabase::CreateDatabase()
 	ExecuteUpdate(_("INSERT INTO params(id, value) VALUES (2, 1)"));
 
 	trans.Commit();
+
+	CreateFullText();
 }
 
 void FbMainDatabase::DoUpgrade(int version)
@@ -157,28 +243,25 @@ void FbMainDatabase::DoUpgrade(int version)
 			} catch (...) {};
 		} break;
 
+		case 9: {
+			/** TABLE books **/
+			try {
+				ExecuteUpdate(wxT("ALTER TABLE books ADD lang CHAR(2)"));
+				ExecuteUpdate(wxT("ALTER TABLE books ADD year INTEGER"));
+			} catch (...) {};
+		} break;
+
 	}
 }
 
 void FbLowerFunction::Execute(wxSQLite3FunctionContext& ctx)
 {
 	int argCount = ctx.GetArgCount();
-	if (argCount != 1) {
+	if (argCount == 1) {
+		ctx.SetResult(Lower(ctx.GetString(0)));
+	} else {
 		ctx.SetResultError(wxString::Format(_("LOWER called with wrong number of arguments: %d."), argCount));
-		return;
 	}
-	wxString text = ctx.GetString(0);
-#if defined(__WIN32__)
-	int len = text.length() + 1;
-	wxChar * buf = new wxChar[len];
-	wxStrcpy(buf, text.c_str());
-	CharLower(buf);
-	text = buf;
-	delete [] buf;
-#else
-	text.MakeLower();
-#endif
-	ctx.SetResult(text);
 }
 
 void FbSearchFunction::Decompose(const wxString &text, wxArrayString &list)
@@ -205,22 +288,6 @@ FbSearchFunction::FbSearchFunction(const wxString & input)
 		log += wxString::Format(wxT("<%s> "), m_masks[i].c_str());
 	}
 	wxLogInfo(log);
-}
-
-wxString FbSearchFunction::Lower(const wxString & input)
-{
-	wxString output = input;
-#if defined(__WIN32__)
-	int len = output.length() + 1;
-	wxChar * buf = new wxChar[len];
-	wxStrcpy(buf, output.c_str());
-	CharLower(buf);
-	output = buf;
-	delete [] buf;
-#else
-	output.MakeLower();
-#endif
-	return output;
 }
 
 void FbSearchFunction::Execute(wxSQLite3FunctionContext& ctx)
@@ -253,6 +320,28 @@ void FbSearchFunction::Execute(wxSQLite3FunctionContext& ctx)
 		}
 	}
 	ctx.SetResult(true);
+}
+
+bool FbSearchFunction::IsFullText(const wxString &text)
+{
+	return ( text.Find(wxT("*")) == wxNOT_FOUND ) && ( text.Find(wxT("?")) == wxNOT_FOUND );
+}
+
+wxString FbSearchFunction::AddAsterisk(const wxString &text)
+{
+	wxString str = Lower(text);
+	wxString result;
+	int i = wxNOT_FOUND;
+	do {
+		str.Trim(false);
+		i = str.find(wxT(' '));
+		if (i == wxNOT_FOUND) break;
+		result += str.Left(i) + wxT("* ");
+		str = str.Mid(i);
+	} while (true);
+	str.Trim(true);
+	if (!str.IsEmpty()) result += str.Left(i) + wxT("*");
+	return result;
 }
 
 void FbGenreFunction::Execute(wxSQLite3FunctionContext& ctx)
@@ -438,7 +527,21 @@ void FbMasterDatabase::UpgradeDatabase(int new_version)
 
 	int old_version = GetVersion();
 	if (old_version != new_version) {
+		wxMessageBox(_("Несоответствие верси базы данных."), strProgramName, wxOK | wxICON_ERROR);
 		wxLogFatalError(_("Database version mismatch. Need a new version %d, but used the old %d."), new_version, old_version);
 	}
 }
 
+wxString FbCommonDatabase::GetMd5(int id)
+{
+	try {
+		wxString sql = wxT("SELECT md5sum FROM books WHERE id=?");
+		wxSQLite3Statement stmt = PrepareStatement(sql);
+		stmt.Bind(1, id);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		if (result.NextRow()) return result.GetAsString(0);
+	} catch (wxSQLite3Exception & e) {
+		wxLogError(e.GetMessage());
+	}
+	return wxEmptyString;
+}

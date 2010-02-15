@@ -8,7 +8,6 @@
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
 #include "FbFrameBase.h"
-#include "FbManager.h"
 
 class FbFrameSequen : public FbFrameBase
 {
@@ -24,6 +23,7 @@ class FbFrameSequen : public FbFrameBase
 		virtual wxMenuBar * CreateMenuBar();
 		virtual wxToolBar * CreateToolBar(long style, wxWindowID winid, const wxString& name);
 	private:
+		void ReplaceData(int old_id, int new_id, wxTreeItemId selected, const wxString &newname);
 		void ShowContextMenu(const wxPoint& pos, wxTreeItemId item);
 		void SelectFirstAuthor(const int book = 0);
 		BookTreeItemData * GetSelectedBook();
@@ -40,36 +40,25 @@ class FbFrameSequen : public FbFrameBase
 		void OnContextMenu(wxTreeEvent& event);
 		void OnLetterClicked(wxCommandEvent& event);
 		void OnCharEvent(wxKeyEvent& event);
-		void OnEmptyAuthors(wxCommandEvent& event);
-		void OnAppendAuthor(FbAuthorEvent& event);
 		void OnFindEnter(wxCommandEvent& event);
 		void OnMasterAppend(wxCommandEvent& event);
 		void OnMasterModify(wxCommandEvent& event);
 		void OnMasterDelete(wxCommandEvent& event);
+		void OnAppendAuthor(wxCommandEvent& event);
+		void OnAppendSequence(wxCommandEvent& event);
 		DECLARE_EVENT_TABLE()
 	protected:
-		class SequenThread: public BaseThread
-		{
-			public:
-				SequenThread(FbFrameBase * frame, FbListMode mode, const int master)
-					:BaseThread(frame, mode), m_master(master), m_number(sm_skiper.NewNumber()) {};
-				virtual void *Entry();
-			private:
-				static FbThreadSkiper sm_skiper;
-				int m_master;
-				int m_number;
-		};
 		class MasterThread: public FbThread
 		{
 			public:
-				MasterThread(wxWindow * frame, const wxString &text, int order): m_frame(frame), m_text(text), m_code(0), m_order(order) {};
-				MasterThread(wxWindow * frame, const int code, int order): m_frame(frame), m_code(code), m_order(order) {};
+				MasterThread(wxEvtHandler * frame, const wxString &text, int order): m_frame(frame), m_text(text), m_code(0), m_order(order) {};
+				MasterThread(wxEvtHandler * frame, const int code, int order): m_frame(frame), m_code(code), m_order(order) {};
 			protected:
 				virtual void * Entry();
 				wxString GetOrder();
 			private:
 				static wxCriticalSection sm_queue;
-				wxWindow * m_frame;
+				wxEvtHandler * m_frame;
 				wxString m_text;
 				int m_code;
 				int m_order;
@@ -83,8 +72,8 @@ class FbFrameSequen : public FbFrameBase
 		{
 			public:
 				EditDlg( const wxString& title = wxEmptyString, int id = 0 );
-				static int Append();
-				static int Modify(int id);
+				static int Append(wxString &newname);
+				static int Modify(int id, wxString &newname);
 			protected:
 				virtual void EndModal(int retCode);
 			private:

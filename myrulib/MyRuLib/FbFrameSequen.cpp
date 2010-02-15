@@ -2,19 +2,18 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include "FbConst.h"
-#include "FbManager.h"
 #include "InfoCash.h"
 #include "FbClientData.h"
 #include "ExternalDlg.h"
 #include "FbMainMenu.h"
 #include "FbUpdateThread.h"
+#include "FbMasterList.h"
 #include "FbWindow.h"
+#include "FbParams.h"
 
 BEGIN_EVENT_TABLE(FbFrameSequen, FbFrameBase)
 	EVT_TREE_SEL_CHANGED(ID_MASTER_LIST, FbFrameSequen::OnAuthorSelected)
     EVT_LIST_COL_CLICK(ID_MASTER_LIST, FbFrameSequen::OnColClick)
-	EVT_COMMAND(ID_EMPTY_AUTHORS, fbEVT_AUTHOR_ACTION, FbFrameSequen::OnEmptyAuthors)
-	EVT_FB_AUTHOR(ID_APPEND_AUTHOR, FbFrameSequen::OnAppendAuthor)
 	EVT_COMMAND(ID_BOOKS_COUNT, fbEVT_BOOK_ACTION, FbFrameSequen::OnBooksCount)
 	EVT_TEXT_ENTER(ID_SEQUENCE_TXT, FbFrameSequen::OnFindEnter )
 	EVT_MENU(ID_SEQUENCE_BTN, FbFrameSequen::OnFindEnter )
@@ -22,6 +21,8 @@ BEGIN_EVENT_TABLE(FbFrameSequen, FbFrameBase)
 	EVT_MENU(ID_MASTER_APPEND, FbFrameSequen::OnMasterAppend)
 	EVT_MENU(ID_MASTER_MODIFY, FbFrameSequen::OnMasterModify)
 	EVT_MENU(ID_MASTER_DELETE, FbFrameSequen::OnMasterDelete)
+	EVT_COMMAND(ID_APPEND_AUTHOR, fbEVT_BOOK_ACTION, FbFrameSequen::OnAppendAuthor)
+	EVT_COMMAND(ID_APPEND_SEQUENCE, fbEVT_BOOK_ACTION, FbFrameSequen::OnAppendSequence)
 END_EVENT_TABLE()
 
 FbFrameSequen::FbFrameSequen(wxAuiMDIParentFrame * parent)
@@ -40,12 +41,11 @@ void FbFrameSequen::CreateControls()
 
 	m_FindInfo = new wxStaticText( this, wxID_ANY, _("Серия:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_FindInfo->Wrap( -1 );
-	bSizerSeq->Add( m_FindInfo, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	bSizerSeq->Add( m_FindInfo, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5 );
 
 	m_FindText = new wxTextCtrl( this, ID_SEQUENCE_TXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	m_FindText->SetMinSize( wxSize( 200,-1 ) );
-
-	bSizerSeq->Add( m_FindText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	bSizerSeq->Add( m_FindText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
 
 	m_ToolBar = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, GetTitle());
 	bSizerSeq->Add( m_ToolBar, 1, wxALIGN_CENTER_VERTICAL);
@@ -57,7 +57,7 @@ void FbFrameSequen::CreateControls()
 	splitter->SetSashGravity(0.33);
 	sizer->Add(splitter, 1, wxEXPAND);
 
-	m_MasterList = new FbTreeListCtrl(splitter, ID_MASTER_LIST, wxTR_HIDE_ROOT | wxTR_NO_LINES | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxSUNKEN_BORDER);
+	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST, wxTR_HIDE_ROOT | wxTR_NO_LINES | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxSUNKEN_BORDER);
 	m_MasterList->AddColumn(_("Серия"), 40, wxALIGN_LEFT);
 	m_MasterList->AddColumn(_("Кол."), 10, wxALIGN_RIGHT);
 	m_MasterList->SetFocus();
@@ -96,8 +96,8 @@ void FbFrameSequen::OnAuthorSelected(wxTreeEvent & event)
 	wxTreeItemId selected = event.GetItem();
 	if (selected.IsOk()) {
 		m_BooksPanel->EmptyBooks();
-		FbMasterData * data = (FbMasterData*) m_MasterList->GetItemData(selected);
-		if (data) ( new SequenThread(this, m_BooksPanel->GetListMode(), data->GetId()) )->Execute();
+		FbMasterData * data = m_MasterList->GetItemData(selected);
+		if (data) data->Show(this);
 	}
 }
 
@@ -110,83 +110,29 @@ void FbFrameSequen::FindSequence(const wxString &text)
 {
 	m_SequenceText = text;
 	m_SequenceCode = 0;
-	(new MasterThread(this, m_SequenceText, m_MasterList->GetSortedColumn()))->Execute();
+	(new MasterThread(m_MasterList, m_SequenceText, m_MasterList->GetSortedColumn()))->Execute();
 }
 
 void FbFrameSequen::OpenSequence(const int sequence, const int book)
 {
 	m_SequenceText = wxEmptyString;
 	m_SequenceCode = sequence;
-	(new MasterThread(this, m_SequenceCode, m_MasterList->GetSortedColumn()))->Execute();
-}
-
-FbThreadSkiper FbFrameSequen::SequenThread::sm_skiper;
-
-void * FbFrameSequen::SequenThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
-
-	if (sm_skiper.Skipped(m_number)) return NULL;
-
-	try {
-		FbCommonDatabase database;
-		InitDatabase(database);
-
-		wxString condition = wxT("books.id IN (SELECT id_book FROM bookseq WHERE id_seq=?)");
-		if (m_mode == FB2_MODE_TREE) condition += wxT("AND bookseq.id_seq=?");
-		wxString sql = GetSQL(condition);
-		wxSQLite3Statement stmt = database.PrepareStatement(sql);
-		stmt.Bind(1, m_master);
-		if (m_mode == FB2_MODE_TREE) stmt.Bind(2, m_master);
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
-		if (sm_skiper.Skipped(m_number)) return NULL;
-		FillBooks(result);
-	}
-	catch (wxSQLite3Exception & e) {
-		wxLogError(e.GetMessage());
-	}
-
-	return NULL;
+	(new MasterThread(m_MasterList, m_SequenceCode, m_MasterList->GetSortedColumn()))->Execute();
 }
 
 void FbFrameSequen::UpdateBooklist()
 {
-	wxTreeItemId selected = m_MasterList->GetSelection();
-	if (selected.IsOk()) {
-		m_BooksPanel->EmptyBooks();
-		FbMasterData * data = (FbMasterData*) m_MasterList->GetItemData(selected);
-		if (data) (new SequenThread(this, m_BooksPanel->GetListMode(), data->GetId()))->Execute();
-	}
-}
-
-void FbFrameSequen::OnAppendAuthor(FbAuthorEvent& event)
-{
-	FbTreeListUpdater updater(m_MasterList);
-	wxTreeItemId root = m_MasterList->GetRootItem();
-
-	wxTreeItemIdValue cookie;
-	wxTreeItemId child = m_MasterList->GetFirstChild(root, cookie);
-
-	wxTreeItemId item = m_MasterList->AppendItem(root, event.GetString(), -1, -1, new FbMasterData(event.m_author));
-	wxString number = wxString::Format(wxT("%d"), event.m_number);
-	m_MasterList->SetItemText(item, 1, number);
-
-	if (!child.IsOk()) m_MasterList->SelectItem(item);
-}
-
-void FbFrameSequen::OnEmptyAuthors(wxCommandEvent& event)
-{
-	BookListUpdater updater(m_MasterList);
-	m_MasterList->AddRoot(wxEmptyString);
+	m_BooksPanel->EmptyBooks();
+	FbMasterData * data = m_MasterList->GetSelectedData();
+	if (data) data->Show(this);
 }
 
 void FbFrameSequen::OnColClick(wxListEvent& event)
 {
 	if (m_SequenceCode)
-		(new MasterThread(this, m_SequenceCode, m_MasterList->GetSortedColumn()))->Execute();
+		(new MasterThread(m_MasterList, m_SequenceCode, m_MasterList->GetSortedColumn()))->Execute();
 	else
-		(new MasterThread(this, m_SequenceText, m_MasterList->GetSortedColumn()))->Execute();
+		(new MasterThread(m_MasterList, m_SequenceText, m_MasterList->GetSortedColumn()))->Execute();
 }
 
 void FbFrameSequen::OnBooksCount(wxCommandEvent& event)
@@ -200,23 +146,34 @@ wxCriticalSection FbFrameSequen::MasterThread::sm_queue;
 
 void * FbFrameSequen::MasterThread::Entry()
 {
+	FbCommandEvent(fbEVT_BOOK_ACTION, ID_EMPTY_BOOKS).Post(m_frame);
+
 	wxCriticalSectionLocker locker(sm_queue);
 
 	try {
+		bool bBindText = false;
 		FbCommonDatabase database;
 		FbSearchFunction search(m_text);
-		wxString sql = wxT("SELECT id, value as name, number FROM sequences");
+		wxString sql = wxT("SELECT id, value as name, number FROM sequences ");
 		if (m_code) {
-			sql += wxString::Format(wxT(" WHERE id=%d"), m_code);
-		} else if (!m_text.IsEmpty()) {
-			sql += wxT(" WHERE SEARCH(value)");
+			sql += wxString::Format(wxT("WHERE id=%d"), m_code);
+		} else if ( m_text.IsEmpty() ) {
+			// Nothing to do !
+		} else if ( FbSearchFunction::IsFullText(m_text) && database.TableExists(wxT("fts_seqn")) ) {
+			sql += wxT("WHERE id IN (SELECT docid FROM fts_seqn WHERE fts_seqn MATCH ?)");
+			bBindText = true;
+		} else {
+			sql += wxT("WHERE SEARCH(value)");
 			database.CreateFunction(wxT("SEARCH"), 1, search);
 		}
-		sql += wxT(" ORDER BY ") + GetOrder();
-		wxSQLite3ResultSet result = database.ExecuteQuery(sql);
-		FbCommandEvent(fbEVT_AUTHOR_ACTION, ID_EMPTY_AUTHORS).Post(m_frame);
+		sql += wxT(" ORDER BY ") + GetOrder() + FbParams::GetLimit();
+		wxSQLite3Statement stmt = database.PrepareStatement(sql);
+		if (bBindText) stmt.Bind(1, FbSearchFunction::AddAsterisk(m_text));
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		FbMasterEvent(ID_EMPTY_MASTERS).Post(m_frame);
 		while (result.NextRow()) {
-			FbAuthorEvent(ID_APPEND_AUTHOR, result).Post(m_frame);
+			FbMasterSeqname * data = new FbMasterSeqname( result.GetInt(0) );
+			FbMasterEvent(ID_APPEND_MASTER, result.GetString(1), data, result.GetInt(2)).Post(m_frame);
 		}
 	}
 	catch (wxSQLite3Exception & e) {
@@ -272,7 +229,7 @@ void FbFrameSequen::ShowContextMenu(const wxPoint& pos, wxTreeItemId item)
 {
 	int id = 0;
 	if (item.IsOk()) {
-		FbMasterData * data = (FbMasterData*) m_MasterList->GetItemData(item);
+		FbMasterData * data = m_MasterList->GetItemData(item);
 		if (data) id = data->GetId();
 	}
 	MasterMenu menu(id);
@@ -294,33 +251,31 @@ FbFrameSequen::EditDlg::EditDlg( const wxString& title, int id )
 	m_edit.SetMinSize( wxSize( 300,-1 ) );
 	bSizerMain->Add( &m_edit, 0, wxEXPAND|wxALL, 5 );
 
-	wxStdDialogButtonSizer * m_sdbSizerBtn = new wxStdDialogButtonSizer();
-	wxButton * m_sdbSizerBtnOK = new wxButton( this, wxID_OK );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnOK );
-	m_sdbSizerBtnOK->SetDefault();
-	wxButton * m_sdbSizerBtnCancel = new wxButton( this, wxID_CANCEL );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnCancel );
-	m_sdbSizerBtn->Realize();
-	bSizerMain->Add( m_sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
+	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
+	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
 
 	this->SetSizer( bSizerMain );
 	this->Layout();
 
 	wxSize newSize = GetBestSize();
 	this->SetSize(newSize);
+
+	m_edit.SetFocus();
 }
 
-int FbFrameSequen::EditDlg::Append()
+int FbFrameSequen::EditDlg::Append(wxString &newname)
 {
 	EditDlg dlg(_("Добавить серию"));
 	bool ok = dlg.ShowModal() == wxID_OK;
+	if (ok) newname = dlg.GetValue();
 	return ok ? dlg.DoAppend() : 0;
 }
 
-int FbFrameSequen::EditDlg::Modify(int id)
+int FbFrameSequen::EditDlg::Modify(int id, wxString &newname)
 {
 	EditDlg dlg(_("Изменить серию"), id);
 	bool ok = dlg.Load(id) && dlg.ShowModal() == wxID_OK;
+	if (ok) newname = dlg.GetValue();
 	return ok ? dlg.DoUpdate() : 0;
 }
 
@@ -405,28 +360,48 @@ void FbFrameSequen::EditDlg::EndModal(int retCode)
 }
 void FbFrameSequen::OnMasterAppend(wxCommandEvent& event)
 {
-	int id = EditDlg::Append();
-	if (id) FbOpenEvent(ID_BOOK_SEQUENCE, id).Post();
+	wxString newname;
+	int id = EditDlg::Append(newname);
+	if (id) {
+		FbMasterData * data = new FbMasterSeqname(id);
+		wxTreeItemId item = m_MasterList->InsertItem(m_MasterList->GetRootItem(), m_MasterList->GetSelection(), newname, -1, -1, data);
+		m_MasterList->SelectItem(item);
+	}
 }
 
 void FbFrameSequen::OnMasterModify(wxCommandEvent& event)
 {
-	wxTreeItemId selected = m_MasterList->GetSelection();
-	FbMasterData * data = (FbMasterData*) m_MasterList->GetItemData(selected);
-	if (!data) return;
+    wxTreeItemId selected = m_MasterList->GetSelection();
+	FbMasterData * data = selected.IsOk() ? m_MasterList->GetItemData(selected) : NULL;
+	if (data && data->GetId()) {
+		wxString newname;
+		int old_id = data->GetId();
+		int new_id = EditDlg::Modify(old_id, newname);
+		if (new_id) ReplaceData(old_id, new_id, selected, newname);
+	}
+}
 
-	int id = EditDlg::Modify(data->GetId());
-	if (id) FbOpenEvent(ID_BOOK_SEQUENCE, id).Post();
+void FbFrameSequen::ReplaceData(int old_id, int new_id, wxTreeItemId selected, const wxString &newname)
+{
+	if (selected.IsOk()) m_MasterList->SetItemText(selected, newname);
+	if (old_id != new_id) {
+		FbMasterSeqname deleted(new_id);
+		m_MasterList->DeleteItem(deleted);
+		delete m_MasterList->GetItemData(selected);
+		FbMasterData * data = new FbMasterSeqname(new_id);
+		m_MasterList->SetItemData(selected, data);
+		m_MasterList->SelectItem(selected);
+	}
 }
 
 void FbFrameSequen::OnMasterDelete(wxCommandEvent& event)
 {
-	wxTreeItemId selected = m_MasterList->GetSelection();
-	FbMasterData * data = (FbMasterData*) m_MasterList->GetItemData(selected);
+	FbMasterData * data = m_MasterList->GetSelectedData();
 	if (!data) return;
 	int id = data->GetId();
 	if (!id) return;
 
+	wxTreeItemId selected = m_MasterList->GetSelection();
 	wxString name = m_MasterList->GetItemText(selected);
 	wxString msg = wxString::Format(_("Удалить серию «%s»?"), name.c_str());
 	bool ok = wxMessageBox(msg, _("Удаление"), wxOK | wxCANCEL | wxICON_QUESTION) == wxOK;
@@ -461,5 +436,17 @@ FbFrameSequen::MenuMaster::MenuMaster()
 wxMenuBar * FbFrameSequen::CreateMenuBar()
 {
 	return new MenuBar;
+}
+
+void FbFrameSequen::OnAppendSequence(wxCommandEvent& event)
+{
+	wxString title = event.GetString();
+	if (title.IsEmpty()) title = strOtherSequence;
+	m_BooksPanel->AppendAuthor( event.GetInt(), title );
+}
+
+void FbFrameSequen::OnAppendAuthor(wxCommandEvent& event)
+{
+	m_BooksPanel->AppendSequence( event.GetInt(), event.GetString(), new FbAuthorData(event.GetInt()));
 }
 
