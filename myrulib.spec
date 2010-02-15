@@ -1,5 +1,5 @@
 Name: myrulib
-Version: 0.17
+Version: 0.19
 Release: alt1
 
 Summary: Tool for maintaining fb2 files collection
@@ -36,6 +36,9 @@ install MyRuLib/desktop/home-64x64.png %buildroot/usr/share/icons/hicolor/64x64/
 /usr/share/icons/hicolor/64x64/apps/myrulib.png
 
 %changelog
+* Mon Feb 15 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 0.19-alt1
+- new version
+
 * Tue Dec 29 2009 Anton V. Boyarshinov <boyarsh@altlinux.ru> 0.17-alt1
 - new version
 - compilation flags added
