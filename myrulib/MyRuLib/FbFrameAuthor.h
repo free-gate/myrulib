@@ -8,7 +8,6 @@
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
 #include "FbFrameBase.h"
-#include "FbManager.h"
 
 enum FbAuthorListMode
 {
@@ -31,11 +30,12 @@ class FbFrameAuthor : public FbFrameBase
 		virtual void UpdateBooklist();
 		virtual wxMenuBar * CreateMenuBar();
 	private:
-		wxToolBar * CreateAlphaBar(wxWindow * parent, const wxString & alphabet, const int &toolid, long style);
+		wxToolBar * CreateAlphaBar(wxWindow * parent, wxWindowID id, const wxString & alphabet, const int &toolid, long style);
 		void ToggleAlphabar(const int &idLetter);
 		void SelectFirstAuthor(const int book = 0);
 		BookTreeItemData * GetSelectedBook();
 		void ShowContextMenu(const wxPoint& pos, wxTreeItemId item);
+		void ReplaceData(int old_id, int new_id, wxTreeItemId selected, const wxString &newname);
 	private:
 		wxSplitterWindow * m_BooksSplitter;
 		wxToolBar * m_RuAlphabar;
@@ -48,32 +48,21 @@ class FbFrameAuthor : public FbFrameBase
 		void OnAuthorSelected(wxTreeEvent & event);
 		void OnBooksCount(wxCommandEvent& event);
 		void OnColClick(wxListEvent& event);
+		void OnAllClicked(wxCommandEvent& event);
 		void OnLetterClicked(wxCommandEvent& event);
 		void OnExternal(wxCommandEvent& event);
 		void OnCharEvent(wxKeyEvent& event);
-		void OnEmptyAuthors(wxCommandEvent& event);
-		void OnAppendAuthor(FbAuthorEvent& event);
+		void OnViewAlphavet(wxCommandEvent& event);
+		void OnViewAlphavetUpdateUI(wxUpdateUIEvent & event);
 		void OnMasterAppend(wxCommandEvent& event);
 		void OnMasterModify(wxCommandEvent& event);
 		void OnMasterDelete(wxCommandEvent& event);
 		void OnMasterReplace(wxCommandEvent& event);
+		void OnMasterPage(wxCommandEvent& event);
+		void OnMasterPageUpdateUI(wxUpdateUIEvent & event);
 		void OnContextMenu(wxTreeEvent& event);
 		DECLARE_EVENT_TABLE()
 	protected:
-		class AuthorThread: public BaseThread
-		{
-			public:
-				AuthorThread(FbFrameBase * frame, FbListMode mode, const int author)
-					:BaseThread(frame, mode), m_author(author), m_number(sm_skiper.NewNumber()) {};
-				virtual void *Entry();
-			protected:
-				virtual void CreateTree(wxSQLite3ResultSet &result);
-				virtual wxString GetSQL(const wxString & condition);
-			private:
-				static FbThreadSkiper sm_skiper;
-				int m_author;
-				int m_number;
-		};
 		class MasterMenu: public wxMenu
 		{
 			public:
@@ -84,6 +73,10 @@ class FbFrameAuthor : public FbFrameBase
 		{
 			public:
 				MenuBar();
+			private:
+				class MenuView: public FbFrameMenu::MenuView {
+					public: MenuView();
+				};
 		};
 		class MenuMaster: public FbMenu {
 			public: MenuMaster();

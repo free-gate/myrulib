@@ -15,12 +15,13 @@
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
-					<Add option="-g" />
 					<Add option="-Wall" />
+					<Add option="-g" />
 					<Add option="`wx-config --cflags`" />
 				</Compiler>
 				<Linker>
 					<Add option="`wx-config --libs`" />
+					<Add library="libicuio.a" />
 					<Add directory="..\build\LinDebug" />
 				</Linker>
 			</Target>
@@ -40,6 +41,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="`wx-config --libs`" />
+					<Add library="libicuio.a" />
 					<Add directory="..\build\LinRelease" />
 				</Linker>
 			</Target>
@@ -156,7 +158,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-DDONT_USE_DATABASE_LAYER_EXCEPTIONS" />
 			<Add directory="..\SQLite3" />
 			<Add directory="..\Expat" />
 			<Add directory="..\WxSQLite3" />
@@ -166,11 +167,10 @@
 			<Add library="libWxSQLite3.a" />
 			<Add library="libSQLite3.a" />
 			<Add library="libExpat.a" />
+			<Add library="libicuio.a" />
 		</Linker>
 		<Unit filename="BaseThread.cpp" />
 		<Unit filename="BaseThread.h" />
-		<Unit filename="BookExtractInfo.cpp" />
-		<Unit filename="BookExtractInfo.h" />
 		<Unit filename="ExpThread.cpp" />
 		<Unit filename="ExpThread.h" />
 		<Unit filename="ExternalDlg.cpp" />
@@ -195,6 +195,10 @@
 		<Unit filename="FbBookThread.h" />
 		<Unit filename="FbCalendar.cpp" />
 		<Unit filename="FbCalendar.h" />
+		<Unit filename="FbCheckList.cpp" />
+		<Unit filename="FbCheckList.h" />
+		<Unit filename="FbColumnDlg.cpp" />
+		<Unit filename="FbColumnDlg.h" />
 		<Unit filename="FbConfigDlg.cpp" />
 		<Unit filename="FbConfigDlg.h" />
 		<Unit filename="FbConst.cpp" />
@@ -209,11 +213,16 @@
 		<Unit filename="FbDownloader.h" />
 		<Unit filename="FbEditBook.cpp" />
 		<Unit filename="FbEditBook.h" />
+		<Unit filename="FbExtractInfo.cpp" />
+		<Unit filename="FbExtractInfo.h" />
+		<Unit filename="FbFilterDlg.cpp" />
+		<Unit filename="FbFilterDlg.h" />
+		<Unit filename="FbFilterObj.cpp" />
+		<Unit filename="FbFilterObj.h" />
 		<Unit filename="FbFrameAuthor.cpp" />
 		<Unit filename="FbFrameAuthor.h" />
 		<Unit filename="FbFrameBase.cpp" />
 		<Unit filename="FbFrameBase.h" />
-		<Unit filename="FbFrameDate.cpp" />
 		<Unit filename="FbFrameDate.h" />
 		<Unit filename="FbFrameDownld.cpp" />
 		<Unit filename="FbFrameDownld.h" />
@@ -231,6 +240,9 @@
 		<Unit filename="FbFrameSequen.h" />
 		<Unit filename="FbGenres.cpp" />
 		<Unit filename="FbGenres.h" />
+		<Unit filename="FbHTMLWindow.h" />
+		<Unit filename="FbHtmlWindow.cpp" />
+		<Unit filename="FbHtmlWindow.h" />
 		<Unit filename="FbImportThread.cpp" />
 		<Unit filename="FbImportThread.h" />
 		<Unit filename="FbLogStream.cpp" />
@@ -240,10 +252,14 @@
 		<Unit filename="FbMainFrame.h" />
 		<Unit filename="FbMainMenu.cpp" />
 		<Unit filename="FbMainMenu.h" />
-		<Unit filename="FbManager.cpp" />
-		<Unit filename="FbManager.h" />
+		<Unit filename="FbMasterData.cpp" />
+		<Unit filename="FbMasterData.h" />
+		<Unit filename="FbMasterList.cpp" />
+		<Unit filename="FbMasterList.h" />
 		<Unit filename="FbMenu.cpp" />
 		<Unit filename="FbMenu.h" />
+		<Unit filename="FbNotebook.cpp" />
+		<Unit filename="FbNotebook.h" />
 		<Unit filename="FbParams.cpp" />
 		<Unit filename="FbParams.h" />
 		<Unit filename="FbReplaceDlg.cpp" />

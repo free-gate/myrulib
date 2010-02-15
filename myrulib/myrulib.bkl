@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <makefile>
 
+	<set var="PREFIX">/usr</set>
 	<set var="BUILDDIR">build</set>
 	
 	<set var="WX_PORT_DEFAULT"></set>
@@ -33,11 +34,12 @@
 	</lib>
 
 	<lib id="sqlite3_static" template="wx-lib" cond="WX_SHARED_DEFAULT=='0'">
+		<define>SQLITE_ENABLE_FTS3</define>
 		<sources>SQLite3/sqlite3.c</sources>
 	</lib>
 	
 	<lib id="wxsqlite3_static" template="wx-lib">
-		<include cond="WX_SHARED_DEFAULT=='0'">SQLite3</include>
+		<include>SQLite3</include>
 		<include>WxSQLite3</include>
 		<include>WxSQLite3</include>
 		<sources>WxSQLite3/wxsqlite3.cpp</sources>
@@ -46,7 +48,6 @@
 	<exe id="myrulib" template="wxgui">
 		<define cond="WX_SHARED_DEFAULT=='0'">XML_STATIC</define>
 		<sources>MyRuLib/BaseThread.cpp</sources>
-		<sources>MyRuLib/BookExtractInfo.cpp</sources>
 		<sources>MyRuLib/ExpThread.cpp</sources>
 		<sources>MyRuLib/ExternalDlg.cpp</sources>
 		<sources>MyRuLib/FbAboutDlg.cpp</sources>
@@ -58,13 +59,18 @@
 		<sources>MyRuLib/FbBookMenu.cpp</sources>
 		<sources>MyRuLib/FbBookPanel.cpp</sources>
 		<sources>MyRuLib/FbBookThread.cpp</sources>
+		<sources>MyRuLib/FbCheckList.cpp</sources>
+		<sources>MyRuLib/FbColumnDlg.cpp</sources>
 		<sources>MyRuLib/FbConfigDlg.cpp</sources>
 		<sources>MyRuLib/FbConst.cpp</sources>
 		<sources>MyRuLib/FbDatabase.cpp</sources>
 		<sources>MyRuLib/FbDataOpenDlg.cpp</sources>
 		<sources>MyRuLib/FbDataPath.cpp</sources>
 		<sources>MyRuLib/FbEditBook.cpp</sources>
+		<sources>MyRuLib/FbExtractInfo.cpp</sources>
 		<sources>MyRuLib/FbDownloader.cpp</sources>
+		<sources>MyRuLib/FbFilterDlg.cpp</sources>
+		<sources>MyRuLib/FbFilterObj.cpp</sources>
 		<sources>MyRuLib/FbFrameAuthor.cpp</sources>
 		<sources>MyRuLib/FbFrameBase.cpp</sources>
 		<sources>MyRuLib/FbFrameDownld.cpp</sources>
@@ -75,12 +81,15 @@
 		<sources>MyRuLib/FbFrameSearch.cpp</sources>
 		<sources>MyRuLib/FbFrameSequen.cpp</sources>
 		<sources>MyRuLib/FbGenres.cpp</sources>
+		<sources>MyRuLib/FbHtmlWindow.cpp</sources>
 		<sources>MyRuLib/FbImportThread.cpp</sources>
 		<sources>MyRuLib/FbLogStream.cpp</sources>
 		<sources>MyRuLib/FbMainFrame.cpp</sources>
 		<sources>MyRuLib/FbMainMenu.cpp</sources>
-		<sources>MyRuLib/FbManager.cpp</sources>
+		<sources>MyRuLib/FbMasterData.cpp</sources>
+		<sources>MyRuLib/FbMasterList.cpp</sources>
 		<sources>MyRuLib/FbMenu.cpp</sources>
+		<sources>MyRuLib/FbNotebook.cpp</sources>
 		<sources>MyRuLib/FbParams.cpp</sources>
 		<sources>MyRuLib/FbReplaceDlg.cpp</sources>
 		<sources>MyRuLib/FbTreeListCtrl.cpp</sources>
@@ -129,19 +138,19 @@
 		<optimize>speed</optimize>
 		<debug-info>off</debug-info>
 		<runtime-libs cond="FORMAT=='mingw'">static</runtime-libs>
-		<install-to cond="FORMAT=='gnu'">/usr/bin</install-to>
+		<install-to cond="FORMAT=='gnu'">$(BINDIR)</install-to>
 	</exe>
 	
 	<if cond="FORMAT=='gnu'">
 		<data-files> 
 			<srcdir>MyRuLib/desktop</srcdir>
-			<files>home-32x32.png</files>
-			<install-to>/usr/share/myrulib</install-to>
+			<files>myrulib.png</files>
+			<install-to>$(DATADIR)/icons/hicolor/48x48/apps</install-to>
 		</data-files>
 		<data-files>
 			<srcdir>MyRuLib/desktop</srcdir>
 			<files>myrulib.desktop</files>
-			<install-to>/usr/share/applications</install-to>
+			<install-to>$(DATADIR)/applications</install-to>
 		</data-files>
 	</if>
 	

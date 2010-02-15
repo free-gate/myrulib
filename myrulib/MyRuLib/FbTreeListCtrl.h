@@ -10,7 +10,7 @@ class FbTreeListCtrl: public wxTreeListCtrl
 public:
 	FbTreeListCtrl(wxWindow *parent, wxWindowID id, long style);
 	virtual void AddColumn(const wxString& text, int width, int flag = wxALIGN_LEFT);
-	void EmptyCols();
+    wxTreeItemData * GetSelectedData() const;
 	virtual void Update();
 private:
 	void DoResizeCols(int width);
@@ -28,15 +28,6 @@ class FbTreeListUpdater
 		virtual ~FbTreeListUpdater() { m_list->Thaw(); };
 	private:
 		wxTreeListCtrl * m_list;
-};
-
-class FbMasterData: public wxTreeItemData
-{
-	public:
-		FbMasterData(const int id): m_id(id) {};
-		const int GetId() { return m_id; };
-	private:
-		int m_id;
 };
 
 #endif // __FBTREELISTCTRL_H__

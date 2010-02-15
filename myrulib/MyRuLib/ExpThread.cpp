@@ -1,5 +1,4 @@
 #include "ExpThread.h"
-#include "FbManager.h"
 #include "ZipReader.h"
 
 WX_DEFINE_OBJARRAY(ExportFileArray);
@@ -40,4 +39,14 @@ void *ExportThread::Entry()
 	DoFinish();
 
 	return NULL;
+}
+
+bool ExportThread::Execute()
+{
+	if ( Create() != wxTHREAD_NO_ERROR ) {
+		wxLogError(wxT("Can't create export thread!"));
+		return false;
+	}
+	Run();
+	return true;
 }

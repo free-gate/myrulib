@@ -21,20 +21,13 @@ FbAuthorDlg::FbAuthorDlg( const wxString& title, int id )
 
 	bSizerMain->Add( bSizerGrid, 1, wxEXPAND, 5 );
 
-	wxStdDialogButtonSizer * m_sdbSizerBtn = new wxStdDialogButtonSizer();
-	wxButton * m_sdbSizerBtnOK = new wxButton( this, wxID_OK );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnOK );
-	m_sdbSizerBtnOK->SetDefault();
-	wxButton * m_sdbSizerBtnCancel = new wxButton( this, wxID_CANCEL );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnCancel );
-	m_sdbSizerBtn->Realize();
-	bSizerMain->Add( m_sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
+	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
+	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
 
 	this->SetSizer( bSizerMain );
 	this->Layout();
 
-	wxSize newSize = GetBestSize();
-	this->SetSize(newSize);
+	this->SetSize(GetBestSize());
 }
 
 wxTextCtrl * FbAuthorDlg::AppenName(wxFlexGridSizer * parent, wxWindowID id, const wxString &caption)
@@ -49,18 +42,27 @@ wxTextCtrl * FbAuthorDlg::AppenName(wxFlexGridSizer * parent, wxWindowID id, con
 	return edit;
 }
 
-int FbAuthorDlg::Append()
+int FbAuthorDlg::Append(wxString &newname)
 {
 	FbAuthorDlg dlg(_("Добавить автора"));
 	bool ok = dlg.ShowModal() == wxID_OK;
+	if (ok) newname = dlg.GetFullName();
 	return ok ? dlg.DoAppend() : 0;
 }
 
-int FbAuthorDlg::Modify(int id)
+int FbAuthorDlg::Modify(int id, wxString &newname)
 {
 	FbAuthorDlg dlg(_("Изменить автора"), id);
 	bool ok = dlg.Load(id) && dlg.ShowModal() == wxID_OK;
+	if (ok) newname = dlg.GetFullName();
 	return ok ? dlg.DoUpdate() : 0;
+}
+
+wxString FbAuthorDlg::GetFullName()
+{
+	AuthorItem author;
+	GetValues(author);
+	return author.GetFullName();
 }
 
 bool FbAuthorDlg::Load(int id)

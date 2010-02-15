@@ -3,13 +3,14 @@
 #include "FbParams.h"
 #include "MyRuLibApp.h"
 #include "FbDataPath.h"
+#include "FbBookData.h"
 
 WX_DEFINE_OBJARRAY(ParamArray);
 
 ParamItem::ParamItem(wxSQLite3ResultSet & result):
-	id(result.GetInt(wxT("id"))),
-	value(result.GetInt(wxT("value"))),
-	text(result.GetString(wxT("text")))
+	id(result.GetInt(0)),
+	value(result.GetInt(1)),
+	text(result.GetString(2))
 {
 }
 
@@ -30,7 +31,11 @@ void FbParams::LoadParams()
 
 	wxString sql = wxT("SELECT id, value, text FROM config WHERE id>=100 UNION ALL SELECT id, value, text FROM params WHERE id<100");
 	wxSQLite3ResultSet result = m_database.ExecuteQuery(sql);
-	while (result.NextRow()) sm_params.Add(new ParamItem(result));
+	while (result.NextRow()) {
+		ParamItem * param = new ParamItem(result);
+		if (param->id == FB_TEMP_DEL) FbTempEraser::sm_erase = param->value;
+		sm_params.Add(param);
+	}
 }
 
 int FbParams::GetValue(const int param)
@@ -128,13 +133,19 @@ void FbParams::SetText(const int param, const wxString &text)
 int FbParams::DefaultValue(int param)
 {
 	switch (param) {
+		case FB_TEMP_DEL: return 1;
 		case FB_MODE_AUTHOR: return 1;
 		case FB_TRANSLIT_FOLDER: return 0;
 		case FB_TRANSLIT_FILE: return 1;
 		case FB_USE_PROXY: return 0;
+		case FB_HTTP_IMAGES: return 0;
 		case FB_AUTO_DOWNLD: return 1;
 		case FB_FRAME_WIDTH: return 640;
 		case FB_FRAME_HEIGHT: return 480;
+		case FB_ALPHABET_RU: return 1;
+		case FB_ALPHABET_EN: return 1;
+		case FB_LIMIT_CHECK: return 1;
+		case FB_LIMIT_COUNT: return 5000;
 		default: return 0;
 	}
 };
@@ -146,10 +157,17 @@ wxString FbParams::DefaultText(int param)
 			return wxGetApp().GetAppPath();
 		case DB_WANRAIK_DIR:
 			return wxGetApp().GetAppPath();
-		case FB_LIBRUSEC_URL:
-			return wxT("http://lib.rus.ec");
+		case DB_DOWNLOAD_HOST:
+			return wxT("flibusta.net");
 		case FB_DOWNLOAD_DIR:
 			return FbStandardPaths().GetUserConfigDir() + wxFileName::GetPathSeparator() + wxT("download");
+		case FB_TEMP_DIR:
+			return FbStandardPaths().GetUserConfigDir() + wxFileName::GetPathSeparator() + wxT("local");
+		case FB_FONT_MAIN:
+		case FB_FONT_HTML:
+		case FB_FONT_TOOL:
+		case FB_FONT_DLG:
+			return wxSystemSettingsNative::GetFont(wxSYS_DEFAULT_GUI_FONT).GetNativeFontInfoDesc();
 		default:
 			return wxEmptyString;
 	}
@@ -164,7 +182,7 @@ wxFont FbParams::GetFont(const int param)
 	return font;
 }
 
-void FbParams::AddRecent(const wxString &text)
+void FbParams::AddRecent(const wxString &text, const wxString &title)
 {
 	int i = 0;
 
@@ -177,9 +195,22 @@ void FbParams::AddRecent(const wxString &text)
 	while (i>0){
 		wxString file = GetText(FB_RECENT_0 + i - 1);
 		SetText(FB_RECENT_0 + i, file);
+		wxString info = GetText(FB_TITLE_0 + i - 1);
+		SetText(FB_TITLE_0 + i, info);
 		i--;
 	}
 
 	SetText(FB_RECENT_0 + i, text);
+	SetText(FB_TITLE_0 + i, title);
 }
 
+wxString FbParams::GetLimit()
+{
+	int limit = GetValue(FB_LIMIT_CHECK) ? GetValue(FB_LIMIT_COUNT) : 0;
+	return limit ? wxString::Format(wxT(" LIMIT %d "), limit) : (wxString)wxEmptyString;
+}
+
+void FbParams::ResetValue(const int param)
+{
+	SetValue(param, DefaultValue(param));
+}

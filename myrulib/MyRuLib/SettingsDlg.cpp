@@ -26,7 +26,6 @@
 #include <wx/notebook.h>
 #include <wx/textdlg.h>
 #include <wx/settings.h>
-#include "FbManager.h"
 #include "FbParams.h"
 #include "FbConst.h"
 #include "FbBookEvent.h"
@@ -118,20 +117,6 @@ SettingsDlg::FbPanelInternet::FbPanelInternet(wxWindow *parent)
 	wxCheckBox * m_checkBox13 = new wxCheckBox( this, ID_AUTO_DOWNLD, _("Автоматически стартовать загрузку файлов"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer2->Add( m_checkBox13, 0, wxEXPAND|wxALL, 5 );
 
-	wxBoxSizer* bSizer12;
-	bSizer12 = new wxBoxSizer( wxHORIZONTAL );
-
-	wxStaticText* m_staticText11 = new wxStaticText( this, wxID_ANY, _("Адрес сайта Либрусек:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText11->Wrap( -1 );
-	bSizer12->Add( m_staticText11, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxLEFT, 5 );
-
-	wxComboBox * m_comboBox1 = new wxComboBox( this, ID_LIBRUSEC_URL, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	m_comboBox1->Append( _("http://lib.rus.ec") );
-	m_comboBox1->Append( _("http://lib.ololo.cc") );
-	bSizer12->Add( m_comboBox1, 1, wxALL, 5 );
-
-	bSizer2->Add( bSizer12, 0, wxEXPAND|wxLEFT, 5 );
-
 	wxBoxSizer* bSizer13;
 	bSizer13 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -146,7 +131,10 @@ SettingsDlg::FbPanelInternet::FbPanelInternet(wxWindow *parent)
 
 	bSizer2->Add( bSizer13, 0, wxEXPAND, 5 );
 
-	wxStaticText * m_staticText6 = new wxStaticText( this, wxID_ANY, _("Папка для хранения скачиваемых файлов:"), wxDefaultPosition, wxDefaultSize, 0 );
+	wxCheckBox * checkBox3 = new wxCheckBox( this, ID_HTTP_IMAGES, _("Загружать изображения для описаний авторов"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer2->Add( checkBox3, 0, wxALL, 5 );
+
+	wxStaticText * m_staticText6 = new wxStaticText( this, wxID_ANY, _("Папка для хранения скачанных файлов:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText6->Wrap( -1 );
 	bSizer2->Add( m_staticText6, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND, 5 );
 
@@ -154,7 +142,6 @@ SettingsDlg::FbPanelInternet::FbPanelInternet(wxWindow *parent)
 
 	wxTextCtrl * m_textCtrl6 = new wxTextCtrl( this, ID_DOWNLOAD_DIR_TXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
 	m_textCtrl6->SetMinSize( wxSize( 300,-1 ) );
-
 	bSizer14->Add( m_textCtrl6, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	wxBitmapButton * m_bpButton6 = new wxBitmapButton( this, ID_DOWNLOAD_DIR_BTN, wxArtProvider::GetBitmap(wxART_FOLDER_OPEN), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
@@ -162,7 +149,7 @@ SettingsDlg::FbPanelInternet::FbPanelInternet(wxWindow *parent)
 
 	bSizer2->Add( bSizer14, 0, wxEXPAND, 5 );
 
-	wxCheckBox * m_checkBox14 = new wxCheckBox( this, ID_DEL_DOWNLOAD, _("Удалять скаченные файлы при удалении загрузок из списка"), wxDefaultPosition, wxDefaultSize, 0 );
+	wxCheckBox * m_checkBox14 = new wxCheckBox( this, ID_DEL_DOWNLOAD, _("Удалять скачанные файлы при удалении загрузок из списка"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer2->Add( m_checkBox14, 0, wxALL, 5 );
 
 	this->SetSizer( bSizer2 );
@@ -201,22 +188,43 @@ SettingsDlg::FbPanelInterface::FbPanelInterface(wxWindow *parent)
 	wxCheckBox * checkbox;
 	wxBoxSizer * bSizer = new wxBoxSizer( wxVERTICAL );
 
-	wxStaticBoxSizer* sbSizerCols;
-	sbSizerCols = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Видимость колонок") ), wxVERTICAL );
+	checkbox = new wxCheckBox( this, ID_SAVE_FULLPATH, wxT("Сохранять полный путь файла при импорте"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer->Add( checkbox, 0, wxALL, 5 );
 
-	checkbox = new wxCheckBox( this, ID_COLUMN_GENRE, wxT("Жанр"), wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerCols->Add( checkbox, 0, wxALL, 5 );
+	wxStaticText * text = new wxStaticText( this, wxID_ANY, _("Папка для временных файлов:"), wxDefaultPosition, wxDefaultSize, 0 );
+	text->Wrap( -1 );
+	bSizer->Add( text, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND, 5 );
 
-	checkbox = new wxCheckBox( this, ID_COLUMN_RATING, wxT("Рейтинг"), wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerCols->Add( checkbox, 0, wxALL, 5 );
+	{
+		wxBoxSizer* bSizerDir = new wxBoxSizer( wxHORIZONTAL );
 
-	checkbox = new wxCheckBox( this, ID_COLUMN_TYPE, wxT("Тип файла"), wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerCols->Add( checkbox, 0, wxALL, 5 );
+		wxTextCtrl * edit = new wxTextCtrl( this, ID_TEMP_DIR_TXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+		edit->SetMinSize( wxSize( 300,-1 ) );
+		bSizerDir->Add( edit, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	checkbox = new wxCheckBox( this, ID_COLUMN_SYZE, wxT("Размер файла"), wxDefaultPosition, wxDefaultSize, 0 );
-	sbSizerCols->Add( checkbox, 0, wxALL, 5 );
+		wxBitmapButton * button = new wxBitmapButton( this, ID_TEMP_DIR_BTN, wxArtProvider::GetBitmap(wxART_FOLDER_OPEN), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+		bSizerDir->Add( button, 0, wxALIGN_CENTER_VERTICAL|wxRIGHT, 5 );
 
-	bSizer->Add( sbSizerCols, 1, wxALL|wxEXPAND, 5 );
+		bSizer->Add( bSizerDir, 0, wxEXPAND, 5 );
+	}
+
+	checkbox = new wxCheckBox( this, ID_TEMP_DEL, wxT("Удалять временные файлы при выходе из программы"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer->Add( checkbox, 0, wxALL, 5 );
+
+	checkbox = new wxCheckBox( this, ID_REMOVE_FILES, wxT("Удалять файлы при удалении книги"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer->Add( checkbox, 0, wxALL, 5 );
+/*
+	checkbox = new wxCheckBox( this, ID_AUTOHIDE_COLUMN, wxT("Прятать колонку соответствующую вкладке"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer->Add( checkbox, 0, wxALL, 5 );
+*/
+	wxBoxSizer * bSizerLimit = new wxBoxSizer( wxHORIZONTAL );
+
+	checkbox = new wxCheckBox( this, ID_LIMIT_CHECK, _("Органичить максимальный размер списков:"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerLimit->Add( checkbox, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxLEFT, 5 );
+
+	wxTextCtrl * maxedit = new wxTextCtrl( this, ID_LIMIT_COUNT, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerLimit->Add( maxedit, 1, wxALIGN_CENTER_VERTICAL|wxRIGHT|wxLEFT, 5 );
+	bSizer->Add( bSizerLimit, 0, 0, 5 );
 
 	this->SetSizer( bSizer );
 	this->Layout();
@@ -289,6 +297,7 @@ SettingsDlg::FbPanelExport::FbPanelExport(wxWindow *parent)
 ///////////////////////////////////////////////////////////////////////////
 
 BEGIN_EVENT_TABLE( SettingsDlg, wxDialog )
+	EVT_BUTTON( ID_TEMP_DIR_BTN, SettingsDlg::OnSelectFolderClick )
 	EVT_BUTTON( ID_DOWNLOAD_DIR_BTN, SettingsDlg::OnSelectFolderClick )
 	EVT_BUTTON( ID_EXTERNAL_BTN, SettingsDlg::OnSelectFolderClick )
 	EVT_BUTTON( ID_FONT_CLEAR, SettingsDlg::OnFontClear )
@@ -311,7 +320,7 @@ SettingsDlg::SettingsDlg( wxWindow* parent, wxWindowID id, const wxString& title
 	#endif
 
 	wxNotebook * notebook = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, nbStyle );
-	notebook->AddPage( new FbPanelInterface(notebook), _("Внешний вид"), true );
+	notebook->AddPage( new FbPanelInterface(notebook), _("Основные"), true );
 	notebook->AddPage( new FbPanelInternet(notebook), _("Интернет"), false );
 	notebook->AddPage( new FbPanelTypes(notebook), _("Типы файлов"), false );
 	notebook->AddPage( new FbPanelExport(notebook), _("Экспорт"), false );
@@ -319,14 +328,8 @@ SettingsDlg::SettingsDlg( wxWindow* parent, wxWindowID id, const wxString& title
 
 	bSizerMain->Add( notebook, 1, wxEXPAND | wxALL, 5 );
 
-	wxStdDialogButtonSizer * m_sdbSizerBtn = new wxStdDialogButtonSizer();
-	wxButton * m_sdbSizerBtnOK = new wxButton( this, wxID_OK );
-	m_sdbSizerBtnOK->SetDefault();
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnOK );
-	wxButton * m_sdbSizerBtnCancel = new wxButton( this, wxID_CANCEL );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnCancel );
-	m_sdbSizerBtn->Realize();
-	bSizerMain->Add( m_sdbSizerBtn, 0, wxEXPAND|wxALL, 5 );
+	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
+	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
 
 	this->SetSizer( bSizerMain );
 	this->Layout();
@@ -364,7 +367,9 @@ void SettingsDlg::Assign(bool write)
 		tRadio,
 		tCombo,
 		tFont,
+		tCount,
 	};
+
 	struct Struct{
 		int param;
 		ID control;
@@ -375,7 +380,8 @@ void SettingsDlg::Assign(bool write)
 		{FB_AUTO_DOWNLD, ID_AUTO_DOWNLD, tCheck},
 		{FB_USE_PROXY, ID_USE_PROXY, tCheck},
 		{FB_PROXY_ADDR, ID_PROXY_ADDR, tCombo},
-		{FB_LIBRUSEC_URL, ID_LIBRUSEC_URL, tCombo},
+		{FB_TEMP_DEL, ID_TEMP_DEL, tCheck},
+		{FB_TEMP_DIR, ID_TEMP_DIR_TXT, tText},
 		{FB_DOWNLOAD_DIR, ID_DOWNLOAD_DIR_TXT, tText},
 		{FB_DEL_DOWNLOAD, ID_DEL_DOWNLOAD, tCheck},
 		{FB_EXTERNAL_DIR, ID_EXTERNAL_TXT, tText},
@@ -387,10 +393,11 @@ void SettingsDlg::Assign(bool write)
 		{FB_FONT_HTML, ID_FONT_HTML, tFont},
 		{FB_FONT_TOOL, ID_FONT_TOOL, tFont},
 		{FB_FONT_DLG, ID_FONT_DLG, tFont},
-		{FB_COLUMN_TYPE, ID_COLUMN_TYPE, tCheck},
-		{FB_COLUMN_SYZE, ID_COLUMN_SYZE, tCheck},
-		{FB_COLUMN_GENRE, ID_COLUMN_GENRE, tCheck},
-		{FB_COLUMN_RATING, ID_COLUMN_RATING, tCheck},
+		{FB_HTTP_IMAGES, ID_HTTP_IMAGES, tCheck},
+		{FB_REMOVE_FILES, ID_REMOVE_FILES, tCheck},
+		{FB_SAVE_FULLPATH, ID_SAVE_FULLPATH, tCheck},
+		{FB_LIMIT_CHECK, ID_LIMIT_CHECK, tCheck},
+		{FB_LIMIT_COUNT, ID_LIMIT_COUNT, tCount},
 	};
 
 	const size_t idsCount = sizeof(ids) / sizeof(Struct);
@@ -434,6 +441,21 @@ void SettingsDlg::Assign(bool write)
 					else
 						control->SetSelectedFont(FbParams::GetFont(ids[i].param) );
 				} break;
+			case tCount:
+				if (wxTextCtrl * control = (wxTextCtrl*)FindWindowById(ids[i].control)) {
+					if (write) {
+						wxString text = control->GetValue();
+						long value = 0;
+						if (text.ToLong(&value) && value>0)
+							params.SetValue(ids[i].param, value);
+						else
+							params.ResetValue(ids[i].param);
+					} else {
+						int count = params.GetValue(ids[i].param);
+						wxString text = wxString::Format(wxT("%d"), count);
+						control->SetValue(text);
+					}
+				} break;
 		}
 	}
 
@@ -457,6 +479,7 @@ void SettingsDlg::Execute(wxWindow* parent)
 			dlg.SaveTypelist();
 			dlg.Assign(true);
 			ZipReader::Init();
+			FbTempEraser::sm_erase = FbParams::GetValue(FB_TEMP_DEL);
 		} catch (wxSQLite3Exception & e) {
 			wxLogError(wxT("Database open error: ") + e.GetMessage());
 		}

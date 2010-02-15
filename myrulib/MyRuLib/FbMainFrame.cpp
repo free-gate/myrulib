@@ -1,12 +1,3 @@
-/***************************************************************
- * Name:	  MyRuLibMain.cpp
- * Purpose:   Code for Application Frame
- * Author:	  Kandrashin Denis (mail@lintest.ru)
- * Created:   2009-05-05
- * Copyright: Kandrashin Denis (www.lintest.ru)
- * License:   GPL
- **************************************************************/
-
 #include "FbMainFrame.h"
 #include <wx/splitter.h>
 #include <wx/dirdlg.h>
@@ -15,12 +6,10 @@
 #include <wx/artprov.h>
 #include "FbConst.h"
 #include "MyRuLibApp.h"
-#include "FbManager.h"
 #include "SettingsDlg.h"
 #include "FbImportThread.h"
 #include "FbDataOpenDlg.h"
 #include "FbFrameSearch.h"
-#include "FbFrameDate.h"
 #include "FbFrameGenres.h"
 #include "FbFrameFolder.h"
 #include "FbFrameDownld.h"
@@ -32,19 +21,20 @@
 #include "FbUpdateThread.h"
 #include "InfoCash.h"
 #include "FbAboutDlg.h"
+#include "FbNotebook.h"
 
 BEGIN_EVENT_TABLE(FbMainFrame, wxAuiMDIParentFrame)
 	EVT_TOOL(wxID_NEW, FbMainFrame::OnNewZip)
 	EVT_MENU(wxID_OPEN, FbMainFrame::OnFolder)
 	EVT_MENU(wxID_EXIT, FbMainFrame::OnExit)
 	EVT_MENU(ID_MENU_SEARCH, FbMainFrame::OnMenuTitle)
-	EVT_MENU(ID_FRAME_AUTHOR, FbMainFrame::OnMenuAuthor)
-	EVT_MENU(ID_FRAME_GENRES, FbMainFrame::OnMenuGenres)
-	EVT_MENU(ID_FRAME_FOLDER, FbMainFrame::OnMenuFolder)
-	EVT_MENU(ID_FRAME_DOWNLD, FbMainFrame::OnMenuDownld)
-	EVT_MENU(ID_FRAME_SEQUEN, FbMainFrame::OnMenuSequen)
+	EVT_MENU(ID_FRAME_AUTHOR, FbMainFrame::OnMenuFrame)
+	EVT_MENU(ID_FRAME_GENRES, FbMainFrame::OnMenuFrame)
+	EVT_MENU(ID_FRAME_FOLDER, FbMainFrame::OnMenuFrame)
+	EVT_MENU(ID_FRAME_DOWNLD, FbMainFrame::OnMenuFrame)
+	EVT_MENU(ID_FRAME_SEQUEN, FbMainFrame::OnMenuFrame)
 	EVT_MENU(ID_FRAME_ARCH, FbMainFrame::OnMenuNothing)
-	EVT_MENU(ID_FRAME_DATE, FbMainFrame::OnMenuCalendar)
+	EVT_MENU(ID_FRAME_DATE, FbMainFrame::OnMenuNothing)
 	EVT_MENU(ID_MENU_DB_INFO, FbMainFrame::OnDatabaseInfo)
 	EVT_MENU(ID_MENU_DB_OPEN, FbMainFrame::OnDatabaseOpen)
 	EVT_MENU(ID_MENU_VACUUM, FbMainFrame::OnVacuum)
@@ -63,18 +53,29 @@ BEGIN_EVENT_TABLE(FbMainFrame, wxAuiMDIParentFrame)
 	EVT_MENU(ID_RECENT_3, FbMainFrame::OnMenuRecent)
 	EVT_MENU(ID_RECENT_4, FbMainFrame::OnMenuRecent)
 	EVT_MENU(ID_RECENT_5, FbMainFrame::OnMenuRecent)
+
+	EVT_UPDATE_UI(ID_RECENT_ALL, FbMainFrame::OnRecentUpdate)
+/*
 	EVT_UPDATE_UI(ID_RECENT_1, FbMainFrame::OnRecentUpdate)
 	EVT_UPDATE_UI(ID_RECENT_2, FbMainFrame::OnRecentUpdate)
 	EVT_UPDATE_UI(ID_RECENT_3, FbMainFrame::OnRecentUpdate)
 	EVT_UPDATE_UI(ID_RECENT_4, FbMainFrame::OnRecentUpdate)
 	EVT_UPDATE_UI(ID_RECENT_5, FbMainFrame::OnRecentUpdate)
-
+*/
 	EVT_UPDATE_UI(ID_PROGRESS_UPDATE, FbMainFrame::OnProgressUpdate)
 
 	EVT_MENU(ID_ERROR, FbMainFrame::OnError)
 	EVT_MENU(ID_LOG_TEXTCTRL, FbMainFrame::OnHideLog)
 	EVT_MENU(ID_UPDATE_FONTS, FbMainFrame::OnUpdateFonts)
 	EVT_MENU(ID_FULLSCREEN, FbMainFrame::OnFullScreen)
+	EVT_MENU(ID_ART_DEFAULT, FbMainFrame::OnTabArt)
+	EVT_MENU(ID_ART_COMPACT, FbMainFrame::OnTabArt)
+	EVT_MENU(ID_ART_STANDART, FbMainFrame::OnTabArt)
+	EVT_MENU(ID_ART_TOOLBAR, FbMainFrame::OnTabArt)
+	EVT_UPDATE_UI(ID_ART_DEFAULT, FbMainFrame::OnTabArtUpdate)
+	EVT_UPDATE_UI(ID_ART_COMPACT, FbMainFrame::OnTabArtUpdate)
+	EVT_UPDATE_UI(ID_ART_STANDART, FbMainFrame::OnTabArtUpdate)
+	EVT_UPDATE_UI(ID_ART_TOOLBAR, FbMainFrame::OnTabArtUpdate)
 	EVT_UPDATE_UI(ID_FULLSCREEN, FbMainFrame::OnFullScreenUpdate)
 
 	EVT_MENU(ID_WINDOW_CLOSE, FbMainFrame::OnWindowClose)
@@ -176,18 +177,15 @@ void FbMainFrame::CreateControls()
 
 	m_LOGTextCtrl.Create(this, ID_LOG_TEXTCTRL, wxEmptyString, wxDefaultPosition, wxSize(-1, 100), wxTE_MULTILINE|wxTE_READONLY|wxNO_BORDER|wxTE_DONTWRAP);
 
-	GetNotebook()->SetWindowStyleFlag(
-		wxAUI_NB_TOP|
-		wxAUI_NB_SCROLL_BUTTONS |
-		wxAUI_NB_CLOSE_ON_ACTIVE_TAB |
-		wxNO_BORDER);
-	GetNotebook()->SetSelection(0);
+//	long flags = wxAUI_NB_TAB_EXTERNAL_MOVE | wxAUI_NB_TOP | wxAUI_NB_SCROLL_BUTTONS | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_TAB_MOVE | wxNO_BORDER;
+//	GetNotebook()->SetWindowStyleFlag(flags);
+//	GetNotebook()->SetSelection(0);
 
 	m_FrameManager.SetManagedWindow(this);
+	SetTabArt(FbParams::GetValue(FB_NOTEBOOK_ART) + ID_ART_DEFAULT);
 
-	m_ToolBar = CreateToolBar();
+	SetToolBar(CreateToolBar());
 
-	m_FrameManager.AddPane(m_ToolBar, wxAuiPaneInfo().Name(wxT("ToolBar")).Top().Show(true).ToolbarPane().Dockable(false).PaneBorder(false));
 	m_FrameManager.AddPane(GetNotebook(), wxAuiPaneInfo().Name(wxT("CenterPane")).CenterPane());
 	m_FrameManager.AddPane(&m_LOGTextCtrl, wxAuiPaneInfo().Bottom().Name(wxT("Log")).Caption(_("Информационные сообщения")).Show(false));
 	m_FrameManager.Update();
@@ -200,6 +198,33 @@ void FbMainFrame::CreateControls()
 	FbFrameAuthor * authors = new FbFrameAuthor(this);
 	authors->SelectRandomLetter();
 	authors->ActivateAuthors();
+}
+
+void FbMainFrame::OnTabArt(wxCommandEvent & event)
+{
+	int id = event.GetId();
+	SetTabArt(event.GetId());
+	FbParams().SetValue(FB_NOTEBOOK_ART, id - ID_ART_DEFAULT);
+}
+
+void FbMainFrame::OnTabArtUpdate(wxUpdateUIEvent& event)
+{
+	int id = FbParams::GetValue(FB_NOTEBOOK_ART) + ID_ART_DEFAULT;
+	if ( event.GetId() == id ) event.Check(true);
+}
+
+void FbMainFrame::SetTabArt(int id)
+{
+	wxAuiTabArt * art;
+	switch (id) {
+//		case ID_ART_TOOLBAR:   art = new wxAuiSimpleTabArt; break;
+		case ID_ART_COMPACT:  art = new FbAuiSimpleTabArt; break;
+		case ID_ART_STANDART: art = new wxAuiDefaultTabArt; break;
+		default: art = new FbAuiDefaultTabArt;
+	}
+	GetNotebook()->SetTabCtrlHeight(0);
+	GetNotebook()->SetArtProvider(art);
+	GetNotebook()->SetTabCtrlHeight(-1);
 }
 
 void FbMainFrame::OnSetup(wxCommandEvent & event)
@@ -224,15 +249,10 @@ void FbMainFrame::OnAbout(wxCommandEvent & event)
 	about.ShowModal();
 }
 
-wxAuiToolBar * FbMainFrame::CreateToolBar()
+wxToolBar * FbMainFrame::CreateToolBar()
 {
-	wxAuiToolBar * toolbar = new wxAuiToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_TB_DEFAULT_STYLE);
-
+	wxToolBar * toolbar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_FLAT);
 	wxFont font = FbParams::GetFont(FB_FONT_TOOL);
-
-	wxAuiToolBarArt * art = new wxAuiDefaultToolBarArt;
-	art->SetElementSize(wxAUI_TBART_GRIPPER_SIZE, 0);
-	toolbar->SetArtProvider(art);
 
 	wxWindowDC dc(toolbar);
 	int text_width = 0, text_height = 0;
@@ -242,16 +262,27 @@ wxAuiToolBar * FbMainFrame::CreateToolBar()
 	toolbar->AddTool(wxID_NEW, _("Импорт файла"), wxArtProvider::GetBitmap(wxART_NEW), _("Добавить в библиотеку новые файлы"));
 	toolbar->AddTool(wxID_OPEN, _("Импорт папки"), wxArtProvider::GetBitmap(wxART_FILE_OPEN), _("Добавить в библиотеку директорию"));
 	toolbar->AddSeparator();
-	toolbar->AddLabel(wxID_ANY, _("Автор:"), text_width);
+
+	wxStaticText * text1 = new wxStaticText( toolbar, wxID_ANY, _(" Автор: "), wxDefaultPosition, wxDefaultSize, 0 );
+	text1->Wrap( -1 );
+	text1->SetFont(font);
+	toolbar->AddControl( text1 );
+
 	m_FindAuthor.Create(toolbar, ID_FIND_AUTHOR, wxEmptyString, wxDefaultPosition, wxSize(180, -1), wxTE_PROCESS_ENTER);
 	m_FindAuthor.SetFont(font);
 	toolbar->AddControl( &m_FindAuthor );
 	toolbar->AddTool(ID_FIND_AUTHOR, _("Найти"), wxArtProvider::GetBitmap(wxART_FIND), _("Поиск автора"));
 	toolbar->AddSeparator();
-	toolbar->AddLabel(wxID_ANY, _("Книга:"), text_width);
+
+	wxStaticText * text2 = new wxStaticText( toolbar, wxID_ANY, _(" Книга: "), wxDefaultPosition, wxDefaultSize, 0 );
+	text2->Wrap( -1 );
+	text2->SetFont(font);
+	toolbar->AddControl( text2 );
+
 	m_FindTitle.Create(toolbar, ID_FIND_TITLE, wxEmptyString, wxDefaultPosition, wxSize(180, -1), wxTE_PROCESS_ENTER);
 	m_FindTitle.SetFont(font);
 	toolbar->AddControl( &m_FindTitle );
+
 	toolbar->AddTool(ID_FIND_TITLE, _("Найти"), wxArtProvider::GetBitmap(wxART_FIND), _("Поиск книги по заголовку"));
 	toolbar->AddSeparator();
 	toolbar->AddTool(ID_MODE_TREE, _("Иерархия"), wxArtProvider::GetBitmap(wxART_LIST_VIEW), _("Иерархия авторов и серий"));
@@ -439,44 +470,39 @@ void FbMainFrame::OnMenuTitle(wxCommandEvent& event)
 	FindTitle(text, wxEmptyString);
 }
 
-void FbMainFrame::OnMenuGenres(wxCommandEvent & event)
+void FbMainFrame::OpenLastPage()
 {
-	FbFrameGenres * frame = wxDynamicCast(FindFrameById(ID_FRAME_GENRES, true), FbFrameGenres);
-	if (!frame) {
-		frame = new FbFrameGenres(this);
-		GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
-		frame->Update();
-	}
+	GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
 }
 
-void FbMainFrame::OnMenuFolder(wxCommandEvent & event)
+void FbMainFrame::OnMenuFrame(wxCommandEvent & event)
 {
-	FbFrameFolder * frame = wxDynamicCast(FindFrameById(ID_FRAME_FOLDER, true), FbFrameFolder);
-	if (!frame) {
-		frame = new FbFrameFolder(this);
-		GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
-		frame->Update();
-	}
-}
+	wxWindow * frame = FindFrameById(event.GetId(), true);
+	if ( frame ) return;
 
-void FbMainFrame::OnMenuDownld(wxCommandEvent & event)
-{
-	FbFrameDownld * frame = wxDynamicCast(FindFrameById(ID_FRAME_DOWNLD, true), FbFrameDownld);
-	if (!frame) {
-		frame = new FbFrameDownld(this);
-		GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
-		frame->Update();
+	switch ( event.GetId() ) {
+		case ID_FRAME_AUTHOR: {
+			FbFrameAuthor * authors = new FbFrameAuthor(this);
+			OpenLastPage();
+			authors->SelectRandomLetter();
+			authors->ActivateAuthors();
+			authors->Update();
+			frame = authors;
+		} break;
+		case ID_FRAME_GENRES: {
+			frame = new FbFrameGenres(this);
+		} break;
+		case ID_FRAME_FOLDER: {
+			frame = new FbFrameFolder(this);
+		} break;
+		case ID_FRAME_DOWNLD: {
+			frame = new FbFrameDownld(this);
+		} break;
+		case ID_FRAME_SEQUEN: {
+			frame = new FbFrameSequen(this);
+		} break;
 	}
-}
-
-void FbMainFrame::OnMenuSequen(wxCommandEvent & event)
-{
-	FbFrameSequen * frame = wxDynamicCast(FindFrameById(ID_FRAME_SEQUEN, true), FbFrameSequen);
-	if (!frame) {
-		frame = new FbFrameSequen(this);
-		GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
-		frame->Update();
-	}
+	if (frame) frame->Update();
 }
 
 wxWindow * FbMainFrame::FindFrameById(const int id, bool bActivate)
@@ -603,10 +629,22 @@ void FbMainFrame::OnMenuRecent(wxCommandEvent & event)
 
 void FbMainFrame::OnRecentUpdate(wxUpdateUIEvent& event)
 {
-	int param = event.GetId() - ID_RECENT_0 + FB_RECENT_0;
-	wxString filename = FbParams::GetText(param);
-	event.SetText(filename);
-	event.Show(!filename.IsEmpty());
+	wxMenuBar * menubar = GetMenuBar();
+	if (!menubar) return;
+
+	wxMenuItem * menuitem = menubar->FindItem(ID_RECENT_ALL);
+	if (!menuitem) return;
+
+	wxMenu * submenu = menuitem->GetSubMenu();
+	if (!submenu) return;
+
+	for (size_t i = 1; i<=5; i++) {
+		submenu->Delete(ID_RECENT_0 + i);
+		wxString filename = FbParams::GetText(i + FB_RECENT_0);
+		if (filename.IsEmpty()) continue;
+		wxString fileinfo = FbParams::GetText(i + FB_TITLE_0);
+		submenu->Append(ID_RECENT_0 + i, filename, fileinfo);
+	}
 }
 
 void FbMainFrame::OpenDatabase(const wxString &filename)
@@ -622,19 +660,6 @@ void FbMainFrame::OpenDatabase(const wxString &filename)
 void FbMainFrame::SetStatus(const wxString &text)
 {
 	m_ProgressBar.SetStatusText(text, 2);
-}
-
-void FbMainFrame::OnMenuCalendar(wxCommandEvent & event)
-{
-	OnMenuNothing(event);
-/*
-	FbFrameDate * frame = wxDynamicCast(FindFrameById(ID_FRAME_DATE, true), FbFrameDate);
-	if (!frame) {
-		frame = new FbFrameDate(this);
-		GetNotebook()->SetSelection( GetNotebook()->GetPageCount() - 1 );
-		frame->Update();
-	}
-*/
 }
 
 void FbMainFrame::OnFullScreen(wxCommandEvent& event)

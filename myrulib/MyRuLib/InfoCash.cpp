@@ -118,10 +118,12 @@ void InfoCash::EmptyInfo(int id)
 	}
 }
 
-void InfoCash::SetTitle(int id, wxString html)
+void InfoCash::SetTitle(int id, wxString title, wxString body)
 {
 	wxCriticalSectionLocker enter(sm_locker);
-	GetNode(id)->m_title = html;
+	InfoNode * node = GetNode(id);
+	node->m_title = title;
+	node->m_description = body;
 };
 
 void InfoCash::SetISBN(int id, wxString html)
@@ -250,9 +252,7 @@ wxString InfoNode::GetComments(const wxString md5sum, bool bEditable)
 
 wxString InfoNode::GetHTML(const wxString &md5sum, bool bVertical, bool bEditable, const wxString &filetype)
 {
-	wxString html = wxT("<html><body><table width=100%>");
-
-	html += wxT("<tr>");
+	wxString html = wxT("<table width=100%><tr>");
 	wxString icon = InfoCash::GetIcon(filetype);
 	if (icon.IsEmpty()) {
 		html += wxString::Format(wxT("<td>%s</td>"), m_title.c_str());
@@ -264,9 +264,11 @@ wxString InfoNode::GetHTML(const wxString &md5sum, bool bVertical, bool bEditabl
 		html += wxT("</tr></table></td>");
 	}
 
+	wxString annotation = m_annotation.IsEmpty() ? m_description : m_annotation;
+
 	if (bVertical) {
 		html += wxT("</tr>");
-		html += wxString::Format(wxT("<tr><td>%s</td></tr>"), m_annotation.c_str());
+		html += wxString::Format(wxT("<tr><td>%s</td></tr>"), annotation.c_str());
 		for (size_t i=0; i<m_images.GetCount(); i++) {
 			InfoImage & info = m_images[i];
 			html += wxT("<tr><td align=center>");
@@ -300,13 +302,13 @@ wxString InfoNode::GetHTML(const wxString &md5sum, bool bVertical, bool bEditabl
 		html += wxT("</td></tr>");
 		if (!m_isbn.IsEmpty()) html += wxString::Format(wxT("<tr><td align=center>ISBN:&nbsp;%s</td></tr>"), m_isbn.c_str());
 		html += wxT("</table></td></tr>");
-		html += wxString::Format(wxT("<tr><td valign=top>%s</td></tr>"), m_annotation.c_str());
+		html += wxString::Format(wxT("<tr><td valign=top>%s</td></tr>"), annotation.c_str());
 		html += wxString::Format(wxT("<tr><td valign=top>%s</td></tr>"), m_filelist.c_str());
 		html += wxT("<tr><td valign=top>");
 		html += GetComments(md5sum, bEditable);
 		html += wxT("</td></tr>");
 	}
-	html += wxT("</table></body></html>");
+	html += wxT("</table></body>");
 
 	return html;
 }

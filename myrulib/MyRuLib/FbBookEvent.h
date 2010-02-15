@@ -4,19 +4,13 @@
 #include <wx/wx.h>
 #include <wx/wxsqlite3.h>
 #include "FbBookData.h"
+#include "FbMasterData.h"
 
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_BOOK_ACTION, 1 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_OPEN_ACTION, 2 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_FOLDER_ACTION, 3 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_PROGRESS_ACTION, 4 )
-DECLARE_LOCAL_EVENT_TYPE( fbEVT_AUTHOR_ACTION, 5 )
-
-enum FbFolderType {
-	FT_FOLDER = 1,
-	FT_RATING,
-	FT_COMMENT,
-	FT_DOWNLOAD,
-};
+DECLARE_LOCAL_EVENT_TYPE( fbEVT_MASTER_ACTION, 5 )
 
 class FbCommandEvent: public wxCommandEvent
 {
@@ -47,19 +41,22 @@ class FbBookEvent: public FbCommandEvent
 		BookTreeItemData m_data;
 };
 
-class FbAuthorEvent: public FbCommandEvent
+class FbMasterEvent: public FbCommandEvent
 {
 	public:
-		FbAuthorEvent(const FbAuthorEvent & event)
-			: FbCommandEvent(event), m_author(event.m_author), m_parent(event.m_parent), m_number(event.m_number) {};
+		FbMasterEvent(wxWindowID id)
+			: FbCommandEvent(fbEVT_MASTER_ACTION, id), m_data(NULL), m_number(0) {};
 
-		FbAuthorEvent(wxWindowID id, wxSQLite3ResultSet &result);
+		FbMasterEvent(const FbMasterEvent & event)
+			: FbCommandEvent(event), m_data(event.m_data), m_number(event.m_number) {};
 
-		virtual wxEvent *Clone() const { return new FbAuthorEvent(*this); }
+		FbMasterEvent(wxWindowID id, const wxString &text, FbMasterData * data, int number = 0)
+			: FbCommandEvent(fbEVT_MASTER_ACTION, id, text), m_data(data), m_number(number) {};
+
+		virtual wxEvent *Clone() const { return new FbMasterEvent(*this); }
 
 	public:
-		int m_author;
-		int m_parent;
+		FbMasterData * m_data;
 		int m_number;
 };
 
@@ -120,7 +117,7 @@ typedef void (wxEvtHandler::*FbFolderEventFunction)(FbFolderEvent&);
 
 typedef void (wxEvtHandler::*FbProgressEventFunction)(FbProgressEvent&);
 
-typedef void (wxEvtHandler::*FbAuthorEventFunction)(FbAuthorEvent&);
+typedef void (wxEvtHandler::*FbMasterEventFunction)(FbMasterEvent&);
 
 #define EVT_FB_BOOK(id, fn) \
 	DECLARE_EVENT_TABLE_ENTRY( fbEVT_BOOK_ACTION, id, -1, \
@@ -142,9 +139,9 @@ typedef void (wxEvtHandler::*FbAuthorEventFunction)(FbAuthorEvent&);
 	(wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction) \
 	wxStaticCastEvent( FbProgressEventFunction, & fn ), (wxObject *) NULL ),
 
-#define EVT_FB_AUTHOR(id, fn) \
-	DECLARE_EVENT_TABLE_ENTRY( fbEVT_AUTHOR_ACTION, id, -1, \
+#define EVT_FB_MASTER(id, fn) \
+	DECLARE_EVENT_TABLE_ENTRY( fbEVT_MASTER_ACTION, id, -1, \
 	(wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction) \
-	wxStaticCastEvent( FbAuthorEventFunction, & fn ), (wxObject *) NULL ),
+	wxStaticCastEvent( FbMasterEventFunction, & fn ), (wxObject *) NULL ),
 
 #endif // __FBBOOKEVENT_H__

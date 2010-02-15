@@ -3,12 +3,11 @@
 #include "FbAuthorThread.h"
 #include "FbConst.h"
 #include "FbAuthorDlg.h"
+#include "FbMasterData.h"
 
 BEGIN_EVENT_TABLE( FbReplaceDlg, wxDialog )
 	EVT_TEXT_ENTER( ID_FIND_TXT, FbReplaceDlg::OnFindEnter )
 	EVT_BUTTON( ID_FIND_BTN, FbReplaceDlg::OnFindEnter )
-	EVT_COMMAND(ID_EMPTY_AUTHORS, fbEVT_AUTHOR_ACTION, FbReplaceDlg::OnEmptyAuthors)
-	EVT_FB_AUTHOR(ID_APPEND_AUTHOR, FbReplaceDlg::OnAppendAuthor)
 END_EVENT_TABLE()
 
 FbReplaceDlg::FbReplaceDlg( const wxString& title, int id )
@@ -55,19 +54,13 @@ FbReplaceDlg::FbReplaceDlg( const wxString& title, int id )
 
 	bSizerMain->Add( fgSizerGrid, 0, wxEXPAND, 5 );
 
-	m_FindList = new FbTreeListCtrl(this, ID_FIND_LIST, wxTR_HIDE_ROOT | wxTR_NO_LINES | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxSUNKEN_BORDER);
+	m_FindList = new FbMasterList(this, ID_FIND_LIST, wxTR_HIDE_ROOT | wxTR_NO_LINES | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxSUNKEN_BORDER);
 	bSizerMain->Add( m_FindList, 1, wxEXPAND|wxTOP|wxRIGHT|wxLEFT, 5 );
 	m_FindList->AddColumn(_("Автор"), 40, wxALIGN_LEFT);
 	m_FindList->AddColumn(_("Кол."), 10, wxALIGN_RIGHT);
 
-	wxStdDialogButtonSizer * m_sdbSizerBtn = new wxStdDialogButtonSizer();
-	wxButton * m_sdbSizerBtnOK = new wxButton( this, wxID_OK );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnOK );
-	m_sdbSizerBtnOK->SetDefault();
-	wxButton * m_sdbSizerBtnCancel = new wxButton( this, wxID_CANCEL );
-	m_sdbSizerBtn->AddButton( m_sdbSizerBtnCancel );
-	m_sdbSizerBtn->Realize();
-	bSizerMain->Add( m_sdbSizerBtn, 0, wxEXPAND|wxALL, 5 );
+	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
+	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
 
 	this->SetSizer( bSizerMain );
 	this->Layout();
@@ -89,41 +82,17 @@ bool FbReplaceDlg::Load()
 	return false;
 }
 
-void FbReplaceDlg::OnAppendAuthor(FbAuthorEvent& event)
-{
-	if (event.m_author == m_id) return;
-
-	FbTreeListUpdater updater(m_FindList);
-	wxTreeItemId root = m_FindList->GetRootItem();
-
-	wxTreeItemIdValue cookie;
-	wxTreeItemId child = m_FindList->GetFirstChild(root, cookie);
-
-	wxTreeItemId item = m_FindList->AppendItem(root, event.GetString(), -1, -1, new FbMasterData(event.m_author));
-	wxString number = wxString::Format(wxT("%d"), event.m_number);
-	m_FindList->SetItemText(item, 1, number);
-
-	if (!child.IsOk()) m_FindList->SelectItem(item);
-}
-
-void FbReplaceDlg::OnEmptyAuthors(wxCommandEvent& event)
-{
-	FbTreeListUpdater updater(m_FindList);
-	m_FindList->DeleteRoot();
-	m_FindList->AddRoot(wxEmptyString);
-}
-
 void FbReplaceDlg::OnFindEnter( wxCommandEvent& event )
 {
 	wxString text = m_FindText->GetValue();
-	if (!text.IsEmpty()) (new FbAuthorThreadText(this, text, 1))->Execute();
+	if (!text.IsEmpty()) (new FbAuthorThreadRepl(m_FindList, text, m_id))->Execute();
 }
 
 int FbReplaceDlg::GetSelected()
 {
 	wxTreeItemId selected = m_FindList->GetSelection();
 	if (selected.IsOk()) {
-		FbMasterData * data = (FbMasterData*) m_FindList->GetItemData(selected);
+		FbMasterData * data = m_FindList->GetItemData(selected);
 		if (data) return data->GetId();
 	};
 	return 0;
@@ -153,10 +122,17 @@ int FbReplaceDlg::DoUpdate()
 	return selected;
 }
 
-int FbReplaceDlg::Execute(int author)
+wxString FbReplaceDlg::GetFullName()
+{
+	wxTreeItemId selected = m_FindList->GetSelection();
+	return selected.IsOk() ? m_FindList->GetItemText(selected) : (wxString)wxEmptyString;
+}
+
+int FbReplaceDlg::Execute(int author, wxString& newname)
 {
 	FbReplaceDlg dlg(_("Заменить автора"), author);
 	bool ok = dlg.Load() && dlg.ShowModal() == wxID_OK;
+	if (ok) newname = dlg.GetFullName();
 	return ok ? dlg.DoUpdate() : 0;
 }
 

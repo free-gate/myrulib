@@ -1,7 +1,7 @@
 #include "FbAuthorThread.h"
 #include "FbConst.h"
 #include "FbDatabase.h"
-#include "FbManager.h"
+#include "FbParams.h"
 
 wxCriticalSection FbAuthorThread::sm_queue;
 
@@ -27,26 +27,33 @@ void * FbAuthorThread::Entry()
 wxString FbAuthorThread::GetOrder()
 {
 	switch (m_order) {
-		case -2: return wxT("number desc, name desc");
-		case -1: return wxT("name desc");
-		case  2: return wxT("number, name");
-		default: return wxT("name ");
+		case -2: return wxT("number desc, search_name desc");
+		case -1: return wxT("search_name desc");
+		case  2: return wxT("number, search_name");
+		default: return wxT("search_name ");
 	}
 }
 
 void FbAuthorThread::FillAuthors(wxSQLite3ResultSet &result)
 {
 	if (sm_skiper.Skipped(m_number)) return;
-	FbCommandEvent(fbEVT_AUTHOR_ACTION, ID_EMPTY_AUTHORS).Post(m_frame);
+	FbMasterEvent(ID_EMPTY_MASTERS).Post(m_frame);
 	while (result.NextRow()) {
-		FbAuthorEvent(ID_APPEND_AUTHOR, result).Post(m_frame);
+		FbMasterAuthor * data = new FbMasterAuthor( result.GetInt(0) );
+		FbMasterEvent(ID_APPEND_MASTER, result.GetString(1), data, result.GetInt(2)).Post(m_frame);
 		if (sm_skiper.Skipped(m_number)) return;
 	}
 }
 
 wxString FbAuthorThread::GetSQL(const wxString & condition)
 {
-	return wxString::Format( wxT("SELECT id, full_name as name, number FROM authors WHERE %s ORDER BY ") + GetOrder(), condition.c_str());
+	wxString sql = wxT("SELECT id, full_name as name, number FROM authors");
+
+	sql += wxT(" WHERE ") + condition;
+	sql += wxT(" ORDER BY ") + GetOrder();
+	sql += FbParams::GetLimit();
+
+	return 	sql;
 }
 
 void FbAuthorThreadChar::GetResult(wxSQLite3Database &database)
@@ -60,12 +67,21 @@ void FbAuthorThreadChar::GetResult(wxSQLite3Database &database)
 
 void FbAuthorThreadText::GetResult(wxSQLite3Database &database)
 {
-	wxString sql = GetSQL(wxT("SEARCH(search_name)"));
-	FbSearchFunction search(m_mask);
-	database.CreateFunction(wxT("SEARCH"), 1, search);
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
-	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-	FillAuthors(result);
+	bool bFullText = FbSearchFunction::IsFullText(m_mask) && database.TableExists(wxT("fts_auth"));
+	if ( bFullText ) {
+		wxString sql = GetSQL(wxT("id IN (SELECT docid FROM fts_auth WHERE fts_auth MATCH ?)"));
+		wxSQLite3Statement stmt = database.PrepareStatement(sql);
+		stmt.Bind(1, FbSearchFunction::AddAsterisk(m_mask));
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		FillAuthors(result);
+	} else {
+		wxString sql = GetSQL(wxT("SEARCH(search_name)"));
+		FbSearchFunction search(m_mask);
+		database.CreateFunction(wxT("SEARCH"), 1, search);
+		wxSQLite3Statement stmt = database.PrepareStatement(sql);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		FillAuthors(result);
+	}
 }
 
 void FbAuthorThreadCode::GetResult(wxSQLite3Database &database)
@@ -84,5 +100,26 @@ void FbAuthorThreadLast::GetResult(wxSQLite3Database &database)
 	stmt.Bind(1, m_last);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	FillAuthors(result);
+}
+
+void FbAuthorThreadRepl::GetResult(wxSQLite3Database &database)
+{
+	bool bFullText = FbSearchFunction::IsFullText(m_mask) && database.TableExists(wxT("fts_auth"));
+	if ( bFullText ) {
+		wxString sql = GetSQL(wxT("id IN (SELECT docid FROM fts_auth WHERE fts_auth MATCH ?) AND id<>?"));
+		wxSQLite3Statement stmt = database.PrepareStatement(sql);
+		stmt.Bind(1, FbSearchFunction::AddAsterisk(m_mask));
+		stmt.Bind(2, m_id);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		FillAuthors(result);
+	} else {
+		wxString sql = GetSQL(wxT("SEARCH(search_name) AND id<>?"));
+		FbSearchFunction search(m_mask);
+		database.CreateFunction(wxT("SEARCH"), 1, search);
+		wxSQLite3Statement stmt = database.PrepareStatement(sql);
+		stmt.Bind(1, m_id);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		FillAuthors(result);
+	}
 }
 
