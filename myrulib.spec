@@ -1,5 +1,5 @@
 Name: myrulib
-Version: 0.19
+Version: 0.21
 Release: alt1
 
 Summary: Tool for maintaining fb2 files collection
@@ -28,14 +28,19 @@ mkdir -p %buildroot/usr/share/icons/hicolor/32x32/apps/
 install MyRuLib/desktop/home-32x32.png %buildroot/usr/share/icons/hicolor/32x32/apps/myrulib.png
 mkdir -p  %buildroot/usr/share/icons/hicolor/64x64/apps/
 install MyRuLib/desktop/home-64x64.png %buildroot/usr/share/icons/hicolor/64x64/apps/myrulib.png
+%find_lang %name
 
-%files
+%files -f %name.lang
 %_bindir/myrulib
 /usr/share/applications/myrulib.desktop
 /usr/share/icons/hicolor/32x32/apps/myrulib.png
 /usr/share/icons/hicolor/64x64/apps/myrulib.png
 
 %changelog
+* Mon Apr 05 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 0.21-alt1
+- new version
+- translations
+
 * Mon Feb 15 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 0.19-alt1
 - new version
 
