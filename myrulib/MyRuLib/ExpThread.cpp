@@ -7,7 +7,7 @@ void ExportThread::WriteFileItem(ExportFileItem &item)
 {
 	ZipReader reader(item.id);
 	if (!reader.IsOK()) {
-		wxLogError(_("Export error ") + item.filename.GetFullPath());
+		wxLogError( _("Export error") + (wxString)wxT(": ") + item.filename.GetFullPath() );
 		return;
 	}
 
@@ -44,7 +44,7 @@ void *ExportThread::Entry()
 bool ExportThread::Execute()
 {
 	if ( Create() != wxTHREAD_NO_ERROR ) {
-		wxLogError(wxT("Can't create export thread!"));
+		wxLogError(_("Can't create export thread!"));
 		return false;
 	}
 	Run();

@@ -19,7 +19,7 @@ BEGIN_EVENT_TABLE(FbFrameDownld, FbFrameBase)
 END_EVENT_TABLE()
 
 FbFrameDownld::FbFrameDownld(wxAuiMDIParentFrame * parent)
-	:FbFrameBase(parent, ID_FRAME_DOWNLD, _("Загрузки"))
+	:FbFrameBase(parent, ID_FRAME_DOWNLD, GetTitle())
 {
 	CreateControls();
 }
@@ -33,7 +33,7 @@ void FbFrameDownld::CreateControls()
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxVERTICAL );
 
-	m_ToolBar = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, wxEmptyString);
+	m_ToolBar = CreateToolBar();
 	bSizer1->Add( m_ToolBar, 0, wxGROW);
 
 	wxSplitterWindow * splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxSize(500, 400), wxSP_NOBORDER);
@@ -42,7 +42,7 @@ void FbFrameDownld::CreateControls()
 	bSizer1->Add(splitter, 1, wxEXPAND);
 
 	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST);
-	m_MasterList->AddColumn (_("Папки"), 100, wxALIGN_LEFT);
+	m_MasterList->AddColumn (_("Folders"), 100, wxALIGN_LEFT);
 	m_MasterList->SetFocus();
 
 	long substyle = wxTR_HIDE_ROOT | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxTR_MULTIPLE | wxSUNKEN_BORDER;
@@ -56,20 +56,26 @@ void FbFrameDownld::CreateControls()
 	FbFrameBase::CreateControls();
 }
 
+void FbFrameDownld::Localize(bool bUpdateMenu)
+{
+	FbFrameBase::Localize(bUpdateMenu);
+	m_MasterList->SetColumnText(0, _("Folders"));
+}
+
 wxToolBar * FbFrameDownld::CreateToolBar(long style, wxWindowID winid, const wxString& name)
 {
 	wxToolBar * toolbar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, style, name);
 	toolbar->SetFont(FbParams::GetFont(FB_FONT_TOOL));
 
-	toolbar->AddTool(wxID_SAVE, _("Экспорт"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Запись на внешнее устройство"));
+	toolbar->AddTool(wxID_SAVE, _("Export"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Export to external device"));
 	toolbar->AddSeparator();
-	toolbar->AddTool(ID_START, _("Старт"), wxBitmap(start_xpm), _("Начать загрузку файлов через интернет"));
-	toolbar->AddTool(ID_PAUSE, _("Стоп"), wxBitmap(pause_xpm), _("Остановить загрузку файлов через интернет"));
+	toolbar->AddTool(ID_START, _("Start"), wxBitmap(start_xpm), _("Start downloading"));
+	toolbar->AddTool(ID_PAUSE, _("Stop"), wxBitmap(pause_xpm), _("Stop downloading"));
 	toolbar->AddSeparator();
-	toolbar->AddTool(wxID_UP, _("Вверх"), wxArtProvider::GetBitmap(wxART_GO_UP), _("Передвинуть в начало очереди"));
-	toolbar->AddTool(wxID_DOWN, _("Вниз"), wxArtProvider::GetBitmap(wxART_GO_DOWN), _("Передвинуть в конец очереди"));
+	toolbar->AddTool(wxID_UP, _("Up"), wxArtProvider::GetBitmap(wxART_GO_UP), _("Move up in queue"));
+	toolbar->AddTool(wxID_DOWN, _("Down"), wxArtProvider::GetBitmap(wxART_GO_DOWN), _("Move down in queue"));
 	toolbar->AddSeparator();
-	toolbar->AddTool(ID_DELETE_DOWNLOAD, _("Удалить"), wxArtProvider::GetBitmap(wxART_DELETE), _("Удалить загрузку"));
+	toolbar->AddTool(ID_DELETE_DOWNLOAD, _("Delete"), wxArtProvider::GetBitmap(wxART_DELETE), _("Remove download"));
 	toolbar->Realize();
 
 	return toolbar;
@@ -81,9 +87,9 @@ void FbFrameDownld::FillFolders(const int iCurrent)
 	m_MasterList->DeleteRoot();
 
 	wxTreeItemId root = m_MasterList->AddRoot(wxEmptyString);
-	m_MasterList->AppendItem(root, wxT("Очередь"), -1, -1, new FbMasterFolder(1, FT_DOWNLOAD));
-	m_MasterList->AppendItem(root, wxT("Готово"), -1, -1, new FbMasterFolder(-1, FT_DOWNLOAD));
-	m_MasterList->AppendItem(root, wxT("Ошибки"), -1, -1, new FbMasterFolder(-2, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, _("Queue"), -1, -1, new FbMasterFolder(1, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, _("Ready"), -1, -1, new FbMasterFolder(-1, FT_DOWNLOAD));
+	m_MasterList->AppendItem(root, _("Fault"), -1, -1, new FbMasterFolder(-2, FT_DOWNLOAD));
 	m_MasterList->Expand(root);
 
 	m_MasterList->Thaw();

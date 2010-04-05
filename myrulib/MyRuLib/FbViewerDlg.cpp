@@ -1,5 +1,6 @@
 #include "FbViewerDlg.h"
 #include <wx/artprov.h>
+#include "FbConst.h"
 
 
 BEGIN_EVENT_TABLE( FbViewerDlg, FbDialog )
@@ -8,13 +9,13 @@ BEGIN_EVENT_TABLE( FbViewerDlg, FbDialog )
 END_EVENT_TABLE()
 
 FbViewerDlg::FbViewerDlg( wxWindow* parent, const wxString& type, const wxString& value )
-	: FbDialog( parent, wxID_ANY, _("Настройка"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
+	: FbDialog( parent, wxID_ANY, _("Customize"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
 	wxBoxSizer* bSizerMain = new wxBoxSizer( wxVERTICAL );
 
-	wxString msg = _("Выберите приложение для просмотра файлов ") + type;
+	wxString msg = _("Select the application to view files") + COLON + type;
 	wxStaticText* stTitle = new wxStaticText( this, wxID_ANY, msg, wxDefaultPosition, wxDefaultSize, 0 );
 	stTitle->Wrap( -1 );
 	bSizerMain->Add( stTitle, 0, wxALL, 5 );
@@ -44,9 +45,9 @@ FbViewerDlg::FbViewerDlg( wxWindow* parent, const wxString& type, const wxString
 
 void FbViewerDlg::OnBtnClick( wxCommandEvent& event )
 {
-	wxString title = _("Выберите приложение для просмотра файлов…");
+	wxString title = _("Select the application to view files");
 	#ifdef __WIN32__
-	wxString wildCard = _("Исполняемые файлы (*.exe)|*.exe");
+	wxString wildCard = _("Executable files") + (wxString)wxT(" (*.exe)|*.exe");
 	#else
 	wxString wildCard;
 	#endif

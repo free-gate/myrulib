@@ -34,11 +34,12 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		void OpenLastPage();
 		void SetTabArt(int id);
 	private:
-		wxTextCtrl m_FindAuthor;
-		wxTextCtrl m_FindTitle;
+		wxTextCtrl * m_FindAuthor;
+		wxTextCtrl * m_FindTitle;
 		ProgressBar m_ProgressBar;
 		wxAuiManager m_FrameManager;
 		LimitedTextCtrl m_LOGTextCtrl;
+		wxToolBar * m_toolbar;
 	private:
 		void OnExit(wxCommandEvent & event);
 		void OnSetup(wxCommandEvent & event);
@@ -53,6 +54,8 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		void OnFindTitleEnter(wxCommandEvent& event);
 		void OnFullScreen(wxCommandEvent& event);
 		void OnFullScreenUpdate(wxUpdateUIEvent& event);
+		void OnLocalize(wxCommandEvent& event);
+		void OnLocalizeUpdate(wxUpdateUIEvent& event);
 		void OnMenuFrame(wxCommandEvent& event);
 		void OnMenuNothing(wxCommandEvent& event);
 		void OnMenuAuthor(wxCommandEvent& event);
@@ -69,8 +72,6 @@ class FbMainFrame: public wxAuiMDIParentFrame
 		void OnProgressUpdate(wxUpdateUIEvent& event);
 		void OnError(wxCommandEvent& event);
 		void OnHideLog(wxCommandEvent& event);
-		void OnPanelClosed(wxAuiManagerEvent& event);
-		void OnNotebookPageClose(wxAuiNotebookEvent& evt);
 		void OnUpdateFolder(FbFolderEvent & event);
 		void OnOpenAuthor(FbOpenEvent & event);
 		void OnOpenSequence(FbOpenEvent & event);

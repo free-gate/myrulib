@@ -1,5 +1,10 @@
 #include "FbWindow.h"
 #include "FbParams.h"
+#include "FbMainMenu.h"
+
+BEGIN_EVENT_TABLE(FbAuiMDIChildFrame, wxAuiMDIChildFrame)
+	EVT_ACTIVATE(FbAuiMDIChildFrame::OnActivated)
+END_EVENT_TABLE()
 
 FbDialog::FbDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style )
 	:wxDialog( parent, id, title, pos, size, style )
@@ -12,6 +17,11 @@ bool FbDialog::Create( wxWindow* parent, wxWindowID id, const wxString& title, c
 	bool res = wxDialog::Create( parent, id, title, pos, size, style );
 	SetFont( FbParams::GetFont(FB_FONT_DLG) );
 	return res;
+}
+
+FbAuiMDIChildFrame::FbAuiMDIChildFrame(wxAuiMDIParentFrame *parent, wxWindowID winid, const wxString& title, const wxPoint& pos, const wxSize& size, long style, const wxString& name)
+	: wxAuiMDIChildFrame(parent, winid, title, pos, size, style, name)
+{
 }
 
 bool FbAuiMDIChildFrame::Create(wxAuiMDIParentFrame *parent, wxWindowID winid, const wxString& title, const wxPoint& pos, const wxSize& size, long style, const wxString& name)
@@ -37,4 +47,19 @@ void FbAuiMDIChildFrame::UpdateFont(wxHtmlWindow * html, bool refresh)
 	html->SetFonts(font.GetFaceName(), font.GetFaceName(), fontsizes);
 }
 
+wxMenuBar * FbAuiMDIChildFrame::CreateMenuBar()
+{
+    return new FbMainMenu;
+}
+
+void FbAuiMDIChildFrame::Localize(bool bUpdateMenu)
+{
+    if (bUpdateMenu) SetMenuBar(CreateMenuBar());
+}
+
+void FbAuiMDIChildFrame::OnActivated(wxActivateEvent & event)
+{
+	SetMenuBar(CreateMenuBar());
+	event.Skip();
+}
 

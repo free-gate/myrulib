@@ -15,7 +15,7 @@ BEGIN_EVENT_TABLE(FbFrameFolder, FbFrameBase)
 END_EVENT_TABLE()
 
 FbFrameFolder::FbFrameFolder(wxAuiMDIParentFrame * parent)
-	:FbFrameBase(parent, ID_FRAME_FOLDER, _("Мои папки")), m_FolderBar(NULL)
+	:FbFrameBase(parent, ID_FRAME_FOLDER, GetTitle())
 {
 	CreateControls();
 }
@@ -29,20 +29,8 @@ void FbFrameFolder::CreateControls()
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxVERTICAL );
 
-	wxBoxSizer* bToolSizer = new wxBoxSizer( wxHORIZONTAL );
-
-	m_FolderBar = new wxToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORZ_TEXT|wxTB_NODIVIDER|wxTB_NOICONS|wxTB_FLAT );
-	m_FolderBar->SetFont(FbParams::GetFont(FB_FONT_TOOL));
-	m_FolderBar->AddTool( ID_APPEND_FOLDER, _("Добавить"), wxNullBitmap);
-	m_FolderBar->AddTool( ID_MODIFY_FOLDER, _("Изменить"), wxNullBitmap);
-	m_FolderBar->AddTool( ID_DELETE_FOLDER, _("Удалить"), wxNullBitmap);
-	m_FolderBar->Realize();
-	bToolSizer->Add( m_FolderBar, 0, wxALIGN_CENTER_VERTICAL);
-
-	m_ToolBar  = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, GetTitle());
-	bToolSizer->Add( m_ToolBar, 1, wxALIGN_CENTER_VERTICAL);
-
-	bSizer1->Add( bToolSizer, 0, wxEXPAND);
+	m_ToolBar  = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, wxEmptyString);
+	bSizer1->Add( m_ToolBar, 0, wxGROW);
 
 	wxSplitterWindow * splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxSize(500, 400), wxSP_NOBORDER);
 	splitter->SetMinimumPaneSize(50);
@@ -50,7 +38,7 @@ void FbFrameFolder::CreateControls()
 	bSizer1->Add(splitter, 1, wxEXPAND);
 
 	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST);
-	m_MasterList->AddColumn (_("Папки"), 100, wxALIGN_LEFT);
+	m_MasterList->AddColumn (_("Folders"), 100, wxALIGN_LEFT);
 	m_MasterList->SetFocus();
 
 	long substyle = wxTR_HIDE_ROOT | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxTR_MULTIPLE | wxSUNKEN_BORDER;
@@ -64,6 +52,26 @@ void FbFrameFolder::CreateControls()
 	FbFrameBase::CreateControls();
 }
 
+wxToolBar * FbFrameFolder::CreateToolBar(long style, wxWindowID winid, const wxString& name)
+{
+	wxToolBar * toolbar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, style, name);
+	toolbar->SetFont(FbParams::GetFont(FB_FONT_TOOL));
+	toolbar->AddTool( ID_APPEND_FOLDER, _("Append"), wxArtProvider::GetBitmap(wxART_ADD_BOOKMARK));
+	toolbar->AddTool( ID_MODIFY_FOLDER, _("Modify"), wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+	toolbar->AddTool( ID_DELETE_FOLDER, _("Delete"), wxArtProvider::GetBitmap(wxART_DEL_BOOKMARK));
+	toolbar->AddSeparator();
+	toolbar->AddTool(wxID_SAVE, _("Export"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Export to external device"));
+	toolbar->Realize();
+
+	return toolbar;
+}
+
+void FbFrameFolder::Localize(bool bUpdateMenu)
+{
+	FbFrameBase::Localize(bUpdateMenu);
+	m_MasterList->SetColumnText(0, _("Folders"));
+}
+
 void FbFrameFolder::FillFolders(const int iCurrent)
 {
 	m_MasterList->Freeze();
@@ -71,10 +79,10 @@ void FbFrameFolder::FillFolders(const int iCurrent)
 
 	wxTreeItemId root = m_MasterList->AddRoot(wxEmptyString);
 
-	wxTreeItemId parent = m_MasterList->AppendItem(root, _("Закладки"));
+	wxTreeItemId parent = m_MasterList->AppendItem(root, _("Bookmarks"));
 	m_MasterList->SetItemBold(parent, true);
 
-	wxTreeItemId item = m_MasterList->AppendItem(parent, _("Избранное"), -1, -1, new FbMasterFolder(0, FT_FOLDER));
+	wxTreeItemId item = m_MasterList->AppendItem(parent, _("Favorites"), -1, -1, new FbMasterFolder(0, FT_FOLDER));
 	if (iCurrent == 0) m_MasterList->SelectItem(item);
 
 	wxString sql = wxT("SELECT id, value FROM folders ORDER BY value");
@@ -89,10 +97,10 @@ void FbFrameFolder::FillFolders(const int iCurrent)
 	m_MasterList->Expand(parent);
 	m_MasterList->Expand(root);
 
-	parent = m_MasterList->AppendItem(root, _("Пометки"));
+	parent = m_MasterList->AppendItem(root, _("Remarks"));
 	m_MasterList->SetItemBold(parent, true);
 
-	m_MasterList->AppendItem(parent, _("Комментарии"), -1, -1, new FbMasterFolder(1, FT_COMMENT));
+	m_MasterList->AppendItem(parent, _("Comments"), -1, -1, new FbMasterFolder(1, FT_COMMENT));
 	m_MasterList->AppendItem(parent, strRating[5], -1, -1, new FbMasterFolder(5, FT_RATING));
 	m_MasterList->AppendItem(parent, strRating[4], -1, -1, new FbMasterFolder(4, FT_RATING));
 	m_MasterList->AppendItem(parent, strRating[3], -1, -1, new FbMasterFolder(3, FT_RATING));
@@ -111,8 +119,8 @@ void FbFrameFolder::OnFolderSelected(wxTreeEvent & event)
 		FbMasterData * data = m_MasterList->GetItemData(selected);
 		if (data) {
 			bool enabled = data->GetType() == FT_FOLDER && data->GetId();
-			m_FolderBar->EnableTool(ID_MODIFY_FOLDER, enabled);
-			m_FolderBar->EnableTool(ID_DELETE_FOLDER, enabled);
+			m_ToolBar->EnableTool(ID_MODIFY_FOLDER, enabled);
+			m_ToolBar->EnableTool(ID_DELETE_FOLDER, enabled);
 			data->Show(this);
 		}
 	}
@@ -146,7 +154,7 @@ void FbFrameFolder::OnFavoritesDel(wxCommandEvent & event)
 
 void FbFrameFolder::OnFolderAppend(wxCommandEvent & event)
 {
-	wxString name = wxGetTextFromUser(_("Введите имя новой папки:"), _("Добавить папку?"), wxEmptyString, this);
+	wxString name = wxGetTextFromUser(_("Input name of new folder:"), _("Add folder?"), wxEmptyString, this);
 	if (name.IsEmpty()) return;
 
 	FbLocalDatabase database;
@@ -172,7 +180,7 @@ void FbFrameFolder::OnFolderModify(wxCommandEvent & event)
 
 	wxTreeItemId item = m_MasterList->GetSelection();
 	wxString name = m_MasterList->GetItemText(item);;
-	name = wxGetTextFromUser(_("Введите новое имя папки:"), _("Изменить папку?"), name, this);
+	name = wxGetTextFromUser(_("Input new folder name:"), _("Change folder?"), name, this);
 	if (name.IsEmpty()) return;
 
 	FbLocalDatabase database;
@@ -196,8 +204,8 @@ void FbFrameFolder::OnFolderDelete(wxCommandEvent & event)
 
 	wxTreeItemId item = m_MasterList->GetSelection();
 	wxString name = m_MasterList->GetItemText(item);;
-	wxString msg = wxString::Format(_("Удалить папку «%s»?"), name.c_str());
-	int answer = wxMessageBox(msg, _("Удалить папку?"), wxOK | wxCANCEL, this);
+	wxString msg = wxString::Format(_("Delete folder \"%s\"?"), name.c_str());
+	int answer = wxMessageBox(msg, _("Delete folder?"), wxOK | wxCANCEL, this);
 	if (answer != wxOK) return;
 
 	FbLocalDatabase database;
@@ -237,7 +245,6 @@ void FbFrameFolder::UpdateFolder(const int iFolder, const FbFolderType type)
 
 void FbFrameFolder::ShowFullScreen(bool show)
 {
-	if (m_FolderBar) m_FolderBar->Show(!show);
 	if (m_ToolBar) m_ToolBar->Show(!show);
 	Layout();
 }

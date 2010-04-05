@@ -13,15 +13,17 @@ class FbFrameSequen : public FbFrameBase
 {
 	public:
 		FbFrameSequen(wxAuiMDIParentFrame * parent);
+		virtual wxString GetTitle() const { return _("Series"); };
 		void FindSequence(const wxString &text);
 		void OpenSequence(const int sequence, const int book);
 		void ActivateAuthors();
 		virtual void ShowFullScreen(bool show);
+		void Localize(bool bUpdateMenu);
 	protected:
 		virtual void CreateControls();
 		virtual void UpdateBooklist();
 		virtual wxMenuBar * CreateMenuBar();
-		virtual wxToolBar * CreateToolBar(long style, wxWindowID winid, const wxString& name);
+		virtual wxToolBar * CreateToolBar(long style = wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxWindowID winid = wxID_ANY, const wxString& name = wxEmptyString);
 	private:
 		void ReplaceData(int old_id, int new_id, wxTreeItemId selected, const wxString &newname);
 		void ShowContextMenu(const wxPoint& pos, wxTreeItemId item);
@@ -34,7 +36,7 @@ class FbFrameSequen : public FbFrameBase
 		wxString m_SequenceText;
 		int m_SequenceCode;
 	private:
-		void OnAuthorSelected(wxTreeEvent & event);
+		void OnMasterSelected(wxTreeEvent & event);
 		void OnBooksCount(wxCommandEvent& event);
 		void OnColClick(wxListEvent& event);
 		void OnContextMenu(wxTreeEvent& event);

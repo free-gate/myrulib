@@ -7,7 +7,7 @@
 #include "FbFilterDlg.h"
 #include "FbColumnDlg.h"
 
-BEGIN_EVENT_TABLE(FbFrameBase, wxAuiMDIChildFrame)
+BEGIN_EVENT_TABLE(FbFrameBase, FbAuiMDIChildFrame)
 	EVT_ACTIVATE(FbFrameBase::OnActivated)
 	EVT_TREE_ITEM_COLLAPSING(ID_MASTER_LIST, FbFrameBase::OnTreeCollapsing)
 	EVT_MENU(wxID_SAVE, FbFrameBase::OnExternal)
@@ -58,9 +58,9 @@ BEGIN_EVENT_TABLE(FbFrameBase, wxAuiMDIChildFrame)
 END_EVENT_TABLE()
 
 FbFrameBase::FbFrameBase(wxAuiMDIParentFrame * parent, wxWindowID id, const wxString & title) :
+	FbAuiMDIChildFrame(parent, id, title),
 	m_MasterList(NULL), m_BooksPanel(NULL), m_ToolBar(NULL)
 {
-	Create(parent, id, title);
 }
 
 bool FbFrameBase::Create(wxAuiMDIParentFrame * parent, wxWindowID id, const wxString & title)
@@ -76,6 +76,18 @@ void FbFrameBase::CreateControls()
 	this->UpdateFonts(false);
 	this->ShowFullScreen(IsFullScreen());
 	this->Layout();
+}
+
+void FbFrameBase::Localize(bool bUpdateMenu)
+{
+	SetTitle(GetTitle());
+    FbAuiMDIChildFrame::Localize(bUpdateMenu);
+    if (bUpdateMenu) UpdateStatus();
+    m_BooksPanel->Localize();
+
+	wxDELETE(m_ToolBar);
+	m_ToolBar = CreateToolBar();
+	if (m_ToolBar) GetSizer()->Insert(0, m_ToolBar, 0, wxGROW);
 }
 
 void FbFrameBase::CreateBooksPanel(wxWindow * parent, long substyle)
@@ -147,7 +159,6 @@ void FbFrameBase::OnTreeCollapsing(wxTreeEvent & event)
 
 void FbFrameBase::OnActivated(wxActivateEvent & event)
 {
-	SetMenuBar(CreateMenuBar());
 	UpdateStatus();
 	event.Skip();
 }
@@ -187,7 +198,7 @@ wxToolBar * FbFrameBase::CreateToolBar(long style, wxWindowID winid, const wxStr
 {
 	wxToolBar * toolbar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, style, name);
 	toolbar->SetFont(FbParams::GetFont(FB_FONT_TOOL));
-	toolbar->AddTool(wxID_SAVE, _("Экспорт"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Запись на внешнее устройство"));
+	toolbar->AddTool(wxID_SAVE, _("Export"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Export to external device"));
 	toolbar->Realize();
 	return toolbar;
 }
@@ -207,7 +218,7 @@ wxString FbFrameBase::GetStatus()
 {
 	size_t count = GetBookCount();
 	wxString msg = wxString::Format(wxT(" %d "), count);
-	msg += Naming(count, _("книга"), _("книги"), _("книг"));
+	msg += wxGetTranslation(_("book"), _("books"), count);
 	return msg;
 }
 
@@ -258,14 +269,14 @@ bool FbFrameBase::IsFullScreen()
 
 FbFrameBase::MenuBar::MenuBar()
 {
-	Append(new MenuFile,   _("Файл"));
-	Append(new MenuLib,    _("Библиотека"));
-	Append(new MenuFrame,  _("Картотека"));
-	Append(new MenuBook,   _("Книги"));
-	Append(new MenuView,   _("Вид"));
-	Append(new MenuSetup,  _("Сервис"));
-	Append(new MenuWindow, _("Окно"));
-	Append(new MenuHelp,   _("?"));
+	Append(new MenuFile,   _("&File"));
+	Append(new MenuLib,    _("&Library"));
+	Append(new MenuFrame,  _("&Catalog"));
+	Append(new MenuBook,   _("&Books"));
+	Append(new MenuView,   _("&View"));
+	Append(new MenuSetup,  _("&Tools"));
+	Append(new MenuWindow, _("&Window"));
+	Append(new MenuHelp,   _("&?"));
 }
 
 wxMenuBar * FbFrameBase::CreateMenuBar()

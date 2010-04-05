@@ -49,6 +49,11 @@ enum {
 	ID_MENU_VACUUM,
 	ID_MENU_CONFIG,
 	ID_MENU_VIEW,
+	ID_MENU_DEFAULT,
+	ID_MENU_ENGLISH,
+	ID_MENU_RUSSIAN,
+    ID_MENU_UKRAINIAN,
+    ID_MENU_BELARUSIAN,
 	ID_SHOW_COLUMNS,
 	ID_ALPHABET_RU,
 	ID_ALPHABET_EN,
@@ -145,5 +150,7 @@ extern const wxString strRating [];
 
 extern const wxString strUpdateAuthorCount;
 extern const wxString strUpdateSequenCount;
+
+#define COLON wxString(wxT(": "))
 
 #endif // __FBCONST_H__
