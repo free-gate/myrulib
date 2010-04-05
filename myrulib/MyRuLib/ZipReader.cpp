@@ -119,7 +119,7 @@ void ZipReader::Init()
 	wxThread *thread = new ZipThread(dirname);
 
 	if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-		wxLogError(wxT("Can't create thread!"));
+		wxLogError(_("Can't create thread!"));
 		return;
 	}
 
@@ -130,6 +130,7 @@ void ZipReader::Init()
 
 void ZipReader::OpenDownload(FbDatabase &database, bool bInfoOnly)
 {
+	wxString filetype;
 	{
 		wxString sql = wxT("SELECT md5sum, file_type FROM books WHERE id=?");
 		wxSQLite3Statement stmt = database.PrepareStatement(sql);
@@ -137,7 +138,8 @@ void ZipReader::OpenDownload(FbDatabase &database, bool bInfoOnly)
 		wxSQLite3ResultSet result = stmt.ExecuteQuery();
 		if ( result.NextRow() ) {
 			m_md5sum = result.GetString(0);
-			if (result.GetString(1).Lower() == wxT("fb2")) bInfoOnly = false;
+			filetype = result.GetString(1).Lower();
+			if (filetype == wxT("fb2")) bInfoOnly = false;
 		} else return;
 	}
 
@@ -145,7 +147,16 @@ void ZipReader::OpenDownload(FbDatabase &database, bool bInfoOnly)
 	m_zipOk = zip_file.FileExists();
 	if (m_zipOk && !bInfoOnly) {
 		m_file = new wxFFileInputStream(zip_file.GetFullPath());
-		m_zip = NULL;
+		if ( filetype != wxT("zip") ) {
+			unsigned char buf[2];
+			size_t count = m_file->Read(buf, 2).LastRead();
+			if ( count>1 && buf[0]=='P' && buf[1]=='K') {
+				OpenEntry(bInfoOnly);
+				if ( IsOK() ) return;
+			}
+			m_file->SeekI(0);
+		}
+		wxDELETE(m_zip);
 		m_result = m_file;
 		m_fileOk = true;
 		return;
@@ -157,12 +168,19 @@ void ZipReader::OpenDownload(FbDatabase &database, bool bInfoOnly)
 		m_file = new wxFFileInputStream(zip_file.GetFullPath());
 		m_zip = new wxZipInputStream(*m_file, conv);
 		m_result = m_zip;
-		while (wxZipEntry * entry = m_zip->GetNextEntry()) {
-			bool ok = (entry->GetInternalName().Right(4).Lower() == wxT(".fbd")) == bInfoOnly;
-			if (ok) m_fileOk = m_zip->OpenEntry(*entry);
-			delete entry;
-			if (ok) break;
-		}
+		OpenEntry(bInfoOnly);
+	}
+}
+
+void ZipReader::OpenEntry(bool bInfoOnly)
+{
+	m_zip = new wxZipInputStream(*m_file, conv);
+	m_result = m_zip;
+	while (wxZipEntry * entry = m_zip->GetNextEntry()) {
+		bool ok = (entry->GetInternalName().Right(4).Lower() == wxT(".fbd")) == bInfoOnly;
+		if (ok) m_fileOk = m_zip->OpenEntry(*entry);
+		delete entry;
+		if (ok) break;
 	}
 }
 
@@ -303,7 +321,7 @@ void ZipCollection::AddZip(FbCommonDatabase & database, const wxString &filename
 		stmt.Bind(2, filename);
 		stmt.ExecuteUpdate();
 	} else {
-		wxLogError(wxT("Zip read error %s"), filename.c_str());
+		wxLogError(_("Zip read error %s"), filename.c_str());
 	}
 
 	InfoCash::Empty();

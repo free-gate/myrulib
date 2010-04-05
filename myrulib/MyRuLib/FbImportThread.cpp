@@ -190,6 +190,9 @@ void FbImportBook::Convert()
 
 	for (size_t i=0; i<sequences.Count(); i++)
 		sequences[i].Convert(m_database);
+
+	if (sequences.Count() == 0)
+		sequences.Add(new SequenceItem);
 }
 
 int FbImportBook::FindByMD5()
@@ -254,20 +257,22 @@ void FbImportBook::AppendBook()
 		}
 	}
 
-	for (size_t i = 0; i<sequences.Count(); i++) {
-		if (sequences[i].id == 0) continue;
-		wxString sql = wxT("INSERT INTO bookseq(id_book,id_seq,number) VALUES (?,?,?)");
-		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-		stmt.Bind(1, id_book);
-		stmt.Bind(2, sequences[i].id);
-		stmt.Bind(3, (int)sequences[i].number);
-		stmt.ExecuteUpdate();
+	for (size_t i = 0; i<authors.Count(); i++) {
+        for (size_t j = 0; j<sequences.Count(); j++) {
+            wxString sql = wxT("INSERT INTO bookseq(id_book,id_seq,number,id_author) VALUES (?,?,?,?)");
+            wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+            stmt.Bind(1, id_book);
+            stmt.Bind(2, sequences[j].id);
+            stmt.Bind(3, (int)sequences[j].number);
+            stmt.Bind(4, authors[i].id);
+            stmt.ExecuteUpdate();
+        }
 	}
 
 	{
 		wxString content = title;
 		MakeLower(content);
-		wxString sql = wxT("INSERT INTO fts_book(content, docid) VALUES(?,?)");
+		wxString sql = wxT("INSERT INTO fts_book(content,docid) VALUES(?,?)");
 		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
 		stmt.Bind(1, content);
 		stmt.Bind(2, id_book);
@@ -334,7 +339,7 @@ FbImpotrZip::FbImpotrZip(FbImportThread *owner, wxInputStream &in, const wxStrin
 	m_ok(m_zip.IsOk())
 {
 	if (!m_ok) {
-		wxLogError(wxT("Zip read error %s"), zipname.c_str());
+		wxLogError(_("Zip read error %s"), zipname.c_str());
 		return;
 	}
 	wxLogInfo(_("Import zip %s"), m_filename.c_str());
@@ -412,8 +417,13 @@ void FbImpotrZip::Make(FbImportThread *owner)
 		if (book.IsOk()) book.Save(); else skipped++;
 	}
 
-	if ( existed && skipped ) wxLogWarning(wxT("FB2 and FBD not found %s"), m_filename.c_str());
-	if ( !existed ) wxLogError(wxT("Zip read error %s"), m_filename.c_str());
+	if ( existed && skipped ) {
+		wxLogWarning(_("FB2 and FBD not found %s"), m_filename.c_str());
+	}
+
+	if ( !existed ) {
+		wxLogError(_("Zip read error %s"), m_filename.c_str());
+	}
 
 	if (owner) owner->DoFinish();
 }
@@ -470,7 +480,7 @@ void FbZipImportThread::ImportFile(const wxString & zipname)
 
 	wxFFileInputStream in(zipname);
 	if ( !in.IsOk() ) {
-		wxLogError(wxT("File read error %s"), zipname.c_str());
+		wxLogError(_("File read error %s"), zipname.c_str());
 		return;
 	}
 
@@ -580,7 +590,7 @@ void FbDirImportThread::ParseXml(const wxString &filename)
 		FbImportBook book(this, in, filename);
 		if (book.IsOk()) book.Save();
 	} else {
-		wxLogError(wxT("File read error %s"), filename.c_str());
+		wxLogError(_("File read error %s"), filename.c_str());
 	}
 }
 
@@ -595,6 +605,6 @@ void FbDirImportThread::ParseZip(const wxString &zipname)
 			zip.Make();
 		}
 	} else {
-		wxLogError(wxT("File read error %s"), zipname.c_str());
+		wxLogError(_("File read error %s"), zipname.c_str());
 	}
 }

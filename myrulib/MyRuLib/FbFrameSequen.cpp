@@ -12,7 +12,7 @@
 #include "FbParams.h"
 
 BEGIN_EVENT_TABLE(FbFrameSequen, FbFrameBase)
-	EVT_TREE_SEL_CHANGED(ID_MASTER_LIST, FbFrameSequen::OnAuthorSelected)
+	EVT_TREE_SEL_CHANGED(ID_MASTER_LIST, FbFrameSequen::OnMasterSelected)
     EVT_LIST_COL_CLICK(ID_MASTER_LIST, FbFrameSequen::OnColClick)
 	EVT_COMMAND(ID_BOOKS_COUNT, fbEVT_BOOK_ACTION, FbFrameSequen::OnBooksCount)
 	EVT_TEXT_ENTER(ID_SEQUENCE_TXT, FbFrameSequen::OnFindEnter )
@@ -26,7 +26,7 @@ BEGIN_EVENT_TABLE(FbFrameSequen, FbFrameBase)
 END_EVENT_TABLE()
 
 FbFrameSequen::FbFrameSequen(wxAuiMDIParentFrame * parent)
-	:FbFrameBase(parent, ID_FRAME_SEQUEN, _("Серии")), m_FindText(NULL), m_FindInfo(NULL), m_SequenceCode(0)
+	:FbFrameBase(parent, ID_FRAME_SEQUEN, GetTitle()), m_FindText(NULL), m_FindInfo(NULL), m_SequenceCode(0)
 {
 	CreateControls();
 }
@@ -36,21 +36,8 @@ void FbFrameSequen::CreateControls()
 	wxBoxSizer * sizer = new wxBoxSizer(wxVERTICAL);
 	SetSizer(sizer);
 
-	wxBoxSizer* bSizerSeq;
-	bSizerSeq = new wxBoxSizer( wxHORIZONTAL );
-
-	m_FindInfo = new wxStaticText( this, wxID_ANY, _("Серия:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_FindInfo->Wrap( -1 );
-	bSizerSeq->Add( m_FindInfo, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5 );
-
-	m_FindText = new wxTextCtrl( this, ID_SEQUENCE_TXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-	m_FindText->SetMinSize( wxSize( 200,-1 ) );
-	bSizerSeq->Add( m_FindText, 0, wxALIGN_CENTER_VERTICAL|wxALL, 2 );
-
-	m_ToolBar = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, GetTitle());
-	bSizerSeq->Add( m_ToolBar, 1, wxALIGN_CENTER_VERTICAL);
-
-	sizer->Add(bSizerSeq, 0, wxEXPAND, 5);
+	m_ToolBar = CreateToolBar();
+	sizer->Add( m_ToolBar, 0, wxGROW);
 
 	wxSplitterWindow * splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxSize(500, 400), wxSP_NOBORDER);
 	splitter->SetMinimumPaneSize(50);
@@ -58,8 +45,8 @@ void FbFrameSequen::CreateControls()
 	sizer->Add(splitter, 1, wxEXPAND);
 
 	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST, wxTR_HIDE_ROOT | wxTR_NO_LINES | wxTR_FULL_ROW_HIGHLIGHT | wxTR_COLUMN_LINES | wxSUNKEN_BORDER);
-	m_MasterList->AddColumn(_("Серия"), 40, wxALIGN_LEFT);
-	m_MasterList->AddColumn(_("Кол."), 10, wxALIGN_RIGHT);
+	m_MasterList->AddColumn(_("Ser."), 40, wxALIGN_LEFT);
+	m_MasterList->AddColumn(_("Num."), 10, wxALIGN_RIGHT);
 	m_MasterList->SetFocus();
 	m_MasterList->SetSortedColumn(1);
 
@@ -72,12 +59,32 @@ void FbFrameSequen::CreateControls()
 	FindSequence(wxEmptyString);
 }
 
+void FbFrameSequen::Localize(bool bUpdateMenu)
+{
+	FbFrameBase::Localize(bUpdateMenu);
+	m_MasterList->SetColumnText(0, _("Ser."));
+	m_MasterList->SetColumnText(1, _("Num."));
+}
+
 wxToolBar * FbFrameSequen::CreateToolBar(long style, wxWindowID winid, const wxString& name)
 {
+	wxFont font = FbParams::GetFont(FB_FONT_TOOL);
+
 	wxToolBar * toolbar = new wxToolBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, style, name);
-	toolbar->SetFont(FbParams::GetFont(FB_FONT_TOOL));
-	toolbar->AddTool(ID_SEQUENCE_BTN, _("Найти"), wxArtProvider::GetBitmap(wxART_FIND), _("Найти серию по наименованию"));
-	toolbar->AddTool(wxID_SAVE, _("Экспорт"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Запись на внешнее устройство"));
+	toolbar->SetFont(font);
+
+	m_FindInfo = new wxStaticText( toolbar, wxID_ANY, (wxString)_("Ser.") + wxT(':'), wxDefaultPosition, wxDefaultSize, 0 );
+	m_FindInfo->Wrap( -1 );
+	m_FindInfo->SetFont(font);
+	toolbar->AddControl( m_FindInfo );
+
+	m_FindText = new wxTextCtrl( toolbar, ID_SEQUENCE_TXT, wxEmptyString, wxDefaultPosition, wxSize(200, -1), wxTE_PROCESS_ENTER );
+	m_FindText->SetMinSize( wxSize( 200,-1 ) );
+	m_FindText->SetFont(font);
+	toolbar->AddControl( m_FindText );
+
+	toolbar->AddTool(ID_SEQUENCE_BTN, _("Find"), wxArtProvider::GetBitmap(wxART_FIND), _("Find series by name"));
+	toolbar->AddTool(wxID_SAVE, _("Export"), wxArtProvider::GetBitmap(wxART_FILE_SAVE), _("Export to external device"));
 	toolbar->Realize();
 	return toolbar;
 }
@@ -91,7 +98,7 @@ void FbFrameSequen::SelectFirstAuthor(const int book)
 	if (item.IsOk()) m_MasterList->SelectItem(item);
 }
 
-void FbFrameSequen::OnAuthorSelected(wxTreeEvent & event)
+void FbFrameSequen::OnMasterSelected(wxTreeEvent & event)
 {
 	wxTreeItemId selected = event.GetItem();
 	if (selected.IsOk()) {
@@ -208,10 +215,11 @@ void FbFrameSequen::ShowFullScreen(bool show)
 
 FbFrameSequen::MasterMenu::MasterMenu(int id)
 {
-	Append(ID_MASTER_APPEND, _("Добавить"));
+	Append(ID_MASTER_APPEND,  _("Append"));
 	if (id == 0) return;
-	Append(ID_MASTER_MODIFY, _("Изменить"));
-	Append(ID_MASTER_DELETE, _("Удалить"));
+	Append(ID_MASTER_MODIFY,  _("Modify"));
+	Append(ID_MASTER_REPLACE, _("Replace"));
+	Append(ID_MASTER_DELETE,  _("Delete"));
 }
 
 void FbFrameSequen::OnContextMenu(wxTreeEvent& event)
@@ -244,7 +252,7 @@ FbFrameSequen::EditDlg::EditDlg( const wxString& title, int id )
 	wxBoxSizer* bSizerMain;
 	bSizerMain = new wxBoxSizer( wxVERTICAL );
 
-	m_text.Create( this, wxID_ANY, wxT("Наименование серии:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_text.Create( this, wxID_ANY, _("Series name:"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizerMain->Add( &m_text, 0, wxEXPAND|wxALL, 5 );
 
 	m_edit.Create( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
@@ -265,7 +273,7 @@ FbFrameSequen::EditDlg::EditDlg( const wxString& title, int id )
 
 int FbFrameSequen::EditDlg::Append(wxString &newname)
 {
-	EditDlg dlg(_("Добавить серию"));
+	EditDlg dlg(_("Append series"));
 	bool ok = dlg.ShowModal() == wxID_OK;
 	if (ok) newname = dlg.GetValue();
 	return ok ? dlg.DoAppend() : 0;
@@ -273,7 +281,7 @@ int FbFrameSequen::EditDlg::Append(wxString &newname)
 
 int FbFrameSequen::EditDlg::Modify(int id, wxString &newname)
 {
-	EditDlg dlg(_("Изменить серию"), id);
+	EditDlg dlg(_("Modify series"), id);
 	bool ok = dlg.Load(id) && dlg.ShowModal() == wxID_OK;
 	if (ok) newname = dlg.GetValue();
 	return ok ? dlg.DoUpdate() : 0;
@@ -339,15 +347,15 @@ void FbFrameSequen::EditDlg::EndModal(int retCode)
 {
 	if ( retCode == wxID_OK) {
 		if (GetValue().IsEmpty()) {
-			wxMessageBox(_("Не заполнено наименование серии."), GetTitle());
+			wxMessageBox(_("\"Series name\" field is empty"), GetTitle());
 			return;
 		}
 		m_exists = Find();
 		if (m_exists) {
-			wxString msg = _("Такая серия уже существует.");
+			wxString msg = _("Series aleready exists");
 			wxString title = GetTitle() + wxT("…");
 			if (m_id) {
-				msg += _("\nОбъединить две серии?");
+				msg += _("Merge series?");
 				bool ok = wxMessageBox(msg, title, wxOK | wxCANCEL | wxICON_QUESTION) == wxOK;
 				if (!ok) return;
 			} else {
@@ -403,8 +411,8 @@ void FbFrameSequen::OnMasterDelete(wxCommandEvent& event)
 
 	wxTreeItemId selected = m_MasterList->GetSelection();
 	wxString name = m_MasterList->GetItemText(selected);
-	wxString msg = wxString::Format(_("Удалить серию «%s»?"), name.c_str());
-	bool ok = wxMessageBox(msg, _("Удаление"), wxOK | wxCANCEL | wxICON_QUESTION) == wxOK;
+	wxString msg = wxString::Format(_("Delete series «%s»?"), name.c_str());
+	bool ok = wxMessageBox(msg, _("Removing"), wxOK | wxCANCEL | wxICON_QUESTION) == wxOK;
 	if (ok) {
 		wxString sql1 = wxString::Format(wxT("DELETE FROM sequences WHERE id=%d"), id);
 		wxString sql2 = wxString::Format(wxT("DELETE FROM bookseq WHERE id_seq=%d"), id);
@@ -415,22 +423,23 @@ void FbFrameSequen::OnMasterDelete(wxCommandEvent& event)
 
 FbFrameSequen::MenuBar::MenuBar()
 {
-	Append(new MenuFile,   _("Файл"));
-	Append(new MenuLib,    _("Библиотека"));
-	Append(new MenuFrame,  _("Картотека"));
-	Append(new MenuMaster, _("Серии"));
-	Append(new MenuBook,   _("Книги"));
-	Append(new MenuView,   _("Вид"));
-	Append(new MenuSetup,  _("Сервис"));
-	Append(new MenuWindow, _("Окно"));
-	Append(new MenuHelp,   _("?"));
+	Append(new MenuFile,   _("&File"));
+	Append(new MenuLib,    _("&Library"));
+	Append(new MenuFrame,  _("&Catalog"));
+	Append(new MenuMaster, _("&Series"));
+	Append(new MenuBook,   _("&Books"));
+	Append(new MenuView,   _("&View"));
+	Append(new MenuSetup,  _("&Tools"));
+	Append(new MenuWindow, _("&Window"));
+	Append(new MenuHelp,   _("&?"));
 }
 
 FbFrameSequen::MenuMaster::MenuMaster()
 {
-	Append(ID_MASTER_APPEND, _("Добавить"));
-	Append(ID_MASTER_MODIFY, _("Изменить"));
-	Append(ID_MASTER_DELETE, _("Удалить"));
+	Append(ID_MASTER_APPEND,  _("Append"));
+	Append(ID_MASTER_MODIFY,  _("Modify"));
+	Append(ID_MASTER_REPLACE, _("Replace"));
+	Append(ID_MASTER_DELETE,  _("Delete"));
 }
 
 wxMenuBar * FbFrameSequen::CreateMenuBar()

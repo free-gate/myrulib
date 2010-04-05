@@ -19,7 +19,7 @@ class FbFrameBase : public FbAuiMDIChildFrame
 	public:
 		FbFrameBase(wxAuiMDIParentFrame * parent, wxWindowID id = wxID_ANY, const wxString & title = wxEmptyString);
 		virtual bool Create(wxAuiMDIParentFrame * parent, wxWindowID id = wxID_ANY, const wxString & title = wxEmptyString);
-		virtual wxToolBar * CreateToolBar(long style, wxWindowID winid, const wxString& name);
+		virtual wxToolBar * CreateToolBar(long style = wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxWindowID winid = wxID_ANY, const wxString& name = wxEmptyString);
 		void UpdateInfo(int id);
 		virtual void UpdateFonts(bool refresh = true);
 		wxString GetOrderSQL() { return m_BooksPanel->GetOrderSQL(); };
@@ -29,6 +29,7 @@ class FbFrameBase : public FbAuiMDIChildFrame
 		FbMasterData const * GetMasterData() { return m_BooksPanel->GetMasterData(); };
 		void UpdateStatus();
 		virtual void ShowFullScreen(bool show);
+		virtual void Localize(bool bUpdateMenu);
 	protected:
 		virtual void CreateControls();
 		virtual void UpdateBooklist() = 0;

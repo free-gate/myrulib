@@ -9,11 +9,15 @@
 class MyRuLibApp : public wxApp
 {
 public:
+    MyRuLibApp();
+    virtual ~MyRuLibApp();
 	virtual bool OnInit();
 	virtual int OnExit();
 	bool OpenDatabase(const wxString &filename);
 	const wxString GetAppData();
 	const wxString GetAppPath();
+	void Localize(int language = wxLANGUAGE_DEFAULT);
+	int GetLanguage();
 private:
 	void OpenLog();
 	wxFileName GetDatabaseFilename(FbDatabase &database);
@@ -22,6 +26,7 @@ private:
 private:
 	wxCriticalSection m_section;
 	wxString m_datafile;
+	wxLocale * m_locale;
 };
 
 DECLARE_APP(MyRuLibApp)

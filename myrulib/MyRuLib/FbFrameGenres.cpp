@@ -10,7 +10,7 @@ BEGIN_EVENT_TABLE(FbFrameGenres, FbFrameBase)
 END_EVENT_TABLE()
 
 FbFrameGenres::FbFrameGenres(wxAuiMDIParentFrame * parent)
-	:FbFrameBase(parent, ID_FRAME_GENRES, _("Жанры"))
+	:FbFrameBase(parent, ID_FRAME_GENRES, GetTitle())
 {
 	CreateControls();
 }
@@ -24,7 +24,7 @@ void FbFrameGenres::CreateControls()
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxVERTICAL );
 
-	m_ToolBar = CreateToolBar(wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxID_ANY, GetTitle());
+	m_ToolBar = CreateToolBar();
 	bSizer1->Add( m_ToolBar, 0, wxGROW);
 
 	wxSplitterWindow * splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxSize(500, 400), wxSP_NOBORDER);
@@ -33,7 +33,7 @@ void FbFrameGenres::CreateControls()
 	bSizer1->Add(splitter, 1, wxEXPAND);
 
 	m_MasterList = new FbMasterList(splitter, ID_MASTER_LIST);
-	m_MasterList->AddColumn (_("Список жанров"), 100, wxALIGN_LEFT);
+	m_MasterList->AddColumn (_("List of genres"), 100, wxALIGN_LEFT);
 	m_MasterList->SetFocus();
 	FbGenres::FillControl(m_MasterList);
 
@@ -44,6 +44,13 @@ void FbFrameGenres::CreateControls()
 	SetSizer( bSizer1 );
 
 	FbFrameBase::CreateControls();
+}
+
+void FbFrameGenres::Localize(bool bUpdateMenu)
+{
+	FbFrameBase::Localize(bUpdateMenu);
+	m_MasterList->SetColumnText(0, _("Genres"));
+	FbGenres::FillControl(m_MasterList);
 }
 
 void FbFrameGenres::OnGenreSelected(wxTreeEvent & event)

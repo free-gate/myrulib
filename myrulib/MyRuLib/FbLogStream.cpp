@@ -52,7 +52,7 @@ void FbLogStream::DoLog(wxLogLevel level, const wxChar *szString, time_t t)
 {
 	switch ( level ) {
 		case wxLOG_FatalError:
-			DoLogString(wxString(_("Fatal error: ")) + szString, t);
+			DoLogString(wxString(_("Fatal error")) + COLON + szString, t);
 			DoLogString(_("Program aborted."), t);
 			Flush();
 			#ifdef __WXWINCE__
@@ -63,17 +63,17 @@ void FbLogStream::DoLog(wxLogLevel level, const wxChar *szString, time_t t)
 			break;
 
 		case wxLOG_Error:
-			DoLogString(wxString(_("E ")) + szString, t);
+			DoLogString(wxString(wxT("E ")) + szString, t);
 			PostMsg(level, szString, t);
 			break;
 
 		case wxLOG_Warning:
-			DoLogString(wxString(_("! ")) + szString, t);
+			DoLogString(wxString(wxT("! ")) + szString, t);
 			PostMsg(level, szString, t);
 			break;
 
 		case wxLOG_Info:
-			DoLogString(wxString(_("> ")) + szString, t);
+			DoLogString(wxString(wxT("> ")) + szString, t);
 			break;
 
 		case wxLOG_Message:

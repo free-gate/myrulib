@@ -164,8 +164,8 @@ void FbMainDatabase::CreateDatabase()
 
 	/** TABLE params **/
 	ExecuteUpdate(wxT("CREATE TABLE params(id integer primary key, value integer, text text)"));
-	ExecuteUpdate(_("INSERT INTO params(id, text)  VALUES (1, 'My own Library')"));
-	ExecuteUpdate(_("INSERT INTO params(id, value) VALUES (2, 1)"));
+	ExecuteUpdate(wxT("INSERT INTO params(id, text)  VALUES (1, 'My own Library')"));
+	ExecuteUpdate(wxT("INSERT INTO params(id, value) VALUES (2, 1)"));
 
 	trans.Commit();
 
@@ -260,7 +260,7 @@ void FbLowerFunction::Execute(wxSQLite3FunctionContext& ctx)
 	if (argCount == 1) {
 		ctx.SetResult(Lower(ctx.GetString(0)));
 	} else {
-		ctx.SetResultError(wxString::Format(_("LOWER called with wrong number of arguments: %d."), argCount));
+		ctx.SetResultError(wxString::Format(wxT("LOWER called with wrong number of arguments: %d."), argCount));
 	}
 }
 
@@ -282,7 +282,7 @@ void FbSearchFunction::Decompose(const wxString &text, wxArrayString &list)
 FbSearchFunction::FbSearchFunction(const wxString & input)
 {
 	Decompose(input, m_masks);
-	wxString log = wxT("Search template: ");
+	wxString log = _("Search template") + COLON;
 	size_t count = m_masks.Count();
 	for (size_t i=0; i<count; i++) {
 		log += wxString::Format(wxT("<%s> "), m_masks[i].c_str());
@@ -294,7 +294,7 @@ void FbSearchFunction::Execute(wxSQLite3FunctionContext& ctx)
 {
 	int argCount = ctx.GetArgCount();
 	if (argCount != 1) {
-		ctx.SetResultError(wxString::Format(_("SEARCH called with wrong number of arguments: %d."), argCount));
+		ctx.SetResultError(wxString::Format(wxT("SEARCH called with wrong number of arguments: %d."), argCount));
 		return;
 	}
 	wxString text = Lower(ctx.GetString(0));
@@ -394,7 +394,7 @@ int FbDatabase::NewId(const int iParam, int iIncrement)
 
 wxString FbDatabase::GetText(const int param)
 {
-	const wchar_t * table = param < 100 ? wxT("params") : wxT("config");
+	const wxChar * table = param < 100 ? wxT("params") : wxT("config");
 
 	wxString sql = wxString::Format( wxT("SELECT text FROM %s WHERE id=?"), table);
 	wxSQLite3Statement stmt = PrepareStatement(sql);
@@ -416,20 +416,21 @@ FbLocalDatabase::FbLocalDatabase() :FbDatabase()
 	FbDatabase::Open(GetConfigName());
 }
 
-void FbMainDatabase::Open(const wxString& fileName, const wxString& key, int flags)
+void FbMainDatabase::Open(const wxString& filename, const wxString& key, int flags)
 {
-	bool bExists = wxFileExists(fileName);
+	bool bExists = wxFileExists(filename);
 
 	if (bExists)
-		wxLogInfo(wxT("Open database: %s"), fileName.c_str());
+		wxLogInfo(_("Open database") + COLON + filename);
 	else {
-		wxLogInfo(wxT("Create database: %s"), fileName.c_str());
-		wxString msg = strProgramName + wxT(" - Create new database…\n\n") + fileName;
+	    wxString info = _("Create new database");
+		wxLogInfo(info + COLON + filename);
+		wxString msg = strProgramName + (wxString)wxT(" - ") + info + (wxString)wxT("\n") + filename;
 		wxMessageBox(msg);
 	}
 
 	try {
-		FbDatabase::Open(fileName, key, flags);
+		FbDatabase::Open(filename, key, flags);
 		if (!bExists) CreateDatabase();
 		UpgradeDatabase(DB_DATABASE_VERSION);
 	}
@@ -518,7 +519,7 @@ void FbMasterDatabase::UpgradeDatabase(int new_version)
 
 	while ( version < new_version ) {
 		version++;
-		wxLogInfo(wxT("Upgrade database to version %d"), version);
+		wxLogInfo(_("Upgrade database to version %d"), version);
 		wxSQLite3Transaction trans(this, WXSQLITE_TRANSACTION_EXCLUSIVE);
 		DoUpgrade(version);
 		SetVersion(version);
@@ -527,8 +528,10 @@ void FbMasterDatabase::UpgradeDatabase(int new_version)
 
 	int old_version = GetVersion();
 	if (old_version != new_version) {
-		wxMessageBox(_("Несоответствие верси базы данных."), strProgramName, wxOK | wxICON_ERROR);
-		wxLogFatalError(_("Database version mismatch. Need a new version %d, but used the old %d."), new_version, old_version);
+	    wxString msg = _("Database version mismatch");
+		wxMessageBox(msg, strProgramName, wxOK | wxICON_ERROR);
+		wxLogError(msg);
+		wxLogFatalError(_("Need a new version %d, but used the old %d."), new_version, old_version);
 	}
 }
 

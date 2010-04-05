@@ -69,12 +69,12 @@
 					<Add directory="$(WXWIN)\include" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="libwxmsw28u_aui.a" />
-					<Add library="libwxmsw28u_adv.a" />
-					<Add library="libwxmsw28u_html.a" />
-					<Add library="libwxmsw28u_core.a" />
-					<Add library="libwxbase28u_net.a" />
-					<Add library="libwxbase28u.a" />
+					<Add library="libwxmsw29ud_aui.a" />
+					<Add library="libwxmsw29ud_adv.a" />
+					<Add library="libwxmsw29ud_html.a" />
+					<Add library="libwxmsw29ud_core.a" />
+					<Add library="libwxbase29ud_net.a" />
+					<Add library="libwxbase29ud.a" />
 					<Add library="libwxtiff.a" />
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxpng.a" />
@@ -125,12 +125,12 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libwxmsw28u_adv.a" />
-					<Add library="libwxmsw28u_aui.a" />
-					<Add library="libwxmsw28u_html.a" />
-					<Add library="libwxmsw28u_core.a" />
-					<Add library="libwxbase28u_net.a" />
-					<Add library="libwxbase28u.a" />
+					<Add library="libwxmsw29u_adv.a" />
+					<Add library="libwxmsw29u_aui.a" />
+					<Add library="libwxmsw29u_html.a" />
+					<Add library="libwxmsw29u_core.a" />
+					<Add library="libwxbase29u_net.a" />
+					<Add library="libwxbase29u.a" />
 					<Add library="libwxtiff.a" />
 					<Add library="libwxjpeg.a" />
 					<Add library="libwxpng.a" />
@@ -158,16 +158,17 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-DFB_INCLUDE_LOCALE" />
 			<Add directory="..\SQLite3" />
 			<Add directory="..\Expat" />
 			<Add directory="..\WxSQLite3" />
+			<Add directory="..\build" />
 		</Compiler>
 		<Linker>
 			<Add option="`wx-config --libs`" />
 			<Add library="libWxSQLite3.a" />
 			<Add library="libSQLite3.a" />
 			<Add library="libExpat.a" />
-			<Add library="libicuio.a" />
 		</Linker>
 		<Unit filename="BaseThread.cpp" />
 		<Unit filename="BaseThread.h" />
@@ -223,6 +224,7 @@
 		<Unit filename="FbFrameAuthor.h" />
 		<Unit filename="FbFrameBase.cpp" />
 		<Unit filename="FbFrameBase.h" />
+		<Unit filename="FbFrameDate.cpp" />
 		<Unit filename="FbFrameDate.h" />
 		<Unit filename="FbFrameDownld.cpp" />
 		<Unit filename="FbFrameDownld.h" />
@@ -245,6 +247,8 @@
 		<Unit filename="FbHtmlWindow.h" />
 		<Unit filename="FbImportThread.cpp" />
 		<Unit filename="FbImportThread.h" />
+		<Unit filename="FbLocale.cpp" />
+		<Unit filename="FbLocale.h" />
 		<Unit filename="FbLogStream.cpp" />
 		<Unit filename="FbLogStream.h" />
 		<Unit filename="FbLogoBitmap.h" />
@@ -293,6 +297,9 @@
 		<Unit filename="TitleThread.h" />
 		<Unit filename="ZipReader.cpp" />
 		<Unit filename="ZipReader.h" />
+		<Unit filename="locale\be.po" />
+		<Unit filename="locale\ru.po" />
+		<Unit filename="locale\uk.po" />
 		<Unit filename="md5.c">
 			<Option compilerVar="CC" />
 		</Unit>

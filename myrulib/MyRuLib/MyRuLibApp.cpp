@@ -6,6 +6,7 @@
 #include "FbDataPath.h"
 #include "FbMainFrame.h"
 #include "FbLogStream.h"
+#include "FbLocale.h"
 #include "FbParams.h"
 #include "ZipReader.h"
 #include "FbDataOpenDlg.h"
@@ -13,8 +14,33 @@
 
 IMPLEMENT_APP(MyRuLibApp)
 
+MyRuLibApp::MyRuLibApp()
+    :m_locale(NULL)
+{
+}
+
+MyRuLibApp::~MyRuLibApp()
+{
+    wxDELETE(m_locale);
+}
+
+void MyRuLibApp::Localize(int language)
+{
+    wxDELETE(m_locale);
+    FbLocale * locale = new FbLocale;
+    locale->Init(language);
+    m_locale = locale;
+}
+
+int MyRuLibApp::GetLanguage()
+{
+    return m_locale ? m_locale->GetLanguage() : wxLANGUAGE_DEFAULT;
+}
+
 bool MyRuLibApp::OnInit()
 {
+    Localize();
+
 	FbConfigDatabase config;
 	config.Open();
 
@@ -110,7 +136,7 @@ bool MyRuLibApp::OpenDatabase(const wxString &filename)
 		(new FbTextThread)->Execute();
 		ZipReader::Init();
 	} catch (wxSQLite3Exception & e) {
-		wxLogError(wxT("Database error: ") + e.GetMessage());
+		wxLogError(_("Database error: ") + e.GetMessage());
 		return false;
 	}
 	return true;
@@ -133,3 +159,4 @@ void MyRuLibApp::SetAppData(const wxString &filename)
 	wxCriticalSectionLocker locker(m_section);
 	m_datafile = filename;
 };
+

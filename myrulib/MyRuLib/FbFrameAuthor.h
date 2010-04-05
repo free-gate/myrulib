@@ -20,12 +20,15 @@ class FbFrameAuthor : public FbFrameBase
 {
 	public:
 		FbFrameAuthor(wxAuiMDIParentFrame * parent);
+		virtual wxString GetTitle() const { return _("Authors"); };
 		void FindAuthor(const wxString &text);
 		void OpenAuthor(const int author, const int book);
 		void SelectRandomLetter();
 		void ActivateAuthors();
 		virtual void ShowFullScreen(bool show);
+		virtual void Localize(bool bUpdateMenu);
 	protected:
+		virtual wxToolBar * CreateToolBar(long style = wxTB_FLAT|wxTB_NODIVIDER|wxTB_HORZ_TEXT, wxWindowID winid = wxID_ANY, const wxString& name = wxEmptyString) { return NULL; };
 		virtual void CreateControls();
 		virtual void UpdateBooklist();
 		virtual wxMenuBar * CreateMenuBar();
@@ -45,7 +48,7 @@ class FbFrameAuthor : public FbFrameBase
 		wxString m_AuthorText;
 		int m_AuthorCode;
 	private:
-		void OnAuthorSelected(wxTreeEvent & event);
+		void OnMasterSelected(wxTreeEvent & event);
 		void OnBooksCount(wxCommandEvent& event);
 		void OnColClick(wxListEvent& event);
 		void OnAllClicked(wxCommandEvent& event);

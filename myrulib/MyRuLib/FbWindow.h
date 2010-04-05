@@ -17,6 +17,13 @@ class FbDialog: public wxDialog
 class FbAuiMDIChildFrame : public wxAuiMDIChildFrame
 {
 	public:
+		FbAuiMDIChildFrame(wxAuiMDIParentFrame *parent,
+                       wxWindowID winid,
+                       const wxString& title,
+                       const wxPoint& pos = wxDefaultPosition,
+                       const wxSize& size = wxDefaultSize,
+                       long style = wxDEFAULT_FRAME_STYLE,
+                       const wxString& name = wxFrameNameStr);
 		bool Create(wxAuiMDIParentFrame *parent,
 					wxWindowID winid,
 					const wxString& title,
@@ -27,6 +34,11 @@ class FbAuiMDIChildFrame : public wxAuiMDIChildFrame
 		virtual void UpdateFonts(bool refresh = true) {};
 		static void UpdateFont(wxHtmlWindow * html, bool refresh);
 		virtual void ShowFullScreen(bool show) {};
+		virtual wxMenuBar * CreateMenuBar();
+		virtual void Localize(bool bUpdateMenu);
+    private:
+        void OnActivated(wxActivateEvent & event);
+		DECLARE_EVENT_TABLE()
 };
 
 #endif // __FBWINDOW_H__
