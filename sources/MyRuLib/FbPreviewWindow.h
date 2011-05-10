@@ -1,11 +1,12 @@
 #ifndef __FBPREVIEWWINDOW_H__
 #define __FBPREVIEWWINDOW_H__
 
-#include "FbHtmlWindow.h"
+#include "controls/FbHtmlWindow.h"
+#include "controls/FbTreeModel.h"
 #include "FbViewContext.h"
 #include "FbPreviewThread.h"
-#include "FbTreeModel.h"
 #include "FbThread.h"
+#include "FbMenu.h"
 
 class FbPreviewWindow: public FbHtmlWindow
 {
@@ -27,10 +28,16 @@ class FbPreviewWindow: public FbHtmlWindow
 		);
 		~FbPreviewWindow();
 		void Reset(const FbViewContext &ctx, const FbViewItem &item);
+		void Empty();
 	private:
+		class ContextMenu: public FbMenu {
+			public: ContextMenu(int book);
+		};
 		FbPreviewThread * m_thread;
 		FbViewItem m_view;
+		int m_book;
 	private:
+		void OnRightUp(wxMouseEvent& event);
 		void OnInfoUpdate(wxCommandEvent& event);
 		DECLARE_CLASS(FbPreviewWindow)
 		DECLARE_EVENT_TABLE();

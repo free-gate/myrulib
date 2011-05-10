@@ -1,9 +1,11 @@
 #include "FbWindow.h"
 #include "FbParams.h"
 #include "FbMainMenu.h"
-#include "FbChoiceFormat.h"
+#include "controls/FbChoiceCtrl.h"
 #include <wx/combo.h>
 #include <wx/fontpicker.h>
+#include <wx/clrpicker.h>
+#include <wx/spinctrl.h>
 
 //-----------------------------------------------------------------------------
 //  FbDialog
@@ -52,12 +54,22 @@ void FbDialog::Assign(long winid, int param, bool write)
 			FbParams::Set(param, control->GetValue());
 		else
 			control->SetValue(FbParams::GetStr(param));
+	} else if (wxSpinCtrl * control = wxDynamicCast(window, wxSpinCtrl)) {
+		if (write)
+			FbParams::Set(param, control->GetValue());
+		else
+			control->SetValue(FbParams::GetInt(param));
 	} else if (wxFontPickerCtrl * control = wxDynamicCast(window, wxFontPickerCtrl)) {
 		if (write)
 			FbParams::Set(param, control->GetSelectedFont().GetNativeFontInfoDesc());
 		else
 			control->SetSelectedFont(FbParams::GetFont(param) );
-	} else if (FbChoiceFormat * control = wxDynamicCast(window, FbChoiceFormat)) {
+	} else if (wxColourPickerCtrl * control = wxDynamicCast(window, wxColourPickerCtrl)) {
+		if (write)
+			FbParams::Set(param, control->GetColour().GetAsString(wxC2S_HTML_SYNTAX));
+		else
+			control->SetColour(FbParams::GetColour(param));
+	} else if (FbChoiceInt * control = wxDynamicCast(window, FbChoiceInt)) {
 		if (write) {
 			int format = control->GetCurrentData();
 			FbParams::Set(param, format);
@@ -142,8 +154,8 @@ void FbAuiMDIChildFrame::OnActivated(wxActivateEvent & event)
 	if (event.GetActive()) {
 		UpdateMenu();
 	} else {
-		FbAuiMDIParentFrame * parent = (FbAuiMDIParentFrame*) GetParent()->GetParent();
-		parent->SetMainMenu(new FbMainMenu);
+		FbAuiMDIParentFrame * parent = wxDynamicCast(GetParent()->GetParent(), FbAuiMDIParentFrame);
+		if (parent) parent->SetMainMenu(new FbMainMenu);
 	}
 	event.Skip();
 }

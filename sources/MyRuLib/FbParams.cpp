@@ -32,6 +32,7 @@ int FbParams::DefaultInt(int param)
 	if (param < FB_FRAME_OFFSET)
 		switch (param) {
 			case FB_TEMP_DEL: return 1;
+			case FB_GRAY_FONT: return 1;
 			case FB_MODE_AUTHOR: return 1;
 			case FB_TRANSLIT_FOLDER: return 0;
 			case FB_TRANSLIT_FILE: return 1;
@@ -42,6 +43,9 @@ int FbParams::DefaultInt(int param)
 			case FB_FRAME_HEIGHT: return 480;
 			case FB_ALPHABET_RU: return 1;
 			case FB_ALPHABET_EN: return 1;
+			case FB_WEB_TIMEOUT: return 600;
+			case FB_WEB_ATTEMPT: return 10;
+			case FB_IMAGE_WIDTH: return 200;
 			case FB_LANG_LOCALE: return wxLANGUAGE_DEFAULT;
 			default: return 0;
 		}
@@ -66,9 +70,11 @@ wxString FbParams::DefaultStr(int param)
 			case DB_DOWNLOAD_ADDR:
 				return wxT("http://%h/b/%i/download");
 			case FB_DOWNLOAD_DIR:
-				return FbStandardPaths().GetUserConfigDir() + wxFileName::GetPathSeparator() + wxT("download");
+				return FbDatabase::GetConfigPath() + wxFileName::GetPathSeparator() + wxT("download");
 			case FB_TEMP_DIR:
-				return FbStandardPaths().GetUserConfigDir() + wxFileName::GetPathSeparator() + wxT("local");
+				return FbDatabase::GetConfigPath() + wxFileName::GetPathSeparator() + wxT("local");
+			case FB_EXTERNAL_DIR:
+				return FbDatabase::GetConfigPath() + wxFileName::GetPathSeparator() + wxT("export");
 			case FB_FONT_MAIN:
 			case FB_FONT_HTML:
 			case FB_FONT_TOOL:
@@ -106,6 +112,11 @@ wxFont FbParams::GetFont(int param)
 	wxFont font;
 	font.SetNativeFontInfo(info);
 	return font;
+}
+
+wxColour FbParams::GetColour(int param)
+{
+	return wxColour(GetStr(param));
 }
 
 void FbParams::AddRecent(const wxString &text, const wxString &title)
@@ -154,6 +165,13 @@ wxString FbParams::GetStr(wxWindowID winid, int param)
 	return id ? GetStr(id) : wxString();
 }
 
+wxString FbParams::GetPath(int param)
+{
+	wxFileName path = GetStr(param);
+	if (path.IsRelative()) path.MakeAbsolute(FbDatabase::GetConfigPath());
+	return path.GetFullPath();
+}
+
 void FbParams::Set(wxWindowID winid, int param, int value)
 {
 	int id = Param(winid, param);
@@ -164,5 +182,10 @@ void FbParams::Set(wxWindowID winid, int param, const wxString &text)
 {
 	int id = Param(winid, param);
 	if (id) Set(id, text);
+}
+
+bool FbParams::IsGenesis()
+{
+	return FbParams::GetStr(DB_LIBRARY_TYPE) == wxT("GENESIS");
 }
 

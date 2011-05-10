@@ -4,7 +4,7 @@
 #include <wx/wx.h>
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
-#include "FbTreeView.h"
+#include "controls/FbTreeView.h"
 #include "FbBookData.h"
 #include "FbBookTypes.h"
 #include "FbBookEvent.h"
@@ -23,6 +23,7 @@ class FbBookPanel: public wxSplitterWindow
 		FbBookPanel(wxWindow *parent, const wxSize& size, wxWindowID id);
 		virtual ~FbBookPanel();
 		void Reset(const FbMasterInfo &master, const FbFilterObj &filter);
+		void UpdateMaster(FbMasterEvent & event);
 		void UpdateInfo(int id);
 		void SetOrderID(int id);
 		int GetOrderID();
@@ -31,6 +32,7 @@ class FbBookPanel: public wxSplitterWindow
 		void Localize();
 		wxString GetSelected();
 		const FbMasterInfo & GetInfo() const { return m_master; };
+		void DoPopupMenu(wxWindowID id);
 	public:
 		FbTreeViewCtrl * m_BookList;
 		void EmptyBooks(const int selected  = 0);
@@ -53,8 +55,7 @@ class FbBookPanel: public wxSplitterWindow
 		static void DoDeleteDownload(const wxString &sel, const int folder);
 		static void DoCreateDownload(const wxString &sel, int count = 1);
 		int GetRatingColumn();
-		void ShowContextMenu(const wxPoint& pos, wxTreeItemId item);
-		wxString F(const int number);
+		void ShowContextMenu(const wxPoint& pos);
 		wxString m_AuthorName;
 		FbListMode m_listmode;
 		wxTreeItemId m_AuthorItem;
@@ -70,18 +71,14 @@ class FbBookPanel: public wxSplitterWindow
 		void OnDeleteDownload(wxCommandEvent & event);
 		void OnDownloadBook(wxCommandEvent & event);
 		void OnEditComments(wxCommandEvent & event);
+		void OnEditBook(wxCommandEvent & event);
 		void OnFavoritesAdd(wxCommandEvent & event);
-		void OnFolderAdd(wxCommandEvent& event);
-		void OnOpenAuthor(wxCommandEvent& event);
-		void OnOpenSeries(wxCommandEvent& event);
 		void OnOpenBook(wxCommandEvent & event);
 		void OnChangeView(wxCommandEvent & event);
 		void OnBookPage(wxCommandEvent & event);
 		void OnSystemDownload(wxCommandEvent & event);
 		void OnSubmenu(wxCommandEvent& event);
 		void OnContextMenu(wxTreeEvent& event);
-		void OnSelectAll(wxCommandEvent& event);
-		void OnUnselectAll(wxCommandEvent& event);
 		void OnChangeRating(wxCommandEvent& event);
 		void OnDeleteBooks(wxCommandEvent& event);
 		void OnModifyBooks(wxCommandEvent& event);
@@ -91,6 +88,9 @@ class FbBookPanel: public wxSplitterWindow
 		void OnListModel( FbArrayEvent& event );
 		void OnListArray( FbArrayEvent& event );
 		void OnTreeModel( FbModelEvent& event );
+		void OnCopy(wxCommandEvent& event);
+		void OnSelectAll(wxCommandEvent& event);
+		void OnUnselectAll(wxCommandEvent& event);
 		DECLARE_CLASS(FbBookPanel)
 		DECLARE_EVENT_TABLE()
 };

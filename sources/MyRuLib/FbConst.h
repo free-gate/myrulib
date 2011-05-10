@@ -18,10 +18,9 @@ enum {
 	ID_TITLE_BTN,
 	ID_INIT_LETTER,
 	ID_CHOICE_LETTER,
+	ID_PROGRESS_START,
 	ID_PROGRESS_UPDATE,
-	ID_PROGRESS_1,
-	ID_PROGRESS_2,
-	ID_PULSE_GAUGE,
+	ID_PROGRESS_PULSE,
 	ID_MODE_TREE,
 	ID_MODE_LIST,
 	ID_SPLIT_HORIZONTAL,
@@ -72,12 +71,14 @@ enum {
 	ID_AUTHOR_INFO,
 	ID_SEQUENCE_TXT,
 	ID_SEQUENCE_BTN,
+	ID_INIT_SEARCH,
 	ID_FOUND_NOTHING,
 	ID_EDIT_COMMENTS,
 	ID_APPEND_FOLDER,
 	ID_MODIFY_FOLDER,
 	ID_DELETE_FOLDER,
 	ID_UPDATE_FOLDER,
+	ID_UPDATE_MASTER,
 	ID_HTML_DOCUMENT,
 	ID_HTML_CAPTION,
 	ID_HTML_COMMENT,
@@ -105,13 +106,6 @@ enum {
 	ID_RATING_3,
 	ID_RATING_4,
 	ID_RATING_5,
-	ID_RECENT_ALL,
-	ID_RECENT_0,
-	ID_RECENT_1,
-	ID_RECENT_2,
-	ID_RECENT_3,
-	ID_RECENT_4,
-	ID_RECENT_5,
 	ID_ART_DEFAULT,
 	ID_ART_COMPACT,
 	ID_ART_STANDART,
@@ -119,19 +113,13 @@ enum {
 	ID_ART_TOOLBAR,
 	ID_ART_VSTUDIO,
 	ID_ART_MOZILLA,
-	ID_WINDOW_CLOSE,
-	ID_WINDOW_CLOSEALL,
 	ID_WINDOW_NEXT,
 	ID_WINDOW_PREV,
 	ID_DIRECTION,
 	ID_ORDER_MENU,
 	ID_ORDER_AUTHOR,
-	ID_ORDER_TITLE,
 	ID_ORDER_RATING,
 	ID_ORDER_GENRE,
-	ID_ORDER_SIZE,
-	ID_ORDER_DATE,
-	ID_ORDER_TYPE,
 	ID_ORDER_LANG,
 	ID_SCRIPT_RUN,
 	ID_SCRIPT_LOG,
@@ -142,20 +130,22 @@ enum {
 	ID_FAVORITES_ADD, // Always the last !!!
 };
 
-extern const wxString strProgramName;
-extern const wxString strProgramInfo;
-extern const wxString strVersionInfo;
-extern const wxString strHomePage;
+class MyRuLib
+{
+public:
+	static wxString ProgramName();
+	static wxString ProgramInfo();
+	static wxString VersionInfo();
+	static wxString HomePage();
+	static wxString MailAddr();
+	static wxString UserAgent();
+};
 
 extern const wxString alphabetRu;
 extern const wxString alphabetEn;
 extern const wxString strAlphabet;
-extern const wxString strNobody;
 extern const wxString strRusJE;
 extern const wxString strRusJO;
-
-extern const int ciNoAuthor;
-extern const int ciMaxImageWidth;
 
 extern const wxString strUpdateAuthorCount;
 extern const wxString strUpdateSequenCount;

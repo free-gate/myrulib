@@ -4,9 +4,10 @@
 #include <wx/wx.h>
 #include <wx/dialog.h>
 #include <wx/fontpicker.h>
+#include <wx/clrpicker.h>
 #include <wx/wxsqlite3.h>
 #include "FbWindow.h"
-#include "FbTreeModel.h"
+#include "controls/FbTreeModel.h"
 
 class FbTreeViewCtrl;
 
@@ -24,6 +25,8 @@ class FbParamsDlg : private FbDialog
 			ID_DOWNLOAD_DIR,
 			ID_USE_PROXY,
 			ID_PROXY_ADDR,
+			ID_PROXY_USER,
+			ID_PROXY_PASS,
 			ID_HTTP_IMAGES,
 			ID_LIBRUSEC_URL,
 			ID_EXTERNAL_DIR,
@@ -50,11 +53,19 @@ class FbParamsDlg : private FbDialog
 			ID_FONT_HTML,
 			ID_FONT_TOOL,
 			ID_FONT_DLG,
+			ID_COLOUR_MAIN,
+			ID_COLOUR_HTML,
+			ID_COLOUR_TOOL,
+			ID_COLOUR_DLG,
 			ID_REMOVE_FILES,
 			ID_CLEAR_LOG,
+			ID_GRAY_FONT,
 			ID_SAVE_FULLPATH,
 			ID_LANG_LOCALE,
 			ID_LETTERS,
+			ID_WEB_TIMEOUT,
+			ID_WEB_ATTEMPT,
+			ID_IMAGE_WIDTH,
 		};
 		class LoadThread: public wxThread
 		{
@@ -73,7 +84,7 @@ class FbParamsDlg : private FbDialog
 			public:
 				PanelFont(wxWindow *parent);
 			private:
-				void AppendItem(wxFlexGridSizer* fgSizer, const wxString& name, wxWindowID winid = wxID_ANY);
+				void AppendItem(wxFlexGridSizer* fgSizer, const wxString& name, wxWindowID idFont, wxWindowID idColour);
 		};
 		class PanelInternet: public wxPanel
 		{
@@ -150,6 +161,7 @@ class FbParamsDlg : private FbDialog
 	private:
 		void Assign(bool write);
 		void SetFont( wxWindowID id, wxFont font );
+		void SetColour( wxWindowID id, wxColour colour );
 		void SelectApplication();
 		void SaveData();
 		void DeleteTypes(wxSQLite3Database &database);

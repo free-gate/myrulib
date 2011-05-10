@@ -7,7 +7,7 @@
 class FbCacheBook: public wxObject
 {
 	public:
-		static wxString GetSQL();
+		static FbCacheBook Get(int code, wxSQLite3Database & database);
 		FbCacheBook(int code = 0);
 		FbCacheBook(int code, wxSQLite3ResultSet &result);
 		FbCacheBook(const FbCacheBook &book);
@@ -15,7 +15,9 @@ class FbCacheBook: public wxObject
 		operator bool() const { return m_code; }
 		int GetCode() const { return m_code; }
 		wxString GetValue(size_t field) const;
+		bool IsGray() const;
 	private:
+		static wxString GetSQL();
 		int m_code;
 		wxString m_name;
 		wxString m_auth;
@@ -27,6 +29,7 @@ class FbCacheBook: public wxObject
 		int m_date;
 		int m_size;
 		int m_down;
+		bool m_gray;
 		DECLARE_CLASS(FbCacheBook)
 };
 

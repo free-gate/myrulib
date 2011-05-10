@@ -1,27 +1,13 @@
-#include <wx/statline.h>
-#include <wx/string.h>
-#include <wx/stattext.h>
-#include <wx/gdicmn.h>
-#include <wx/font.h>
-#include <wx/colour.h>
-#include <wx/settings.h>
-#include <wx/textctrl.h>
-#include <wx/bitmap.h>
-#include <wx/image.h>
-#include <wx/icon.h>
-#include <wx/bmpbuttn.h>
-#include <wx/button.h>
-#include <wx/sizer.h>
-#include <wx/checkbox.h>
-#include <wx/textdlg.h>
+#include <wx/wx.h>
 #include "FbConfigDlg.h"
 #include "FbConst.h"
 #include "FbParams.h"
-#include "FbTreeView.h"
+#include "controls/FbTreeView.h"
 #include "FbViewerDlg.h"
 #include "FbCollection.h"
 #include "FbDataPath.h"
-#include "FbComboBox.h"
+#include "controls/FbCustomCombo.h"
+#include "FbLogoBitmap.h"
 #include "MyRuLibApp.h"
 
 //-----------------------------------------------------------------------------
@@ -71,11 +57,10 @@ FbConfigDlg::PanelTypes::PanelTypes(wxWindow *parent)
 	wxBoxSizer * bSizer;
 	bSizer = new wxBoxSizer( wxVERTICAL );
 
-	wxToolBar * toolbar = new wxToolBar( this, ID_TYPE_TOOLBAR, wxDefaultPosition, wxDefaultSize, wxTB_HORZ_TEXT|wxTB_NODIVIDER|wxTB_NOICONS );
-	toolbar->SetToolBitmapSize(wxSize(0,0));
-	toolbar->AddTool( ID_APPEND_TYPE, _("Append"), wxNullBitmap)->Enable(false);
-	toolbar->AddTool( ID_MODIFY_TYPE, _("Modify"), wxNullBitmap)->Enable(false);
-	toolbar->AddTool( ID_DELETE_TYPE, _("Delete"), wxNullBitmap)->Enable(false);
+	wxToolBar * toolbar = new wxToolBar( this, ID_TYPE_TOOLBAR, wxDefaultPosition, wxDefaultSize, wxTB_HORZ_TEXT|wxTB_NODIVIDER );
+	toolbar->AddTool( ID_APPEND_TYPE, _("Append"), wxBitmap(add_xpm))->Enable(false);
+	toolbar->AddTool( ID_MODIFY_TYPE, _("Modify"), wxBitmap(mod_xpm))->Enable(false);
+	toolbar->AddTool( ID_DELETE_TYPE, _("Delete"), wxBitmap(del_xpm))->Enable(false);
 	toolbar->Realize();
 	bSizer->Add( toolbar, 0, wxALL|wxEXPAND, 5 );
 
@@ -139,7 +124,7 @@ FbConfigDlg::PanelMain::PanelMain(wxWindow *parent)
 	m_staticText2->Wrap( -1 );
 	bSizerMain->Add( m_staticText2, 0, wxALIGN_CENTER_VERTICAL|wxEXPAND|wxRIGHT|wxLEFT, 5 );
 
-	wxFileSelectorCombo * m_comboDir = new wxFileSelectorCombo( this, ID_LIBRARY_DIR, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	FbCustomCombo * m_comboDir = new FbCustomCombo( this, ID_LIBRARY_DIR, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
 	m_comboDir->SetMinSize( wxSize( 300,-1 ) );
 
 	bSizerMain->Add( m_comboDir, 0, wxEXPAND|wxALL, 5 );
@@ -160,7 +145,7 @@ FbConfigDlg::PanelInternet::PanelInternet(wxWindow *parent)
 	:wxPanel(parent)
 {
 	wxFlexGridSizer* fgSizerMain;
-	fgSizerMain = new wxFlexGridSizer( 2, 2, 0, 0 );
+	fgSizerMain = new wxFlexGridSizer( 2, 0, 0 );
 	fgSizerMain->AddGrowableCol( 1 );
 	fgSizerMain->SetFlexibleDirection( wxBOTH );
 	fgSizerMain->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -214,7 +199,7 @@ FbConfigDlg::FbConfigDlg( wxWindow* parent, wxWindowID id, const wxString& title
 	wxBoxSizer* bSizerMain;
 	bSizerMain = new wxBoxSizer( wxVERTICAL );
 
-	wxNotebook * notebook = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	wxNotebook * notebook = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_MULTILINE );
 	notebook->AddPage( new PanelMain(notebook), _("General"), true );
 	notebook->AddPage( new PanelInternet(notebook), _("Network"), false );
 	notebook->AddPage( new PanelTypes(notebook), _("File types"), false );

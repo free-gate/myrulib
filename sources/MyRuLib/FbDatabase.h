@@ -4,12 +4,6 @@
 #include <wx/wx.h>
 #include <wx/wxsqlite3.h>
 
-class wxSQLite3Exception
-{
-	public:
-		const wxString GetMessage() const { return wxEmptyString; }
-};
-
 wxString Lower(const wxString & input);
 
 wxString Upper(const wxString & input);
@@ -32,6 +26,8 @@ enum FbDatabaseKey {
 	DB_DOWNLOAD_USER = 12,
 	DB_DOWNLOAD_PASS = 13,
 	DB_DOWNLOAD_ADDR = 14,
+	DB_DATAFILE_DATE = 20,
+	DB_DATAFILE_TYPE = 21,
 	DB_NEW_ZIPFILE = 25,
 	DB_BOOKS_COUNT = 27,
 	DB_LAST_BOOK = 30,
@@ -42,6 +38,25 @@ enum FbDatabaseKey {
 class FbLowerFunction : public wxSQLite3ScalarFunction
 {
 	virtual void Execute(wxSQLite3FunctionContext& ctx);
+};
+
+class FbAuthorFunction : public wxSQLite3ScalarFunction
+{
+	virtual void Execute(wxSQLite3FunctionContext& ctx);
+};
+
+class FbLetterFunction : public wxSQLite3ScalarFunction
+{
+	virtual void Execute(wxSQLite3FunctionContext& ctx);
+};
+
+class FbIncrementFunction : public wxSQLite3ScalarFunction
+{
+	public:
+		FbIncrementFunction(): m_increment(0) {};
+		virtual void Execute(wxSQLite3FunctionContext& ctx);
+	private:
+		int m_increment;
 };
 
 class FbAggregateFunction: public wxSQLite3AggregateFunction
@@ -64,6 +79,12 @@ class FbSearchFunction: public wxSQLite3ScalarFunction
 		wxArrayString m_masks;
 };
 
+class FbCyrillicCollation: public wxSQLite3Collation
+{
+	public:
+		virtual int Compare(const wxString& text1, const wxString& text2);
+};
+
 class FbDatabase: public wxSQLite3Database
 {
 	public:
@@ -71,7 +92,10 @@ class FbDatabase: public wxSQLite3Database
 		wxString GetText(int param);
 		void SetText(int param, const wxString & text);
 		static const wxString & GetConfigName();
+		static wxString GetConfigPath();
 		void AttachConfig();
+	protected:
+		static FbCyrillicCollation sm_collation;
 	private:
 		static wxCriticalSection sm_queue;
 };

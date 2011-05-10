@@ -45,7 +45,7 @@ FbExportDlg::FbExportDlg( wxWindow* parent, const wxString & selections, int iAu
 
 	bSizerMain->Add( bSizerDir, 0, wxEXPAND, 5 );
 
-	if (iAuthor != ciNoAuthor) {
+	if (iAuthor) {
 		m_checkAuthor = new wxCheckBox( this, ID_AUTHOR, _("Use Author (without co-Authors)"), wxDefaultPosition, wxDefaultSize, 0 );
 		bSizerMain->Add( m_checkAuthor, 0, wxALL, 5 );
 		m_checkAuthor->SetValue(1);
@@ -66,12 +66,12 @@ FbExportDlg::FbExportDlg( wxWindow* parent, const wxString & selections, int iAu
 	m_staticTextFormat->Wrap( -1 );
 	bSizerFormat->Add( m_staticTextFormat, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_format = new FbChoiceFormat( this, ID_FORMAT, wxDefaultPosition, wxDefaultSize);
+	m_format = new FbChoiceInt( this, ID_FORMAT, wxDefaultPosition, wxDefaultSize);
 	bSizerFormat->Add( m_format, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	bSizerMain->Add( bSizerFormat, 0, wxEXPAND, 5 );
 
-	m_textDir->SetValue( FbParams::GetStr(FB_EXTERNAL_DIR) );
+	m_textDir->SetValue( FbParams::GetPath(FB_EXTERNAL_DIR) );
 
 	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
 	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND|wxBOTTOM|wxLEFT|wxRIGHT, 5 );
@@ -96,12 +96,14 @@ void FbExportDlg::LoadFormats()
 	int format = FbParams::GetInt(FB_FILE_FORMAT);
 	m_format->Append(filename << wxT(".fb2"), 0);
 	m_format->Append(filename + wxT(".zip"), -1);
-	m_format->Append(filename + wxT(".gz"), -2);
+	m_format->Append(filename + wxT(".gz"),  -2);
+	m_format->Append(filename + wxT(".bz2"), -3);
 
 	int index;
 	switch (format) {
 		case -1: index = 1; break;
 		case -2: index = 2; break;
+		case -3: index = 3; break;
 		default: index = 0; break;
 	}
 	m_format->SetSelection(index);
@@ -127,7 +129,7 @@ wxString FbExportDlg::GetExt(int format)
 		stmt.Bind(1, format);
 		wxSQLite3ResultSet result = stmt.ExecuteQuery();
 		if (result.NextRow()) return result.GetString(0);
-	} 
+	}
 
 	return wxEmptyString;
 }
@@ -155,14 +157,15 @@ void FbExportDlg::ChangeFormat()
 	if (!model) return;
 
 	int format = m_format->GetCurrentData();
-	int scale = format < 0 ? 43 : 100; 
+	int scale = format < 0 ? 43 : 100;
 	wxString arc, ext;
 	switch (format) {
 		case -1: arc = wxT("zip"); break;
 		case -2: arc = wxT("gz"); break;
+		case -3: arc = wxT("bz2"); break;
 	}
 
-	model->SetFormat(GetExt(format), arc, scale); 
+	model->SetFormat(GetExt(format), arc, scale);
 	m_books->Refresh();
 }
 
@@ -207,7 +210,7 @@ bool FbExportDlg::Execute(wxWindow* parent, FbBookPanel * books, int iAuthor)
 
 void FbExportDlg::OnCheckAuthor( wxCommandEvent& event )
 {
-	int author = ciNoAuthor;
+	int author = 0;
 	if ( m_checkAuthor && m_checkAuthor->GetValue() ) author = m_author;
 	m_books->AssignModel(new FbExportTreeModel(m_selections, author));
 	ChangeFormat();

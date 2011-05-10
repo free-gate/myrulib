@@ -1,7 +1,7 @@
 #ifndef __FBAUTHLIST_H__
 #define __FBAUTHLIST_H__
 
-#include "FbTreeModel.h"
+#include "controls/FbTreeModel.h"
 #include "FbCollection.h"
 #include "FbThread.h"
 
@@ -34,7 +34,7 @@ class FbAuthListThread: public FbThread
 	protected:
 		virtual void * Entry();
 	private:
-		static wxString GetOrder(const wxString &fields, int column);
+		static wxString GetOrder(int column);
 		void DoAuthor(wxSQLite3Database &database);
 		void DoLetter(wxSQLite3Database &database);
 		void DoString(wxSQLite3Database &database);

@@ -1,11 +1,12 @@
 #ifndef __FBBOOKTREE_H__
 #define __FBBOOKTREE_H__
 
-#include "FbTreeModel.h"
+#include "controls/FbTreeModel.h"
 #include "FbBookTypes.h"
 #include "FbCollection.h"
 #include "FbThread.h"
 #include "FbMasterInfo.h"
+#include "FbBookTraverser.h"
 
 class FbAuthParentData: public FbParentData
 {
@@ -77,6 +78,8 @@ class FbBookChildData: public FbChildData
 			{ return m_code; }
 		virtual FbViewItem GetView() const
 			{ return FbViewItem(FbViewItem::Book, m_code); }
+		virtual bool IsGray(FbModel & model) const
+			{ return FbCollection::GetBookData(m_code).IsGray(); }
 		virtual wxString GetValue(FbModel & model, size_t col = 0) const;
 	protected:
 		virtual void DoSetState(FbModel & model, int state)
@@ -99,10 +102,12 @@ class FbBookTreeModel: public FbTreeModel
 		virtual FbViewItem GetView();
 		virtual void Delete();
 		int GetBookCount();
+		wxString GetText(wxArrayInt &columns);
 	private:
+		void DoTraverse(FbBookTraverser & traverser);
+		size_t GetChecked(FbBookTraverser & traverser, FbModelItem &parent, int level);
+		size_t GetSelected(FbBookTraverser & traverser, FbModelItem &parent, int level, size_t max, size_t &row);
 		void GetBooks(FbModelItem &parent, FbSortedArrayInt &items);
-		void GetChecked(FbModelItem &parent, wxArrayInt &items);
-		void GetSelected(FbModelItem &parent, size_t max, size_t &row, wxArrayInt &items);
 		bool DoDelete(FbModelItem &parent, size_t &row);
 		DECLARE_CLASS(FbBookTreeModel);
 };

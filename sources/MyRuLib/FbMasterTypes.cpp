@@ -180,9 +180,9 @@ wxString FbMasterDownInfo::GetWhere(wxSQLite3Database &database) const
 {
 	wxString sql = wxT("books.md5sum IN (SELECT md5sum FROM states WHERE download");
 	switch (m_id) {
-		case 1: sql << wxT(">1)"); break;
-		case 2: sql << wxT("=1)"); break;
-		default: sql << wxT("<0)");
+		case DT_WAIT:  sql << wxT("<0)"); break;
+		case DT_ERROR: sql << wxT("=1)"); break;
+		case DT_READY: sql << wxT(">1)"); break;
 	}
 	return sql;
 }
@@ -267,7 +267,7 @@ wxString FbMasterFindInfo::GetWhere(wxSQLite3Database &database) const
 		return sql;
 	} else {
 		wxString sql = wxT("SEARCH_T(books.title)");
-		if (m_auth) sql << wxT("AND SEARCH_A(authors.search_name)");
+		if (m_auth) sql << wxT("AND books.id_author IN (SELECT id FROM authors WHERE SEARCH_A(authors.search_name))");
 		return sql;
 	}
 }

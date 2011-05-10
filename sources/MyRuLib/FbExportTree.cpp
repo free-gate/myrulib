@@ -58,13 +58,13 @@ void FbExportParentData::Append(FbModel & model, int book, wxFileName &filename,
 	int number = 0;
 	wxString name = filename.GetName();
 	while (true) {
-		wxString fullname = filename.GetFullName();
+		wxString fullname = Lower(filename.GetFullName());
 		size_t count = Count(model);
 		bool ok = true;
 		for (size_t i = 0; i < count; i++) {
 			FbModelData * data = Items(model, i);
 			if (!data) continue;
-			if (data->GetValue(model) == fullname) { ok = false; break; }
+			if (Lower(data->GetValue(model)) == fullname) { ok = false; break; }
 		}
 		if (ok) break;
 		filename.SetName(name + wxString::Format(wxT("(%d)"), ++number));
@@ -361,7 +361,7 @@ FbExportTreeModel::FbExportTreeModel(const wxString &books, int author): m_scale
 	");
 
 	wxString filter;
-	if ( author != ciNoAuthor) filter = wxString::Format(wxT("AND (books.id_author=%d)"), author);
+	if ( author) filter = wxString::Format(wxT("AND (books.id_author=%d)"), author);
 	sql = wxString::Format(sql, books.c_str(), filter.c_str());
 
 	FbExportTreeContext context;

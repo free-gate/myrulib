@@ -36,7 +36,7 @@ class FbBookAuths: public wxObject
 	public:
 		FbBookAuths(int code, wxSQLite3Database &database);
 		int GetCode() const { return m_code; }
-		wxString GetValue(size_t col) const { return m_name; }
+		wxString operator[](size_t col) const;
 	private:
 		int m_code;
 		wxString m_name;
@@ -51,7 +51,7 @@ class FbBookSeqns: public wxObject
 	public:
 		FbBookSeqns(int code, wxSQLite3Database &database);
 		int GetCode() const { return m_code; }
-		wxString GetValue(size_t col) const;
+		wxString operator[](size_t col) const;
 	private:
 		int m_code;
 		wxString m_name;
@@ -103,7 +103,6 @@ class FbCollection: public wxObject
 		static void ResetBook(const wxArrayInt &books);
 		static void LoadIcon(const wxString &extension);
 		static void AddIcon(wxString extension, wxBitmap bitmap);
-		static wxFileName FindZip(const wxString &dirname, const wxString &filename);
 		static wxString GetIcon(const wxString &extension);
 		static void EmptyInfo();
 		static int GetParamInt(int param);
@@ -114,8 +113,8 @@ class FbCollection: public wxObject
 	protected:
 		FbCacheData * GetData(int code, FbCasheDataArray &items, const wxString &sql);
 		FbCacheData * AddData(FbCasheDataArray &items, FbCacheData * data);
-		FbCacheBook * AddBook(FbCacheBook * book);
-		void AddBook(FbViewData * info);
+		FbCacheBook AddBook(const FbCacheBook &book);
+		void AddBookInfo(FbViewData * info);
 		void ResetData(FbCasheDataArray &items, int code);
 		void DoResetBook(const wxArrayInt &books);
 		void DoResetBook(int code);

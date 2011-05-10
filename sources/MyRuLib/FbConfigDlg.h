@@ -3,12 +3,11 @@
 
 #include <wx/wx.h>
 #include <wx/dialog.h>
-#include <wx/listctrl.h>
 #include <wx/arrimpl.cpp>
 #include "FbBookEvent.h"
-#include "FbTreeModel.h"
-#include "FbDatabase.h"
+#include "controls/FbTreeModel.h"
 #include "FbWindow.h"
+#include "FbDatabase.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbConfigDlg

@@ -67,6 +67,14 @@ FbBookAuths::FbBookAuths(int code, wxSQLite3Database &database)
 	if (result.NextRow()) m_name = result.GetString(0);
 }
 
+wxString FbBookAuths::operator[](size_t col) const
+{
+	switch (col) {
+		case BF_AUTH: return m_name;
+		default: return wxEmptyString;
+	}
+}
+
 #include <wx/arrimpl.cpp>
 WX_DEFINE_OBJARRAY(FbBookAuthsArray);
 
@@ -91,7 +99,7 @@ FbBookSeqns::FbBookSeqns(int code, wxSQLite3Database &database)
 	}
 }
 
-wxString FbBookSeqns::GetValue(size_t col) const
+wxString FbBookSeqns::operator[](size_t col) const
 {
 	switch (col) {
 		case BF_SEQN: return m_name;
@@ -202,7 +210,7 @@ void FbCollection::AddInfo(FbViewData * info)
 {
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
-	if (collection) collection->AddBook(info);
+	if (collection) collection->AddBookInfo(info);
 }
 
 FbCacheData * FbCollection::AddData(FbCasheDataArray &items, FbCacheData * data)
@@ -213,7 +221,7 @@ FbCacheData * FbCollection::AddData(FbCasheDataArray &items, FbCacheData * data)
 	return data;
 }
 
-FbCacheBook * FbCollection::AddBook(FbCacheBook * book)
+FbCacheBook FbCollection::AddBook(const FbCacheBook & book)
 {
 	size_t count = m_books.Count();
 	m_books.Insert(book, 0);
@@ -221,7 +229,7 @@ FbCacheBook * FbCollection::AddBook(FbCacheBook * book)
 	return book;
 }
 
-void FbCollection::AddBook(FbViewData * info)
+void FbCollection::AddBookInfo(FbViewData * info)
 {
 	size_t count = m_infos.Count();
 	m_infos.Insert(info, 0);
@@ -371,14 +379,7 @@ FbCacheBook FbCollection::GetCacheBook(int code)
 		FbCacheBook & book = m_books[i];
 		if (book.GetCode() == code) return book;
 	}
-
-	wxString sql = FbCacheBook::GetSQL();
-	wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-	stmt.Bind(1, code);
-	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-	if (result.NextRow())
-		return * AddBook(new FbCacheBook(code, result));
-	else return 0;
+	return AddBook(FbCacheBook::Get(code, m_database));
 }
 
 wxString FbCollection::GetBookAuths(int code, size_t col)
@@ -386,29 +387,29 @@ wxString FbCollection::GetBookAuths(int code, size_t col)
 	size_t count = m_book_auth.Count();
 	for (size_t i = 0; i < count; i++) {
 		FbBookAuths & auth = m_book_auth[i];
-		if (auth.GetCode() == code) return auth.GetValue(col);
+		if (auth.GetCode() == code) return auth[col];
 	}
 
 	FbBookAuths * auth = new FbBookAuths(code, m_database);
 
 	m_book_auth.Insert(auth, 0);
 	if (count > DATA_CACHE_SIZE) m_book_auth.RemoveAt(DATA_CACHE_SIZE, count - DATA_CACHE_SIZE);
-	return auth->GetValue(col);
+	return (*auth)[col];
 }
 
 wxString FbCollection::GetBookSeqns(int code, size_t col)
 {
 	size_t count = m_book_seqn.Count();
 	for (size_t i = 0; i < count; i++) {
-		FbBookSeqns & auth = m_book_seqn[i];
-		if (auth.GetCode() == code) return auth.GetValue(col);
+		FbBookSeqns & seqn = m_book_seqn[i];
+		if (seqn.GetCode() == code) return seqn[col];
 	}
 
-	FbBookSeqns * auth = new FbBookSeqns(code, m_database);
+	FbBookSeqns * seqn = new FbBookSeqns(code, m_database);
 
-	m_book_seqn.Insert(auth, 0);
+	m_book_seqn.Insert(seqn, 0);
 	if (count > DATA_CACHE_SIZE) m_book_seqn.RemoveAt(DATA_CACHE_SIZE, count - DATA_CACHE_SIZE);
-	return auth->GetValue(col);
+	return (*seqn)[col];
 }
 
 FbViewData * FbCollection::GetCacheInfo(int code)
@@ -435,8 +436,6 @@ void FbCollection::LoadIcon(const wxString &extension)
 	}
 
 	if (extension.IsEmpty() || extension == wxT("fb2")) return;
-	wxString filename = wxT("icon.") + extension;
-
 	if (sm_icons.Index(extension) != wxNOT_FOUND) return;
 	if (sm_noico.Index(extension) != wxNOT_FOUND) return;
 
@@ -444,14 +443,17 @@ void FbCollection::LoadIcon(const wxString &extension)
 	wxFileType *ft = wxTheMimeTypesManager->GetFileTypeFromExtension(extension);
 	if ( ft ) {
 		wxIconLocation location;
-		if ( ft->GetIcon(&location) ) {
+		if ( ft->GetIcon(&location) && location.IsOk() ) {
 			wxLogNull log;
 			wxIcon icon(location);
-			wxBitmap bitmap;
-			bitmap.CopyFromIcon(icon);
-			wxMemoryFSHandler::AddFile(filename, bitmap, wxBITMAP_TYPE_PNG);
-			sm_icons.Add(extension);
-			return;
+			if (icon.IsOk()) {
+				wxBitmap bitmap;
+				bitmap.CopyFromIcon(icon);
+				wxString filename = wxT("icon.") + extension;
+				wxMemoryFSHandler::AddFile(filename, bitmap, wxBITMAP_TYPE_PNG);
+				sm_icons.Add(extension);
+				return;
+			}
 		}
 	}
 	#endif // __WXMSW__
@@ -473,29 +475,6 @@ void FbCollection::AddIcon(wxString extension, wxBitmap bitmap)
 	wxString filename = wxT("icon.") + extension;
 	wxMemoryFSHandler::AddFile(filename, bitmap, wxBITMAP_TYPE_PNG);
 	sm_icons.Add(extension);
-}
-
-wxFileName FbCollection::FindZip(const wxString &dirname, const wxString &filename)
-{
-	FbCommonDatabase database;
-
-	wxString sql = wxT("SELECT file FROM zip_books WHERE book=?");
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
-	stmt.Bind(1, filename);
-	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
-	while (result.NextRow())  {
-		wxString sql = wxT("SELECT path FROM zip_files WHERE file=?");
-		wxSQLite3Statement stmt = database.PrepareStatement(sql);
-		stmt.Bind(1, result.GetInt(0));
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		if (result.NextRow()) {
-			wxFileName zip_file = result.GetString(0);
-			zip_file.SetPath(dirname);
-			if (zip_file.FileExists()) return zip_file.GetFullPath();
-		}
-	}
-	return wxFileName();
 }
 
 void FbCollection::LoadConfig()

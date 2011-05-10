@@ -92,10 +92,6 @@ class FbAuiMDIChildFrame
 
 		virtual void Localize(bool bUpdateMenu);
 
-		virtual void SetMenuBar(wxMenuBar *menu_bar) {}
-
-	    virtual wxMenuBar *GetMenuBar() const { return NULL; }
-
 	protected:
 		void UpdateMenu();
 

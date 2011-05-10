@@ -10,17 +10,14 @@
 #include <wx/wfstream.h>
 #include "FbDatabase.h"
 #include "FbConst.h"
-#include "FbChoiceFormat.h"
+#include "controls/FbChoiceCtrl.h"
 
 #ifdef __WXMSW__
 
 #include <wx/msw/private.h>
 
-bool FbLocale::LoadResource(int language, const wxString &filename)
+bool FbLocale::LoadResource(const wxLanguageInfo * info, const wxString & filename)
 {
-	const wxLanguageInfo * info = FbLocale::GetLanguageInfo(language);
-    if ( !info ) return false;
-
     HRSRC hResource = ::FindResource(wxGetInstance(), info->CanonicalName.c_str(), wxT("RC_DATA"));
     if ( !hResource ) return false;
 
@@ -37,10 +34,16 @@ bool FbLocale::LoadResource(int language, const wxString &filename)
 
 bool FbLocale::Init(int language, int flags)
 {
+	const wxLanguageInfo * info = FbLocale::GetLanguageInfo(language);
+
+	#ifdef wxHAVE_TCHAR_SUPPORT
+	if (info) wxSetlocale(LC_COLLATE, info->CanonicalName);
+	#endif
+
 	wxFileName filename = FbConfigDatabase::GetConfigName();
 	filename.SetExt(wxT("mo"));
 	if (language == wxLANGUAGE_DEFAULT) language = GetSystemLanguage();
-	bool ok = LoadResource(language, filename.GetFullPath());
+	bool ok = info && LoadResource(info, filename.GetFullPath());
 
 	if (ok) AddCatalogLookupPathPrefix(filename.GetPath());
     bool res = wxLocale::Init(language, flags);
@@ -52,6 +55,9 @@ bool FbLocale::Init(int language, int flags)
 
 bool FbLocale::Init(int language, int flags)
 {
+	const wxLanguageInfo * info = FbLocale::GetLanguageInfo(language);
+	if (info) wxSetlocale(LC_COLLATE, info->CanonicalName);
+
 	wxFileName filename = FbConfigDatabase::GetConfigName();
 
     #ifdef FB_INCLUDE_LOCALE
@@ -109,7 +115,7 @@ bool FbLocale::Save(const wxFileName &filename, const void *data, size_t size)
     return true;
 }
 
-void FbLocale::Fill(FbChoiceFormat * choise, int value)
+void FbLocale::Fill(FbChoiceInt * choise, int value)
 {
 	choise->Append(wxT("Default"), wxLANGUAGE_DEFAULT);
 	choise->SetSelection(0);

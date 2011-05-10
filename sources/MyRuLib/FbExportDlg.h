@@ -18,12 +18,12 @@
 #include <wx/sizer.h>
 #include <wx/dialog.h>
 #include "FbBookList.h"
-#include "FbTreeView.h"
+#include "controls/FbTreeView.h"
 #include "FbBookData.h"
 #include "FbConst.h"
 #include "FbDatabase.h"
 #include "FbWindow.h"
-#include "FbChoiceFormat.h"
+#include "controls/FbChoiceCtrl.h"
 
 class FbBookPanel;
 
@@ -37,7 +37,7 @@ class FbExportDlg : public FbDialog
 	public:
 		FbExportDlg(wxWindow* parent, const wxString & selections, int iAuthor);
 		~FbExportDlg();
-		static bool Execute(wxWindow* parent, FbBookPanel * books, int iAuthor = ciNoAuthor);
+		static bool Execute(wxWindow* parent, FbBookPanel * books, int iAuthor = 0);
 	private:
 		void FullBySequences(wxTreeItemId root, const wxString &selections, bool bUseLetter);
 		void FullNoSequences(wxTreeItemId root, const wxString &selections, bool bUseLetter);
@@ -65,7 +65,7 @@ class FbExportDlg : public FbDialog
 		};
 		wxTextCtrl * m_textDir;
 		FbTreeViewCtrl * m_books;
-		FbChoiceFormat * m_format;
+		FbChoiceInt * m_format;
 		wxCheckBox * m_checkAuthor;
 	private:
 		void OnSelectDir( wxCommandEvent& event );

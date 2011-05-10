@@ -1,4 +1,5 @@
 #include "FbExtractInfo.h"
+#include "FbImportReader.h"
 #include "FbParams.h"
 #include "FbConst.h"
 #include <wx/zipstrm.h>
@@ -6,31 +7,46 @@
 
 WX_DEFINE_OBJARRAY(FbExtractArrayBase);
 
-FbExtractItem::FbExtractItem(wxSQLite3ResultSet & result):
-	id_book(result.GetInt(wxT("id"))),
+FbExtractItem::FbExtractItem(wxSQLite3ResultSet & result, int id, const wxString & ext, const wxString & md5):
+	id_book(id),
 	id_archive(result.GetInt(wxT("id_archive"))),
 	book_name(result.GetString(wxT("file_name"))),
 	book_path(result.GetString(wxT("file_path"))),
+	file_type(ext),
 	librusec(false)
 {
-	librusec = (id_book>0 && result.GetInt(wxT("file")) == 0);
+	librusec = id_book>0 && (result.GetInt(wxT("file")) == 0);
+	if (librusec) {
+		if (FbParams::IsGenesis()) {
+			book_name << id / 1000 * 1000 << wxT('/') << Lower(md5);
+		} else if (book_name.IsEmpty()) {
+			book_name << id << wxT('.') << ext;
+		}
+	}
+}
+
+FbExtractItem::FbExtractItem(const FbExtractItem & item):
+	id_book(item.id_book),
+	id_archive(item.id_archive),
+	book_name(item.book_name),
+	book_path(item.book_path),
+	librusec(item.librusec)
+{
 }
 
 bool FbExtractItem::NotFb2() const
 {
-	return book_name.Right(4).Lower() != wxT(".fb2");
+	return Ext(book_name) != wxT("fb2");
 }
 
 wxString FbExtractItem::InfoName() const
 {
-	wxString result = book_name;
-	size_t pos = result.Length();
-	while (pos) {
-		if ( result[pos] == wxT('.') ) {
-			result = result.Left(pos);
-			break;
-		}
-		pos--;
+	int pos = book_name.rfind(wxT('.'));
+	wxString result;
+	if (pos == wxNOT_FOUND) {
+		result = book_name;
+	} else {
+		result = book_name.substr(0, pos);
 	}
 	return result << wxT(".fbd");
 }
@@ -103,7 +119,7 @@ void FbExtractItem::DeleteFile(const wxString &basepath) const
 		size_t count = 0;
 		while (wxZipEntry * entry = zip.GetNextEntry()) {
 			if (entry->GetSize()) {
-				if (entry->GetInternalName().Right(4).Lower() != wxT(".fbd")) count++;
+				if (Ext(entry->GetInternalName()) != wxT("fbd")) count++;
 				delete entry;
 				if (count>1) return;
 			}
@@ -119,15 +135,21 @@ FbExtractArray::FbExtractArray(wxSQLite3Database & database, const int id)
 {
 	{
 		wxString sql = wxT("\
-			SELECT DISTINCT 0 AS file, id, id_archive, file_name, file_path FROM books WHERE id=? UNION ALL \
-			SELECT DISTINCT 1 AS file, id_book, id_archive, file_name, file_path FROM files WHERE id_book=? \
+			SELECT DISTINCT 0 AS file, id, id_archive, file_name, file_path, file_type, md5sum FROM books WHERE id=? UNION ALL \
+			SELECT DISTINCT 1 AS file, id_book, id_archive, file_name, file_path, NULL, NULL FROM files WHERE id_book=? \
 			ORDER BY file \
 		");
 		wxSQLite3Statement stmt = database.PrepareStatement(sql);
 		stmt.Bind(1, id);
 		stmt.Bind(2, id);
 		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		while ( result.NextRow() ) Add(result);
+		wxString filetype;
+		wxString md5sum;
+		while ( result.NextRow() ) {
+			if (filetype.IsEmpty()) filetype = result.GetString(wxT("file_type"));
+			if (md5sum.IsEmpty()) md5sum = result.GetString(wxT("md5sum"));
+			Add(FbExtractItem(result, id, filetype, md5sum));
+		}
 	}
 
 	{

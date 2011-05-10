@@ -95,7 +95,7 @@ bool FbBookData::GetUserCommand(wxSQLite3Database &database, const wxString &fil
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	if (result.NextRow()) {
 	    command = result.GetString(0);
-	    return true;
+	    return !command.IsEmpty();
     }
     return false;
 }
@@ -115,7 +115,7 @@ void FbBookData::DoOpen(wxInputStream & in, const wxString &md5sum) const
 {
 	wxString filetype = GetExt();
 	wxFileName filename = md5sum;
-	filename.SetPath( FbParams::GetStr(FB_TEMP_DIR) );
+	filename.SetPath( FbParams::GetPath(FB_TEMP_DIR) );
 	filename.SetExt(filetype);
 
 	if ( !filename.DirExists()) filename.Mkdir(0755, wxPATH_MKDIR_FULL);
@@ -145,10 +145,18 @@ void FbBookData::DoOpen(wxInputStream & in, const wxString &md5sum) const
 		command << wxT(' ') << filepath;
 		wxExecute(command);
 		#endif
-	} else if (GetSystemCommand(filepath, filetype, command)) {
-		wxExecute(command);
 	} else {
-		FbMessageBox(_("Associated application not found"), filetype);
+		#ifdef __WXGTK__
+		filepath.Prepend(wxT('"')).Append(wxT('"'));
+		command << wxT("xdg-open") << wxT(' ') << filepath;
+		wxExecute(command);
+		#else
+		if (GetSystemCommand(filepath, filetype, command)) {
+			wxExecute(command);
+		} else {
+			FbMessageBox(_("Associated application not found"), filetype);
+		}
+		#endif
 	}
 }
 
@@ -175,6 +183,17 @@ void FbBookData::DoDownload() const
 		stmt.Bind(2, md5sum);
 		stmt.ExecuteUpdate();
 	}
+
+	{
+		FbMasterDownInfo info = FbMasterDownInfo::DT_WAIT;
+		FbMasterEvent(ID_UPDATE_MASTER, info, m_id, true).Post();
+	}
+
+	{
+		FbMasterDownInfo info = FbMasterDownInfo::DT_ERROR;
+		FbMasterEvent(ID_UPDATE_MASTER, info, m_id, false).Post();
+	}
+
 	wxGetApp().StartDownload();
 }
 

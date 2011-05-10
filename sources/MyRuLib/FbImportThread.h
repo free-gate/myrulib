@@ -4,114 +4,72 @@
 #include <wx/wx.h>
 #include <wx/wxsqlite3.h>
 #include <wx/zipstrm.h>
-#include "BaseThread.h"
-#include "ImpContext.h"
-#include "FbDatabase.h"
+#include <wx/wxsqlite3.h>
+#include "FbThread.h"
 #include "FbCounter.h"
+#include "FbDatabase.h"
 
-class FbImportThread : public BaseThread
+class FbImportThread
+	: public FbProgressThread
 {
 public:
-	FbImportThread();
-	virtual void OnExit();
+	FbImportThread(wxEvtHandler * owner, wxThreadKind kind = wxTHREAD_DETACHED);
+	bool OnFile(const wxString &filename, bool progress);
+	void SetRoot(const wxString & dir);
 protected:
-	bool ParseXml(wxInputStream& stream, const wxString &filename, const int id_archive = 0, const wxString &md5sum = wxEmptyString);
-	wxString ParseMd5(wxInputStream& stream);
+	virtual void * Entry();
+	virtual void DoParse() = 0;
 	wxString GetRelative(const wxString &filename);
 	wxString GetAbsolute(const wxString &filename);
 protected:
-	FbCommonDatabase m_database;
-	FbCounter m_counter;
+	FbDatabase * m_database;
 	wxString m_basepath;
 	bool m_fullpath;
-	friend class FbImpotrZip;
+	friend class FbImportZip;
 	friend class FbImportBook;
 };
 
-WX_DECLARE_STRING_HASH_MAP(wxZipEntry*, FbZipEntryMap);
-
-WX_DECLARE_OBJARRAY(wxZipEntry*, FbZipEntryList);
-
-class FbImpotrZip
-{
-	public:
-		FbImpotrZip(FbImportThread *owner, wxInputStream &in, const wxString &zipname);
-		int Save();
-	public:
-		bool IsOk() { return m_ok; };
-		void Make(FbImportThread *owner = NULL);
-	private:
-		bool OpenEntry(wxZipEntry &entry) { return m_zip.OpenEntry(entry); };
-		wxZipEntry * GetInfo(const wxString & filename);
-	private:
-		FbDatabase &m_database;
-		FbZipEntryList m_list;
-		FbZipEntryMap m_map;
-		wxCSConv m_conv;
-		wxZipInputStream m_zip;
-		wxString m_filename;
-		wxString m_filepath;
-		wxFileOffset m_filesize;
-		friend class FbImportBook;
-		bool m_ok;
-		int m_id;
-};
-
-class FbImportBook: public ParsingContext
-{
-	public:
-		FbImportBook(FbImportThread *owner, wxInputStream &in, const wxString &filename);
-		FbImportBook(FbImpotrZip *owner, wxZipEntry *entry);
-		bool Load(wxInputStream& stream);
-		bool Save();
-		bool IsOk() { return m_ok; };
-	public:
-		wxString title;
-		wxString isbn;
-		wxString lang;
-		AuthorArray authors;
-		SequenceArray sequences;
-		wxString genres;
-		AuthorItem * author;
-		wxString text;
-	private:
-		static wxString CalcMd5(wxInputStream& stream);
-		int FindByMD5();
-		int FindBySize();
-		bool AppendBook();
-		bool AppendFile(int id_book);
-		void Convert();
-	private:
-		FbDatabase &m_database;
-		wxString m_md5sum;
-		wxString m_filename;
-		wxString m_filepath;
-		wxString m_message;
-		wxFileOffset m_filesize;
-		int m_archive;
-		bool m_ok;
-};
-
-class FbZipImportThread : public FbImportThread
+class FbZipImportThread
+	: public FbImportThread
 {
 public:
-	FbZipImportThread(const wxArrayString &filelist): FbImportThread(), m_filelist(filelist) {};
-	virtual void *Entry();
+	FbZipImportThread(wxEvtHandler * owner, const wxArrayString &filelist, wxThreadKind kind = wxTHREAD_DETACHED)
+		: FbImportThread(owner, kind), m_filelist(filelist) {};
+	virtual void DoParse();
 private:
-	void ImportFile(const wxString & zipname);
 	const wxArrayString m_filelist;
 };
 
-class FbDirImportThread : public FbImportThread
+class FbDirImportThread
+	: public FbImportThread
 {
 public:
-	FbDirImportThread(const wxString &dirname): m_dirname(dirname) {};
-	virtual void *Entry();
-	void ParseZip(const wxString &zipname);
-	void ParseXml(const wxString &filename);
-	void DoStep(const wxString &msg) { FbImportThread::DoStep(msg); };
+	FbDirImportThread(wxEvtHandler * owner, const wxString &dirname, wxThreadKind kind = wxTHREAD_DETACHED)
+		: FbImportThread(owner, kind), m_dirname(dirname) {};
+	virtual void DoParse();
 private:
 	wxString m_dirname;
+	friend class FbImportTraverser;
+};
+
+class FbLibImportThread
+	: public FbDirImportThread
+{
+public:
+	FbLibImportThread(wxEvtHandler * owner, const wxString &file, const wxString &dir, const wxString &lib, bool import);
+protected:
+	virtual void * Entry();
+private:
+	bool Execute();
+	bool CreateLib();
+	bool SaveTo(wxInputStream &in, const wxString &filename, const wxString &msg);
+	bool Download(const wxString &filename);
+	bool Extract(const wxString &filename);
+private:
+	wxString m_file;
+	wxString m_dir;
+	wxString m_lib;
+	bool m_import;
 };
 
 #endif // __FBIMPORTTHREAD_H__

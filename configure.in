@@ -2,10 +2,16 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
 
-AC_INIT([MyRuLib],[0.24.18],[mail@lintest.ru],[myrulib],[http://myrulib.lintest.ru/])
+AC_INIT([MyRuLib],[0.27.4],[mail@lintest.ru],[myrulib],[http://myrulib.lintest.ru/])
+
+dnl Set the minimum version of toolkit libs
+dnl ========================================================
+SQLITE_VERSION=3.6.0
+WXWIDGETS_VERSION=2.8.10
 
 AC_CONFIG_SRCDIR([MyRuLib/MyRuLibApp.cpp])
 AC_CONFIG_SRCDIR([autoconf_inc.m4])
+AM_CONFIG_HEADER([faxpp/config.h:3rdparty/faxpp/src/config.h.in])
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
@@ -25,7 +31,7 @@ dnl AM_GNU_GETTEXT
 
 AM_OPTIONS_WXCONFIG
 
-AM_PATH_WXCONFIG(2.8.10, WXFOUND=1, WXFOUND=0, [aui,adv,html,core,net], [--unicode=yes])
+AM_PATH_WXCONFIG($WXWIDGETS_VERSION, WXFOUND=1, WXFOUND=0, [aui,adv,html,core,net], [--unicode=yes])
 
 if test "$WXFOUND" != 1; then
     AC_MSG_ERROR([
@@ -36,20 +42,74 @@ if test "$WXFOUND" != 1; then
     ])
 fi
 
+AC_MSG_CHECKING([for --with-faxpp])
+AC_ARG_WITH([faxpp], [AS_HELP_STRING([--with-faxpp], [Use FAXPP (Fast XML Pull Parser) library])], USE_FAXPP="$withval", USE_FAXPP="no")
+AC_MSG_RESULT([$USE_FAXPP])
+
 AC_MSG_CHECKING([for --with-expat])
-AC_ARG_WITH([expat], [AS_HELP_STRING([--with-expat], [Use builtin Expat library])], USE_EXPAT="$withval", USE_EXPAT="no")
+AC_ARG_WITH([expat], [AS_HELP_STRING([--with-expat], [Use Expat XML parser library])], USE_EXPAT="$withval", USE_EXPAT="no")
 AC_MSG_RESULT([$USE_EXPAT])
 
-if test $USE_EXPAT = no ; then 
-	AC_CHECK_HEADER(expat.h,AC_CHECK_LIB(expat,XML_StopParser,USE_EXPAT="no",USE_EXPAT="yes"),USE_EXPAT="yes")
+if test "x.$USE_FAXPP.$USE_EXPAT" = "x.no.no" ; then 
+    USE_FAXPP="yes"
+fi
+
+if test "x$USE_FAXPP" != "xno" ; then 
+    USE_EXPAT="no"
+    if test "x$USE_FAXPP" != "xbuiltin" ; then 
+        AC_CHECK_HEADER(faxpp/parser.h, , USE_FAXPP="builtin")
+    fi
+fi
+
+if test "x$USE_EXPAT" = "xyes" ; then 
+    AC_CHECK_HEADER(expat.h, AC_CHECK_LIB(expat, XML_StopParser, , USE_EXPAT="builtin"), USE_EXPAT="builtin")
 fi
 
 AC_MSG_CHECKING([for --with-sqlite])
 AC_ARG_WITH([sqlite], [AS_HELP_STRING([--with-sqlite], [Use builtin SQLite3 library])], USE_SQLITE="$withval", USE_SQLITE="no")
 AC_MSG_RESULT([$USE_SQLITE])
 
-if test $USE_SQLITE = no ; then 
-  AC_CHECK_HEADER(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open,USE_SQLITE="no",USE_SQLITE="yes"),USE_SQLITE="yes")
+if test "x$USE_SQLITE" == "xyes" ; then 
+    USE_SQLITE="builtin"
+fi
+
+if test "x$USE_SQLITE" != "xbuiltin" ; then 
+    dnl ============================
+    dnl === SQLite Version check ===
+    dnl ============================
+    dnl Check to see if the system SQLite package is new enough.
+    PKG_CHECK_MODULES(SQLITE, sqlite3 >= $SQLITE_VERSION, , USE_SQLITE="builtin")
+fi
+
+if test "x$USE_SQLITE" != "xbuiltin" ; then 
+    dnl ================================
+    dnl === SQLITE_ENABLE_FTS3 check ===
+    dnl ================================
+    dnl check to see if the system SQLite package is compiled with
+    dnl SQLITE_ENABLE_FTS3 enabled.
+    AC_MSG_CHECKING(for SQLITE_ENABLE_FTS3 support in system SQLite)
+    _SAVE_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $SQLITE_CFLAGS"
+    _SAVE_LIBS="$LIBS"
+    LIBS="$LIBS $SQLITE_LIBS"
+    AC_CACHE_VAL(ac_cv_sqlite_enable_fts3,[
+        AC_TRY_RUN([
+            #include "sqlite3.h"
+
+            int main(int argc, char **argv){
+              return !sqlite3_compileoption_used("SQLITE_ENABLE_FTS3");
+            }],
+            ac_cv_sqlite_enable_fts3=yes,
+            ac_cv_sqlite_enable_fts3=no,
+            ac_cv_sqlite_enable_fts3=no
+        )
+    ])
+    AC_MSG_RESULT($ac_cv_sqlite_enable_fts3)
+    CFLAGS="$_SAVE_CFLAGS"
+    LIBS="$_SAVE_LIBS"
+    if test "x$ac_cv_sqlite_enable_fts3" = "xno"; then
+        USE_SQLITE="builtin"
+    fi
 fi
 
 AC_MSG_CHECKING([for --with-locale])
@@ -71,30 +131,66 @@ WX_CXXFLAGS=`echo $WX_CXXFLAGS | sed "s|-mthreads||g"`
 WX_CPPFLAGS=`echo $WX_CPPFLAGS | sed "s|-mthreads||g"`
 WX_LIBS=`echo $WX_LIBS | sed "s|-mthreads||g"`
 
-if test $USE_EXPAT = yes ; then 
-  CXXFLAGS="$CXXFLAGS -DXML_STATIC -I$DOLLAR(srcdir)/sources/Expat"
-  WX_LIBS="-lexpat_static $WX_LIBS"
-else
-  LIBS="$LIBS -lexpat"
+dnl =================
+dnl === USE_FAXPP ===
+dnl =================
+
+if test "x$USE_FAXPP" = "xbuiltin" ; then 
+  CXXFLAGS="$CXXFLAGS -I$DOLLAR(srcdir)/3rdparty/faxpp/include -DFB_PARSE_FAXPP"
+  WX_LIBS="$WX_LIBS -lfaxpp_static"
 fi
 
-if test $USE_SQLITE = yes ; then 
-  CXXFLAGS="$CXXFLAGS -I$DOLLAR(srcdir)/sources/SQLite3"
-  WX_LIBS="-lsqlite3_static $WX_LIBS"
-else
-  LIBS="$LIBS -lsqlite3"
+if test "x$USE_FAXPP" = "xyes" ; then 
+  CXXFLAGS="$CXXFLAGS -DFB_PARSE_FAXPP"
+  WX_LIBS="$WX_LIBS -lfaxpp"
 fi
 
-if test $USE_LOCALE = yes ; then 
+dnl =================
+dnl === USE_EXPAT ===
+dnl =================
+
+if test "x$USE_EXPAT" = "xbuiltin" ; then 
+  CXXFLAGS="$CXXFLAGS -I$DOLLAR(srcdir)/3rdparty/expat -DFB_PARSE_EXPAT"
+  WX_LIBS="$WX_LIBS -lexpat_static"
+fi
+
+if test "x$USE_EXPAT" = "xyes" ; then 
+  CXXFLAGS="$CXXFLAGS -DFB_PARSE_EXPAT"
+  WX_LIBS="$WX_LIBS -lexpat"
+fi
+
+dnl ==================
+dnl === USE_SQLITE ===
+dnl ==================
+
+if test "x$USE_SQLITE" = "xbuiltin" ; then 
+  CXXFLAGS="$CXXFLAGS -I$DOLLAR(srcdir)/3rdparty/sqlite3"
+  WX_LIBS="$WX_LIBS -lsqlite3_static"
+else
+  CXXFLAGS="$CXXFLAGS $SQLITE_CFLAGS"
+  WX_LIBS="$WX_LIBS $SQLITE_LIBS"
+fi
+
+dnl ==================
+dnl === USE_LOCALE ===
+dnl ==================
+
+if test "x$USE_LOCALE" = "xyes" ; then 
   CXXFLAGS="$CXXFLAGS -DFB_INCLUDE_LOCALE"
 fi
 
-if test $USE_STRIP = yes ; then 
+dnl =================
+dnl === USE_STRIP ===
+dnl =================
+
+if test "x$USE_STRIP" = "xyes" ; then 
   STRIP_COMMAND="$DOLLAR(STRIP) ./myrulib$DOLLAR(EXEEXT)"
 else
   STRIP_COMMAND=""
 fi
 AC_SUBST(STRIP_COMMAND)
+
+dnl =================
 
 AC_CONFIG_FILES([Makefile])
 
@@ -104,16 +200,18 @@ else
   USE_WX_STATIC=yes
 fi
 
+AC_OUTPUT
+
 dnl report how we have been configured
 echo
 echo "Configured MyRuLib AC_PACKAGE_VERSION for \`${host}' wxWidgets ${WX_VERSION}"
 echo 
-echo "  Use buildin Expat library?                ${USE_EXPAT}"
-echo "  Use buildin SQLite3 library?              ${USE_SQLITE}"
-echo "  Include locale files into executable?     ${USE_LOCALE}"
-echo "  Strip the executable file?                ${USE_STRIP}"
-echo "  Link wxWidgets as a static library?       ${USE_WX_STATIC}"
+echo "  Use FAXPP (Fast XML Pull Parser) library?     ${USE_FAXPP}"
+echo "  Use Expat XML parser library?                 ${USE_EXPAT}"
+echo "  Use buildin SQLite3 library?                  ${USE_SQLITE}"
+echo "  Include locale files into executable?         ${USE_LOCALE}"
+echo "  Strip the executable file?                    ${USE_STRIP}"
+echo "  Link wxWidgets as a static library?           ${USE_WX_STATIC}"
 
 echo 
 
-AC_OUTPUT

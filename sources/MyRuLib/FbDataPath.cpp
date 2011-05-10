@@ -2,6 +2,19 @@
 #include "MyRuLibApp.h"
 #include "FbParams.h"
 
+wxString FbStandardPaths::GetDefaultName() const
+{
+	wxString result = wxStandardPaths::GetDocumentsDir();
+
+#if wxCHECK_VERSION(2, 9, 0)
+	result = AppendPathComponent(result, wxEmptyString);
+#else
+	result = AppendAppName(result);
+#endif
+
+	return result << wxT(".db");
+}
+
 wxString FbStandardPaths::GetUserConfigDir() const
 {
 #if defined(__WIN32__)
@@ -30,14 +43,6 @@ wxString FbStandardPaths::GetConfigFile() const
 	if ( !filename.FileExists() ) filename.SetPath(GetUserConfigDir());
 	filename.Normalize();
 	return filename.GetFullPath();
-}
-
-wxString FbStandardPaths::GetDownloadDir(bool bMustExist) const
-{
-	wxString path = FbParams::GetStr(FB_DOWNLOAD_DIR);
-	if ( bMustExist && !wxFileName::DirExists(path))
-		wxFileName::Mkdir(path, 0777, wxPATH_MKDIR_FULL);
-	return path;
 }
 
 wxString FbStandardPaths::MakeRelative(const wxString &fullpath, const wxString &basefile)

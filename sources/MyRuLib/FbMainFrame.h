@@ -5,10 +5,12 @@
 #include <wx/aui/aui.h>
 #include <wx/toolbar.h>
 #include <wx/textctrl.h>
-#include "ProgressBar.h"
-#include "LimitedTextCtrl.h"
-#include "FbFrameAuth.h"
+#include "controls/ProgressBar.h"
+#include "controls/LimitedTextCtrl.h"
 #include "FbLogoBitmap.h"
+#include "FbBookEvent.h"
+#include "FbMasterInfo.h"
+#include "FbWindow.h"
 
 class FbMainFrame: public FbAuiMDIParentFrame
 {
@@ -18,8 +20,6 @@ class FbMainFrame: public FbAuiMDIParentFrame
 		virtual wxString GetTitle() const;
 		void SetStatus(const wxString &text = wxEmptyString);
 		void Localize(int language);
-	protected:
-		virtual void SetMenuBar(wxMenuBar *pMenuBar);
 	private:
 		bool Create(wxWindow * parent, wxWindowID id, const wxString & title);
 		void CreateControls();
@@ -75,6 +75,7 @@ class FbMainFrame: public FbAuiMDIParentFrame
 		void OnError(wxCommandEvent& event);
 		void OnHideLog(wxCommandEvent& event);
 		void OnUpdateFolder(FbFolderEvent & event);
+		void OnUpdateMaster(FbMasterEvent & event);
 		void OnOpenAuthor(FbOpenEvent & event);
 		void OnOpenSequence(FbOpenEvent & event);
 		void OnTabArt(wxCommandEvent & event);
@@ -82,6 +83,7 @@ class FbMainFrame: public FbAuiMDIParentFrame
 		void OnHideLogUpdate(wxUpdateUIEvent& event);
 		void OnVacuum(wxCommandEvent & event);
 		void OnUpdate(wxCommandEvent & event);
+		void OnUpdateUpdate(wxUpdateUIEvent& event);
 		void OnUpdateFonts(wxCommandEvent & event);
 		void OnProgress(FbProgressEvent & event);
 		void OnUpdateBook(wxCommandEvent & event);

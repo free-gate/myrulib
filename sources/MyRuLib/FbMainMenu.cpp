@@ -8,22 +8,31 @@ FbMenuBar::MenuFrame::MenuFrame()
 	Append(ID_FRAME_AUTH, _("Authors"));
 	Append(ID_FRAME_GENR, _("Genres"));
 	Append(ID_FRAME_SEQN, _("Series"));
-	Append(ID_FRAME_DATE,   _("Calendar"));
-	Append(ID_FRAME_ARCH,   _("Archive"));
+	Append(ID_FRAME_DATE, _("Calendar"));
+	Append(ID_FRAME_ARCH, _("Archive"));
 	AppendSeparator();
 	Append(ID_FRAME_FLDR, _("My folders"));
 	Append(ID_FRAME_DOWN, _("Downloads"));
 }
 
+FbMenuBar::MenuFile::MenuFile()
+{
+	AppendImg(wxID_NEW,  _("Add file") + (wxString)wxT("\tCtrl+N"), wxART_NEW);
+	AppendImg(wxID_OPEN, _("Add folder") + (wxString)wxT("\tCtrl+O"), wxART_FOLDER_OPEN);
+	AppendSeparator();
+	AppendImg(wxID_EXIT, _("Exit") + (wxString)wxT("\tAlt-F4"), wxART_QUIT);
+}
+
 FbMenuBar::MenuLib::MenuLib()
 {
 	Append(ID_MENU_DB_OPEN, _("Open (or create) collection"));
-	Append(ID_RECENT_ALL, _("Open recent"), new MenuRecent());
+	Append(wxID_FILE, _("Open recent"), new MenuRecent());
 	AppendSeparator();
 	Append(ID_MENU_DB_INFO,  _("Information about collection"));
 	Append(ID_MENU_GENLIST,  _("Rebuild the list of genres"));
 	Append(ID_MENU_OPTIMIZE, _("Clear empty variables"));
 	Append(ID_MENU_VACUUM,   _("Optimize DB"));
+	Append(ID_MENU_UPDATE,   _("Online update database"));
 	AppendSeparator();
 	Append(ID_MENU_CONFIG, _("Options"));
 }
@@ -33,6 +42,13 @@ FbMenuBar::MenuSetup::MenuSetup()
 	Append(wxID_PREFERENCES, _("Settings"));
 }
 
+FbMenuBar::MenuView::MenuView()
+{
+	Append(wxID_ANY, _("Tabs"), new MenuTabArt());
+	AppendSeparator();
+	AppendCheckItem(ID_FULLSCREEN, _("Fullscreen mode") + (wxString)wxT("\tF11"));
+	AppendCheckItem(ID_LOG_TEXTCTRL, _("Show log window") + (wxString)wxT("\tF12"));
+}
 FbMenuBar::MenuHelp::MenuHelp()
 {
 	Append(ID_OPEN_WEB, _("Website"));
@@ -50,22 +66,6 @@ FbMainMenu::FbMainMenu(): FbMenuBar()
 	Append(new MenuHelp,   _("&?"));
 }
 
-FbMainMenu::MenuFile::MenuFile()
-{
-	AppendImg(wxID_NEW,  _("Add file") + (wxString)wxT("\tCtrl+N"), wxART_NEW);
-	AppendImg(wxID_OPEN, _("Add folder") + (wxString)wxT("\tCtrl+O"), wxART_FOLDER_OPEN);
-	AppendSeparator();
-	AppendImg(wxID_EXIT, _("Exit") + (wxString)wxT("\tAlt-F4"), wxART_QUIT);
-}
-
-FbMainMenu::MenuView::MenuView()
-{
-	Append(wxID_ANY, _("Tabs"), new MenuTabArt());
-	AppendSeparator();
-	AppendCheckItem(ID_FULLSCREEN, _("Fullscreen mode") + (wxString)wxT("\tF11"));
-	AppendCheckItem(ID_LOG_TEXTCTRL, _("Show log window") + (wxString)wxT("\tF12"));
-}
-
 FbFrameMenu::MenuFile::MenuFile()
 {
 	AppendImg(wxID_NEW,  _("Add file") + (wxString)wxT("\tCtrl+N"), wxART_NEW);
@@ -77,6 +77,7 @@ FbFrameMenu::MenuFile::MenuFile()
 
 FbFrameMenu::MenuBook::MenuBook()
 {
+	Append(wxID_COPY, _("Copy") + (wxString)wxT("\tCtrl+C"));
 	Append(wxID_SELECTALL, _("Select all") + (wxString)wxT("\tCtrl+A"));
 	Append(ID_UNSELECTALL, _("Undo selection"));
 	AppendSeparator();
@@ -130,8 +131,8 @@ FbMenuBar::MenuPreview::MenuPreview()
 
 FbMenuBar::MenuWindow::MenuWindow()
 {
-	Append(ID_WINDOW_CLOSE,    _("Close window"));
-	Append(ID_WINDOW_CLOSEALL, _("Close all"));
+	Append(wxID_CLOSE,    _("Close window") + (wxString)wxT("\tCtrl+W"));
+	Append(wxID_CLOSE_ALL, _("Close all"));
 	AppendSeparator();
 	Append(ID_WINDOW_NEXT,     _("Next"));
 	Append(ID_WINDOW_PREV,     _("Previous"));

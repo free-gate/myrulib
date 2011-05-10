@@ -1,155 +1,262 @@
 #include "FbUpdateThread.h"
+#include "FbInternetBook.h"
+#include "FbDatabase.h"
+#include "FbDateTime.h"
 #include "FbConst.h"
 #include "FbParams.h"
-#include "FbExtractInfo.h"
 #include "FbCounter.h"
 #include "MyRuLibApp.h"
+#include <wx/wfstream.h>
+#include <wx/zipstrm.h>
 
-wxCriticalSection FbUpdateThread::sm_queue;
+//-----------------------------------------------------------------------------
+//  FbUpdateItem
+//-----------------------------------------------------------------------------
+
+FbUpdateThread::FbUpdateThread()
+{
+	wxURL(MyRuLib::HomePage()).GetProtocol();
+}
 
 void * FbUpdateThread::Entry()
 {
-	wxCriticalSectionLocker locker(sm_queue);
-
-	FbCommonDatabase database;
-	database.AttachConfig();
-
-	if (!m_sql1.IsEmpty()) ExecSQL(database, m_sql1);
-	if (!m_sql2.IsEmpty()) ExecSQL(database, m_sql2);
-	if (!m_sql3.IsEmpty()) ExecSQL(database, m_sql3);
-
-	return NULL;
-}
-
-void FbUpdateThread::ExecSQL(FbDatabase &database, const wxString &sql)
-{
-	database.ExecuteUpdate(sql);
-}
-
-class FbIncrementFunction : public wxSQLite3ScalarFunction
-{
-	public:
-		FbIncrementFunction(): m_increment(0) {};
-		virtual void Execute(wxSQLite3FunctionContext& ctx);
-	private:
-		int m_increment;
-};
-
-void FbIncrementFunction::Execute(wxSQLite3FunctionContext& ctx)
-{
-	int id = ctx.GetArgCount()>0 ? ctx.GetInt(0) : 0;
-	m_increment++;
-	id += m_increment;
-	ctx.SetResult(-id);
-}
-
-void * FbFolderUpdateThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
-
-	FbCommonDatabase database;
-	database.AttachConfig();
-
-	ExecSQL(database, m_sql1);
-	if (!m_sql2.IsEmpty()) ExecSQL(database, m_sql2);
-
-	FbFolderEvent(ID_UPDATE_FOLDER, m_folder, m_type).Post();
-
-	return NULL;
-}
-
-void * FbCreateDownloadThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
-
-	FbCommonDatabase database;
-	FbIncrementFunction function;
-	database.CreateFunction(wxT("INCREMENT"), 1, function);
-	database.AttachConfig();
-
-	ExecSQL(database, m_sql1);
-	if (!m_sql2.IsEmpty()) ExecSQL(database, m_sql2);
-
-	FbFolderEvent(ID_UPDATE_FOLDER, m_folder, m_type).Post();
-
-	return NULL;
-}
-
-void * FbDeleteThread::Entry()
-{
-	wxCriticalSectionLocker locker(sm_queue);
+	int date = FbParams::GetInt(DB_DATAFILE_DATE);
+	int today = FbDateTime::Today().Code() + 20000000;
+	wxString type = Lower(FbParams::GetStr(DB_LIBRARY_TYPE));
+	if (date == 0) return NULL;
 
 	FbCommonDatabase database;
 	FbCounter counter(database);
-	counter.Add(m_sel);
 
-	if (FbParams::GetInt(FB_REMOVE_FILES)) DoDelete(database);
+	bool ok = false;
+	while (date && date < today) {
+		FbUpdateItem item(database, date, type);
+		date = item.Execute();
+		if (date) {
+			FbParams::Set(DB_DATAFILE_DATE, date);
+			ok = true;
+		}
+	}
 
-	wxString sql;
-
-	sql = wxString::Format(wxT("DELETE FROM books WHERE id IN (%s)"), m_sel.c_str());
-	database.ExecuteUpdate(sql);
-
-	sql = wxString::Format(wxT("DELETE FROM bookseq WHERE id_book IN (%s)"), m_sel.c_str());
-	database.ExecuteUpdate(sql);
-
-	sql = wxString::Format(wxT("DELETE FROM files WHERE id_book IN (%s)"), m_sel.c_str());
-	database.ExecuteUpdate(sql);
-
-	sql = wxString::Format(wxT("DELETE FROM genres WHERE id_book IN (%s)"), m_sel.c_str());
-	database.ExecuteUpdate(sql);
-
-	counter.Execute();
+	if (ok) {
+		counter.Execute();
+		wxLogWarning(_("Database successfully updated"));
+	}
 
 	return NULL;
 }
 
-void FbDeleteThread::DoDelete(FbDatabase &database)
+//-----------------------------------------------------------------------------
+//  FbUpdateItem
+//-----------------------------------------------------------------------------
+
+IMPLEMENT_CLASS(FbUpdateItem, wxObject)
+
+wxString FbUpdateItem::GetAddr(int date, const wxString &type)
 {
-	wxString basepath = wxGetApp().GetLibPath();
-	wxString sql = wxString::Format(wxT("SELECT id FROM books WHERE books.id IN (%s)"), m_sel.c_str());
-	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
-	while (result.NextRow()) {
-		FbExtractArray(database, result.GetInt(0)).DeleteFiles(basepath);
-	}
+	return wxString::Format(wxT("%s/%s/%d/%d.zip"), MyRuLib::HomePage().c_str(), type.c_str(), date / 10000, date);
 }
 
-void * FbGenreThread::Entry()
+FbUpdateItem::FbUpdateItem(wxSQLite3Database & database, int code, const wxString &type)
+	: m_database(database), m_code(code), m_type(type), m_url(GetAddr(code, type))
 {
-	FbCommonDatabase database;
-	wxSQLite3Transaction trans(&database, WXSQLITE_TRANSACTION_EXCLUSIVE);
+}
 
-	wxString msg = _("Rebuild the list of genres");
+FbUpdateItem::~FbUpdateItem()
+{
+	if (!m_filename) wxRemoveFile(m_filename);
+	if (!m_dataname) wxRemoveFile(m_dataname);
+}
 
-	database.ExecuteUpdate(wxT("DROP TABLE genres"));
-	database.ExecuteUpdate(wxT("CREATE TABLE genres(id_book integer, id_genre CHAR(2));"));
-	database.ExecuteUpdate(wxT("CREATE INDEX genres_book ON genres(id_book);"));
-  	database.ExecuteUpdate(wxT("CREATE INDEX genres_genre ON genres(id_genre);"));
+int FbUpdateItem::Execute()
+{
+	FbLogWarning(_("Update collection"), m_url);
+	bool ok = FbInternetBook::Download(m_url, m_filename);
+	if (ok) ok = OpenZip();
+	if (ok) return DoUpdate();
+	return 0;
+}
 
-	int count = database.ExecuteScalar(wxT("SELECT count(DISTINCT id) FROM books"));
-	if (count == 0) return NULL;
+bool FbUpdateItem::OpenZip()
+{
+	wxFFileInputStream in(m_filename);
+	wxZipInputStream zip(in);
 
-	int pos = 0;
-	wxString sql = wxT("SELECT id, genres FROM books");
-	wxSQLite3ResultSet res = database.ExecuteQuery(sql);
-	while (res.NextRow()) {
-		int id = res.GetInt(0);
-		wxString genres = res.GetString(1);
-		int len = genres.Len();
-		for (int i = 0; i < len; i+=2) {
-			wxString sql = wxT("INSERT INTO genres(id_book, id_genre) VALUES(?,?)");
-			wxSQLite3Statement stmt = database.PrepareStatement(sql);
-			stmt.Bind(1, id);
-			stmt.Bind(2, genres.Mid(i, 2));
-			wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		}
-		FbProgressEvent(ID_PROGRESS_UPDATE, msg, ++pos * 1000 / count).Post();
+	bool ok = zip.IsOk();
+	if (!ok) return false;
+
+	if (wxZipEntry * entry = zip.GetNextEntry()) {
+		ok = zip.OpenEntry(*entry);
+		delete entry;
+	} else ok = false;
+
+	if (!ok) return false;
+
+	m_dataname = wxFileName::CreateTempFileName(wxT("~"));
+	wxFileOutputStream out(m_dataname);
+	out.Write(zip);
+	return out.IsOk();
+}
+
+int FbUpdateItem::DoUpdate()
+{
+	{
+		wxString sql = wxT("ATTACH ? AS upd");
+		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+		stmt.Bind(1, m_dataname);
+		stmt.ExecuteUpdate();
 	}
+
+	int date = 0;
+	{
+		wxString sql = wxT("SELECT value FROM upd.params WHERE id=?");
+		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+		stmt.Bind(1, DB_DATAFILE_DATE);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		if (result.NextRow()) date = result.GetInt(0);
+	}
+	if (date <= m_code) return 0;
+
+	{
+		wxString sql = wxT("SELECT text FROM upd.params WHERE id=?");
+		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+		stmt.Bind(1, DB_LIBRARY_TYPE);
+		wxSQLite3ResultSet result = stmt.ExecuteQuery();
+		if (!(result.NextRow() && result.GetString(0).Lower() == m_type)) {
+			FbLogError(_("Wrong update library type"), result.GetString(0));
+			return 0;
+		}
+	}
+
+	wxSQLite3Transaction trans(&m_database, WXSQLITE_TRANSACTION_EXCLUSIVE);
+
+	ExecDelete();
+	ExecInsert();
+	CalcCount();
 
 	trans.Commit();
-	FbProgressEvent(ID_PROGRESS_UPDATE).Post();
 
-	return NULL;
+	m_database.ExecuteUpdate(wxT("DETACH upd"));
+
+	return date;
 }
 
+void FbUpdateItem::CalcCount()
+{
+	wxString sql = wxT("SELECT COUNT(DISTINCT id) FROM upd.books");
+	wxSQLite3ResultSet result = m_database.ExecuteQuery(sql);
+	if (result.NextRow()) wxLogWarning(_("Loaded new %d books"), result.GetInt(0));
+}
+
+void FbUpdateItem::ExecDelete()
+{
+	const wxChar * list[][4] = {
+		{
+			wxT("books"), wxT("id"),
+			wxT("books"), wxT("id"),
+		},
+		{
+			wxT("bookseq"), wxT("id_book"),
+			wxT("books"), wxT("id"),
+		},
+		{
+			wxT("genres"), wxT("id_book"),
+			wxT("books"), wxT("id"),
+		},
+		{
+			wxT("files"), wxT("id_archive"),
+			wxT("archives"), wxT("id"),
+		},
+		{
+			wxT("fts_auth"), wxT("docid"),
+			wxT("authors"), wxT("id"),
+		},
+		{
+			wxT("fts_book"), wxT("docid"),
+			wxT("books"),     wxT("id"),
+		},
+		{
+			wxT("fts_seqn"),  wxT("docid"),
+			wxT("sequences"), wxT("id"),
+		},
+	};
+
+	size_t size = sizeof( list ) / sizeof( wxChar * ) / 4;
+	for (size_t i = 0; i < size; i++) {
+		wxString sql = wxString::Format(wxT("DELETE FROM %s WHERE %s IN (SELECT %s FROM upd.%s)"), list[i][0], list[i][1], list[i][3], list[i][2]);
+		m_database.ExecuteUpdate(sql);
+	}
+}
+
+void FbUpdateItem::ExecInsert()
+{
+	FbLowerFunction	lower;
+	FbAuthorFunction author;
+	FbLetterFunction letter;
+
+	m_database.CreateFunction(wxT("LOW"), 1, lower);
+	m_database.CreateFunction(wxT("AUTH"), 3, author);
+	m_database.CreateFunction(wxT("LTTR"), 1, letter);
+
+	const wxChar * list[][4] = {
+		{
+			wxT("books"), wxT("id,id_author,title,file_name,file_size,file_type,md5sum,genres,lang,created,year,annotation,description"),
+			wxT("books"), wxT("id,id_author,title,file_name,file_size,file_type,md5sum,genres,lang,created,year,annotation,description"),
+		},
+		{
+			wxT("authors"), wxT("id,last_name,first_name,middle_name,full_name,search_name,letter"),
+			wxT("authors"), wxT("id,last_name,first_name,middle_name,AUTH(last_name,first_name,middle_name),LOW(AUTH(last_name,first_name,middle_name)),LTTR(AUTH(last_name,first_name,middle_name))"),
+		},
+		{
+			wxT("sequences"), wxT("id,value"),
+			wxT("sequences"), wxT("id,value"),
+		},
+		{
+			wxT("bookseq"), wxT("id_book,id_seq,number"),
+			wxT("bookseq"), wxT("id_book,id_seq,number"),
+		},
+		{
+			wxT("genres"), wxT("id_book,id_genre"),
+			wxT("genres"), wxT("id_book,id_genre"),
+		},
+		{
+			wxT("archives"), wxT("id,file_name"),
+			wxT("archives"), wxT("id,file_name"),
+		},
+		{
+			wxT("files"), wxT("id_archive,id_book,file_name"),
+			wxT("files"), wxT("id_archive,id_book,file_name"),
+		},
+		{
+			wxT("fts_auth"), wxT("docid,content"),
+			wxT("authors"), wxT("id,LOW(AUTH(last_name,first_name,middle_name))"),
+		},
+		{
+			wxT("fts_book"), wxT("docid,content"),
+			wxT("books"),     wxT("id,LOW(title)"),
+		},
+		{
+			wxT("fts_seqn"),  wxT("docid,content"),
+			wxT("sequences"), wxT("id,LOW(value)"),
+			},
+		{
+			wxT("tmp_a"), wxT("id"),
+			wxT("books"), wxT("id"),
+		},
+		{
+			wxT("tmp_s"), wxT("id"),
+			wxT("sequences"), wxT("id"),
+		},
+		{
+			wxT("tmp_d"), wxT("id"),
+			wxT("books"), wxT("created"),
+		},
+	};
+
+	size_t size = sizeof( list ) / sizeof( wxChar * ) / 4;
+	for (size_t i = 0; i < size; i++) {
+		wxString sql = wxString::Format(wxT("INSERT OR REPLACE INTO %s(%s)SELECT DISTINCT %s FROM upd.%s"), list[i][0], list[i][1], list[i][3], list[i][2]);
+		m_database.ExecuteUpdate(sql);
+	}
+}
 

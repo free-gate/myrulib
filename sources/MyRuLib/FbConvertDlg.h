@@ -7,7 +7,6 @@
 #include <wx/filename.h>
 #include <wx/process.h>
 #include <wx/timer.h>
-#include "BaseThread.h"
 #include "FbWindow.h"
 #include "FbConst.h"
 #include "FbBookEvent.h"
@@ -67,6 +66,15 @@ class FbConvertDlg : public FbDialog
 		{
 			public:
 				GzipThread(FbConvertDlg * parent, const wxArrayString &args);
+			protected:
+				virtual void * Entry();
+			private:
+				wxArrayString m_filelist;
+		};
+		class BzipThread: public JoinedThread
+		{
+			public:
+				BzipThread(FbConvertDlg * parent, const wxArrayString &args);
 			protected:
 				virtual void * Entry();
 			private:

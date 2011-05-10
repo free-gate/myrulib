@@ -1,15 +1,16 @@
 #include "FbProgressDlg.h"
 #include "FbConst.h"
+#include "FbLogoBitmap.h"
 
 //-----------------------------------------------------------------------------
 //  FbDialog
 //-----------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(FbProgressDlg, FbDialog)
-	EVT_MENU(ID_PROGRESS_1, FbProgressDlg::OnProgress1)
-	EVT_MENU(ID_PROGRESS_2, FbProgressDlg::OnProgress2)
-	EVT_MENU(ID_PULSE_GAUGE, FbProgressDlg::OnPulseGauge)
 	EVT_TIMER(wxID_ANY, FbProgressDlg::OnTimer)
+	EVT_FB_PROGRESS(ID_PROGRESS_START,  FbProgressDlg::OnGaugeStart)
+	EVT_FB_PROGRESS(ID_PROGRESS_UPDATE, FbProgressDlg::OnGaugeUpdate)
+	EVT_FB_PROGRESS(ID_PROGRESS_PULSE, FbProgressDlg::OnGaugePulse)
 END_EVENT_TABLE()
 
 
@@ -17,22 +18,24 @@ FbProgressDlg::FbProgressDlg(wxWindow* parent)
 	: FbDialog( parent, wxID_ANY, _("Processing collection"), wxDefaultPosition, wxDefaultSize),
 		m_thread(NULL), m_timer(this)
 {
-	wxBoxSizer * bSizerMain = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer * bSizerMain = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer * bSizerCtrl = new wxBoxSizer( wxVERTICAL );
+
+	wxStaticBitmap * m_bitmap = new wxStaticBitmap( this, wxID_ANY, FbLogoBitmap(), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerMain->Add( m_bitmap, 0, wxALL|wxALIGN_TOP, 10 );
 
 	m_text.Create( this, wxID_ANY, wxEmptyString );
 	m_text.Wrap( -1 );
-	bSizerMain->Add( &m_text, 0, wxALL|wxEXPAND, 5 );
+	bSizerCtrl->Add( &m_text, 0, wxALL|wxEXPAND, 5 );
 
-	m_gauge1.Create( this, wxID_ANY, 100 );
-	m_gauge1.SetMinSize( wxSize(300, -1) );
-	bSizerMain->Add( &m_gauge1, 0, wxALL|wxEXPAND, 5 );
-
-	m_gauge2.Create( this, wxID_ANY, 100 );
-	m_gauge2.SetMinSize( wxSize(300, -1) );
-	bSizerMain->Add( &m_gauge2, 0, wxALL|wxEXPAND, 5 );
+	m_gauge.Create(this, wxID_ANY, 1000, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL);
+	m_gauge.SetMinSize(wxSize(300, -1));
+	bSizerCtrl->Add( &m_gauge, 0, wxALL|wxEXPAND, 5 );
 
 	wxStdDialogButtonSizer * buttons = CreateStdDialogButtonSizer( wxCANCEL );
-	bSizerMain->Add( buttons, 0, wxEXPAND|wxALL, 5 );
+	bSizerCtrl->Add( buttons, 0, wxEXPAND|wxALL, 5 );
+
+	bSizerMain->Add( bSizerCtrl, 1, wxEXPAND);
 
 	SetSizer( bSizerMain );
 	Layout();
@@ -58,23 +61,23 @@ void FbProgressDlg::RunThread(FbThread * thread)
 
 void FbProgressDlg::OnTimer(wxTimerEvent& WXUNUSED(event))
 {
-	m_gauge2.Pulse();
+	m_gauge.Pulse();
 }
 
-void FbProgressDlg::OnProgress1(wxCommandEvent & event)
+void FbProgressDlg::OnGaugeStart(FbProgressEvent & event)
 {
 	m_timer.Stop();
-	m_text.SetLabel(event.GetString());
-	m_gauge1.SetValue(event.GetInt());
+	m_text.SetLabel(event.m_str);
+	m_gauge.SetRange(event.m_pos);
 }
 
-void FbProgressDlg::OnProgress2(wxCommandEvent & event)
+void FbProgressDlg::OnGaugeUpdate(FbProgressEvent & event)
 {
-	m_gauge2.SetValue(event.GetInt());
+	m_gauge.SetValue(event.m_pos);
 }
 
-void FbProgressDlg::OnPulseGauge(wxCommandEvent & event)
+void FbProgressDlg::OnGaugePulse(FbProgressEvent & event)
 {
-	m_text.SetLabel(event.GetString());
+	m_text.SetLabel(event.m_str);
 	m_timer.Start(100);
 }

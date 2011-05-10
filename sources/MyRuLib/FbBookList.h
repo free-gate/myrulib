@@ -1,11 +1,12 @@
 #ifndef __FBBOOKLIST_H__
 #define __FBBOOKLIST_H__
 
-#include "FbTreeModel.h"
+#include "controls/FbTreeModel.h"
 #include "FbBookTypes.h"
 #include "FbCollection.h"
 #include "FbThread.h"
 #include "FbMasterInfo.h"
+#include "FbBookTraverser.h"
 
 class FbBookListData: public FbModelData
 {
@@ -22,6 +23,8 @@ class FbBookListData: public FbModelData
 			{ return FbViewItem(FbViewItem::Book, m_code); }
 		virtual int GetBook() const
 			{ return m_code; }
+		virtual bool IsGray(FbModel & model) const
+			{ return FbCollection::GetBookData(m_code).IsGray(); }
 	protected:
 		virtual void DoSetState(FbModel & model, int state);
 		virtual int DoGetState(FbModel & model) const;
@@ -40,6 +43,9 @@ class FbBookListModel: public FbListModel
 		void SetState(int code, int state);
 		int GetState(int code) const;
 		virtual size_t GetSelected(wxArrayInt &items);
+		void Modify(int book, bool add);
+		virtual wxString GetText(wxArrayInt &columns);
+
 	public:
 		virtual size_t GetRowCount() const
 			{ return m_items.Count(); }
@@ -54,8 +60,12 @@ class FbBookListModel: public FbListModel
 
 	protected:
 		virtual FbModelItem DoGetData(size_t row, int &level);
+		FbModelItem Items(size_t index);
+
 	private:
         wxString GetSQL(const wxString & order, const wxString & condition);
+		void DoTraverse(FbBookTraverser & traverser);
+
 	private:
 		wxArrayInt m_items;
 		FbSortedArrayInt m_check;

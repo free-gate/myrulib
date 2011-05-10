@@ -75,6 +75,34 @@ WXSQLITE3_STATIC_CXXFLAGS = -DHAVE_W32API_H $(____WX_SHARED) \
 	-I.\sources\SQLite3 -I.\sources\WxSQLite3 $(CPPFLAGS) $(CXXFLAGS)
 WXSQLITE3_STATIC_OBJECTS =  \
 	build\wxsqlite3_static_wxsqlite3.o
+WXBZIP2_STATIC_CFLAGS = -DHAVE_W32API_H $(____WX_SHARED) \
+	$(__WXUNICODE_DEFINE_p) $(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
+	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -DNDEBUG \
+	$(CPPFLAGS) $(CFLAGS)
+WXBZIP2_STATIC_CXXFLAGS = -DHAVE_W32API_H $(____WX_SHARED) \
+	$(__WXUNICODE_DEFINE_p) $(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
+	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -DNDEBUG \
+	$(CPPFLAGS) $(CXXFLAGS)
+WXBZIP2_STATIC_OBJECTS =  \
+	build\wxbzip2_static_blocksort.o \
+	build\wxbzip2_static_bzlib.o \
+	build\wxbzip2_static_compress.o \
+	build\wxbzip2_static_crctable.o \
+	build\wxbzip2_static_decompress.o \
+	build\wxbzip2_static_huffman.o \
+	build\wxbzip2_static_randtable.o \
+	build\wxbzip2_static_bzipstream.o
+ZIPSCAN_CFLAGS = -DHAVE_W32API_H $(____WX_SHARED) $(__WXUNICODE_DEFINE_p) \
+	$(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
+	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -DNDEBUG \
+	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -O2 $(CPPFLAGS) $(CFLAGS)
+ZIPSCAN_CXXFLAGS = -DHAVE_W32API_H $(____WX_SHARED) $(__WXUNICODE_DEFINE_p) \
+	$(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
+	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -DNDEBUG \
+	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -O2 $(CPPFLAGS) $(CXXFLAGS)
+ZIPSCAN_OBJECTS =  \
+	build\zipscan_ZipScan.o \
+	build\zipscan_md5.o
 BIN2C_CFLAGS =   $(CPPFLAGS) $(CFLAGS)
 BIN2C_OBJECTS =  \
 	build\bin2c_bin2c.o
@@ -82,12 +110,14 @@ MYRULIB_CFLAGS = -DHAVE_W32API_H $(____WX_SHARED) $(__WXUNICODE_DEFINE_p) \
 	$(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
 	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -Ibuild \
 	-DNDEBUG -DXML_STATIC -DFB_INCLUDE_LOCALE -ISQLite3 -IExpat \
-	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -O2 $(CPPFLAGS) $(CFLAGS)
+	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -I.\sources\WxBZipStream -O2 \
+	$(CPPFLAGS) $(CFLAGS)
 MYRULIB_CXXFLAGS = -DHAVE_W32API_H $(____WX_SHARED) $(__WXUNICODE_DEFINE_p) \
 	$(__WXDEBUG_DEFINE_p) -D__WXMSW__ \
 	-I$(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) -I$(WX_DIR)\include -Ibuild \
 	-DNDEBUG -DXML_STATIC -DFB_INCLUDE_LOCALE -ISQLite3 -IExpat \
-	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -O2 $(CPPFLAGS) $(CXXFLAGS)
+	-I.\sources\MyRuLib -I.\sources\WxSQLite3 -I.\sources\WxBZipStream -O2 \
+	$(CPPFLAGS) $(CXXFLAGS)
 MYRULIB_OBJECTS =  \
 	build\myrulib_BaseThread.o \
 	build\myrulib_FbAboutDlg.o \
@@ -115,6 +145,7 @@ MYRULIB_OBJECTS =  \
 	build\myrulib_FbDataPath.o \
 	build\myrulib_FbDateTime.o \
 	build\myrulib_FbDateTree.o \
+	build\myrulib_FbDeleteThread.o \
 	build\myrulib_FbDownList.o \
 	build\myrulib_FbEditBook.o \
 	build\myrulib_FbExportDlg.o \
@@ -136,6 +167,7 @@ MYRULIB_OBJECTS =  \
 	build\myrulib_FbFrameGenr.o \
 	build\myrulib_FbFrameSeqn.o \
 	build\myrulib_FbGenres.o \
+	build\myrulib_FbGenreThread.o \
 	build\myrulib_FbGenrTree.o \
 	build\myrulib_FbHtmlWindow.o \
 	build\myrulib_FbImportThread.o \
@@ -164,6 +196,7 @@ MYRULIB_OBJECTS =  \
 	build\myrulib_FbTreeModel.o \
 	build\myrulib_FbTreeView.o \
 	build\myrulib_FbUpdateThread.o \
+	build\myrulib_FbURL.o \
 	build\myrulib_FbViewContext.o \
 	build\myrulib_FbViewData.o \
 	build\myrulib_FbViewItem.o \
@@ -188,16 +221,16 @@ ifeq ($(WX_DEBUG),1)
 WX3RDPARTYLIBPOSTFIX = d
 endif
 ifeq ($(WX_SHARED),0)
-____WX_SHARED_2_p_1 = 
+____WX_SHARED_10_p_1 = 
 endif
 ifeq ($(WX_SHARED),1)
-____WX_SHARED_2_p_1 = --define WXUSINGDLL
+____WX_SHARED_10_p_1 = --define WXUSINGDLL
 endif
 ifeq ($(WX_UNICODE),1)
-__WXUNICODE_DEFINE_p_3 = --define _UNICODE
+__WXUNICODE_DEFINE_p_6 = --define _UNICODE
 endif
 ifeq ($(WX_DEBUG),1)
-__WXDEBUG_DEFINE_p_3 = --define __WXDEBUG__
+__WXDEBUG_DEFINE_p_6 = --define __WXDEBUG__
 endif
 ifeq ($(WX_MONOLITHIC),0)
 __WXLIB_AUI_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)_aui
@@ -206,16 +239,7 @@ ifeq ($(WX_MONOLITHIC),0)
 __WXLIB_HTML_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)_html
 endif
 ifeq ($(WX_MONOLITHIC),0)
-__WXLIB_CORE_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)_core
-endif
-ifeq ($(WX_MONOLITHIC),0)
 __WXLIB_NET_NAME_p = -lwxbase$(WX_VERSION)$(WXLIBPOSTFIX)_net
-endif
-ifeq ($(WX_MONOLITHIC),0)
-__WXLIB_BASE_NAME_p = -lwxbase$(WX_VERSION)$(WXLIBPOSTFIX)
-endif
-ifeq ($(WX_MONOLITHIC),1)
-__WXLIB_BASE_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)
 endif
 ifeq ($(WX_SHARED),0)
 ____WX_SHARED = 
@@ -244,6 +268,15 @@ ifeq ($(WX_UNICODE),1)
 WXLIBPOSTFIX = ud
 endif
 endif
+ifeq ($(WX_MONOLITHIC),0)
+__WXLIB_CORE_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)_core
+endif
+ifeq ($(WX_MONOLITHIC),0)
+__WXLIB_BASE_NAME_p = -lwxbase$(WX_VERSION)$(WXLIBPOSTFIX)
+endif
+ifeq ($(WX_MONOLITHIC),1)
+__WXLIB_BASE_NAME_p = -lwxmsw$(WX_VERSION)$(WXLIBPOSTFIX)
+endif
 ifeq ($(WX_SHARED),0)
 WXLIBPATH = \lib\gcc_lib
 endif
@@ -258,7 +291,7 @@ build:
 
 ### Targets: ###
 
-all: test_for_selected_wxbuild build\libexpat_static.a build\libsqlite3_static.a build\libwxsqlite3_static.a build\bin2c.exe build\myrulib.exe
+all: test_for_selected_wxbuild build\libexpat_static.a build\libsqlite3_static.a build\libwxsqlite3_static.a build\libwxbzip2_static.a build\zipscan.exe build\bin2c.exe build\myrulib.exe
 
 clean: 
 	-if exist build\*.o del build\*.o
@@ -266,6 +299,8 @@ clean:
 	-if exist build\libexpat_static.a del build\libexpat_static.a
 	-if exist build\libsqlite3_static.a del build\libsqlite3_static.a
 	-if exist build\libwxsqlite3_static.a del build\libwxsqlite3_static.a
+	-if exist build\libwxbzip2_static.a del build\libwxbzip2_static.a
+	-if exist build\zipscan.exe del build\zipscan.exe
 	-if exist build\bin2c.exe del build\bin2c.exe
 	-if exist build/ru.mo del build/ru.mo
 	-if exist build/uk.mo del build/uk.mo
@@ -306,6 +341,14 @@ build\libwxsqlite3_static.a: $(WXSQLITE3_STATIC_OBJECTS)
 	ar rcu $@ $(WXSQLITE3_STATIC_OBJECTS)
 	ranlib $@
 
+build\libwxbzip2_static.a: $(WXBZIP2_STATIC_OBJECTS)
+	if exist $@ del $@
+	ar rcu $@ $(WXBZIP2_STATIC_OBJECTS)
+	ranlib $@
+
+build\zipscan.exe: $(ZIPSCAN_OBJECTS) build\libwxsqlite3_static.a
+	$(CXX) -o $@ $(ZIPSCAN_OBJECTS)  -L$(WX_DIR)$(WXLIBPATH)    $(LDFLAGS)  build\libwxsqlite3_static.a $(__WXLIB_CORE_NAME_p) $(__WXLIB_BASE_NAME_p) -lwxtiff$(WX3RDPARTYLIBPOSTFIX) -lwxjpeg$(WX3RDPARTYLIBPOSTFIX) -lwxpng$(WX3RDPARTYLIBPOSTFIX) -lwxzlib$(WX3RDPARTYLIBPOSTFIX) -lwxregex$(WXLIBPOSTFIX) -lwxexpat$(WX3RDPARTYLIBPOSTFIX) -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32
+
 build\bin2c.exe: $(BIN2C_OBJECTS)
 	$(CC) -o $@ $(BIN2C_OBJECTS)  $(LDFLAGS)
 
@@ -339,8 +382,8 @@ cs.inc: build\bin2c.exe cs.mo
 sv.inc: build\bin2c.exe sv.mo
 	build/bin2c build/sv.mo build/sv.inc file
 
-build\myrulib.exe: $(MYRULIB_OBJECTS) build\libwxsqlite3_static.a build\libsqlite3_static.a build\libexpat_static.a build\myrulib_resource_rc.o
-	$(CXX) -o $@ $(MYRULIB_OBJECTS)  -L$(WX_DIR)$(WXLIBPATH) -Wl,--subsystem,windows -mwindows   $(LDFLAGS)  build\libwxsqlite3_static.a build\libsqlite3_static.a build\libexpat_static.a $(__WXLIB_AUI_NAME_p) $(__WXLIB_HTML_NAME_p) $(__WXLIB_CORE_NAME_p) $(__WXLIB_NET_NAME_p) $(__WXLIB_BASE_NAME_p) -lwxtiff$(WX3RDPARTYLIBPOSTFIX) -lwxjpeg$(WX3RDPARTYLIBPOSTFIX) -lwxpng$(WX3RDPARTYLIBPOSTFIX) -lwxzlib$(WX3RDPARTYLIBPOSTFIX) -lwxregex$(WXLIBPOSTFIX) -lwxexpat$(WX3RDPARTYLIBPOSTFIX) -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32
+build\myrulib.exe: $(MYRULIB_OBJECTS) build\libwxsqlite3_static.a build\libwxbzip2_static.a build\libsqlite3_static.a build\libexpat_static.a build\myrulib_resource_rc.o
+	$(CXX) -o $@ $(MYRULIB_OBJECTS)  -L$(WX_DIR)$(WXLIBPATH) -Wl,--subsystem,windows -mwindows   $(LDFLAGS)  build\libwxsqlite3_static.a build\libwxbzip2_static.a build\libsqlite3_static.a build\libexpat_static.a $(__WXLIB_AUI_NAME_p) $(__WXLIB_HTML_NAME_p) $(__WXLIB_CORE_NAME_p) $(__WXLIB_NET_NAME_p) $(__WXLIB_BASE_NAME_p) -lwxtiff$(WX3RDPARTYLIBPOSTFIX) -lwxjpeg$(WX3RDPARTYLIBPOSTFIX) -lwxpng$(WX3RDPARTYLIBPOSTFIX) -lwxzlib$(WX3RDPARTYLIBPOSTFIX) -lwxregex$(WXLIBPOSTFIX) -lwxexpat$(WX3RDPARTYLIBPOSTFIX) -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32
 	strip build/myrulib.exe
 
 build\expat_static_xmlparse.o: ./sources/Expat/xmlparse.c
@@ -363,6 +406,36 @@ build\sqlite3_static_sqlite3.o: ./sources/SQLite3/sqlite3.c
 
 build\wxsqlite3_static_wxsqlite3.o: ./sources/WxSQLite3/wxsqlite3.cpp
 	$(CXX) -c -o $@ $(WXSQLITE3_STATIC_CXXFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_blocksort.o: ./sources/WxBZipStream/bzip/blocksort.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_bzlib.o: ./sources/WxBZipStream/bzip/bzlib.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_compress.o: ./sources/WxBZipStream/bzip/compress.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_crctable.o: ./sources/WxBZipStream/bzip/crctable.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_decompress.o: ./sources/WxBZipStream/bzip/decompress.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_huffman.o: ./sources/WxBZipStream/bzip/huffman.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_randtable.o: ./sources/WxBZipStream/bzip/randtable.c
+	$(CC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(CPPDEPS) $<
+
+build\wxbzip2_static_bzipstream.o: ./sources/WxBZipStream/bzipstream.cpp
+	$(CXX) -c -o $@ $(WXBZIP2_STATIC_CXXFLAGS) $(CPPDEPS) $<
+
+build\zipscan_ZipScan.o: ./sources/ZipScaner/ZipScan.cpp
+	$(CXX) -c -o $@ $(ZIPSCAN_CXXFLAGS) $(CPPDEPS) $<
+
+build\zipscan_md5.o: ./sources/MyRuLib/md5.c
+	$(CC) -c -o $@ $(ZIPSCAN_CFLAGS) $(CPPDEPS) $<
 
 build\bin2c_bin2c.o: ./sources/Bin2c/bin2c.c
 	$(CC) -c -o $@ $(BIN2C_CFLAGS) $(CPPDEPS) $<
@@ -445,6 +518,9 @@ build\myrulib_FbDateTime.o: ./sources/MyRuLib/FbDateTime.cpp $(MYRULIB_ODEP)
 build\myrulib_FbDateTree.o: ./sources/MyRuLib/FbDateTree.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
+build\myrulib_FbDeleteThread.o: ./sources/MyRuLib/FbDeleteThread.cpp $(MYRULIB_ODEP)
+	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
+
 build\myrulib_FbDownList.o: ./sources/MyRuLib/FbDownList.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
@@ -506,6 +582,9 @@ build\myrulib_FbFrameSeqn.o: ./sources/MyRuLib/FbFrameSeqn.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
 build\myrulib_FbGenres.o: ./sources/MyRuLib/FbGenres.cpp $(MYRULIB_ODEP)
+	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
+
+build\myrulib_FbGenreThread.o: ./sources/MyRuLib/FbGenreThread.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
 build\myrulib_FbGenrTree.o: ./sources/MyRuLib/FbGenrTree.cpp $(MYRULIB_ODEP)
@@ -592,6 +671,9 @@ build\myrulib_FbTreeView.o: ./sources/MyRuLib/FbTreeView.cpp $(MYRULIB_ODEP)
 build\myrulib_FbUpdateThread.o: ./sources/MyRuLib/FbUpdateThread.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
+build\myrulib_FbURL.o: ./sources/MyRuLib/FbURL.cpp $(MYRULIB_ODEP)
+	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
+
 build\myrulib_FbViewContext.o: ./sources/MyRuLib/FbViewContext.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
@@ -638,7 +720,7 @@ build\myrulib_base64.o: ./sources/MyRuLib/wx/base64.cpp $(MYRULIB_ODEP)
 	$(CXX) -c -o $@ $(MYRULIB_CXXFLAGS) $(CPPDEPS) $<
 
 build\myrulib_resource_rc.o: ./sources/MyRuLib/res/resource.rc $(MYRULIB_ODEP)
-	windres --use-temp-file -i$< -o$@  --define HAVE_W32API_H $(____WX_SHARED_2_p_1) $(__WXUNICODE_DEFINE_p_3) $(__WXDEBUG_DEFINE_p_3) --define __WXMSW__ --include-dir $(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) --include-dir $(WX_DIR)/include --include-dir build --include-dir build --define NDEBUG --define XML_STATIC --define FB_INCLUDE_LOCALE --include-dir SQLite3 --include-dir Expat --include-dir ./sources/MyRuLib --include-dir ./sources/WxSQLite3
+	windres --use-temp-file -i$< -o$@  --define HAVE_W32API_H $(____WX_SHARED_10_p_1) $(__WXUNICODE_DEFINE_p_6) $(__WXDEBUG_DEFINE_p_6) --define __WXMSW__ --include-dir $(WX_DIR)$(WXLIBPATH)\msw$(WXLIBPOSTFIX) --include-dir $(WX_DIR)/include --include-dir build --include-dir build --define NDEBUG --define XML_STATIC --define FB_INCLUDE_LOCALE --include-dir SQLite3 --include-dir Expat --include-dir ./sources/MyRuLib --include-dir ./sources/WxSQLite3 --include-dir ./sources/WxBZipStream
 
 .PHONY: all clean
 

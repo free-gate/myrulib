@@ -10,7 +10,6 @@
 #include "FbGenres.h"
 #include "ZipReader.h"
 #include "FbDataOpenDlg.h"
-#include "FbUpdateThread.h"
 #include "FbCollection.h"
 
 IMPLEMENT_APP(MyRuLibApp)
@@ -74,9 +73,8 @@ bool MyRuLibApp::OnInit()
 
 	wxFileName filename = GetDatabaseFile();
 	if (!filename.IsOk()) {
-		wxString datafile;
-		bool ok = FbDataOpenDlg::Execute(NULL, datafile);
-		if (!ok) return false;
+		wxString datafile = FbDataOpenDlg::Execute(NULL);
+		if (!datafile) return false;
 		filename = datafile;
 	}
 
@@ -199,13 +197,14 @@ void MyRuLibApp::SetLibFile(const wxString & filename)
 
 void MyRuLibApp::UpdateLibPath()
 {
-	wxFileName dirname = FbParams::GetStr(DB_LIBRARY_DIR);
+	wxFileName dirname = GetLibFile();
+	dirname.SetPath(FbParams::GetStr(DB_LIBRARY_DIR));
 	if (dirname.IsRelative()) {
 		wxFileName filename = GetLibFile();
 		dirname.MakeAbsolute(filename.GetPath());
 	}
 	wxCriticalSectionLocker locker(sm_section);
-	m_LibPath = dirname.GetFullPath();
+	m_LibPath = dirname.GetPath();
 }
 
 void MyRuLibApp::OnImageEvent(FbImageEvent & event)
