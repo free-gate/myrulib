@@ -2,6 +2,7 @@
 #include <wx/app.h>
 #include <wx/fs_inet.h>
 #include <wx/fs_mem.h>
+#include "FbConst.h"
 #include "FbDataPath.h"
 #include "FbMainFrame.h"
 #include "FbLogStream.h"
@@ -9,7 +10,7 @@
 #include "FbParams.h"
 #include "FbGenres.h"
 #include "ZipReader.h"
-#include "FbDataOpenDlg.h"
+#include "dialogs/FbDataOpenDlg.h"
 #include "FbCollection.h"
 
 IMPLEMENT_APP(MyRuLibApp)
@@ -21,7 +22,7 @@ END_EVENT_TABLE()
 wxCriticalSection MyRuLibApp::sm_section;
 
 MyRuLibApp::MyRuLibApp()
-    :m_locale(NULL), m_collection(NULL), m_downloader(NULL)
+	:m_locale(NULL), m_collection(NULL), m_downloader(NULL)
 {
 }
 
@@ -48,25 +49,34 @@ void MyRuLibApp::StopDownload()
 
 void MyRuLibApp::Localize()
 {
-	wxLanguage language = (wxLanguage) FbParams::GetInt(FB_LANG_LOCALE);
+	wxLanguage language = (wxLanguage) (int) FbParams(FB_LANG_LOCALE);
 	if (m_locale && m_locale->GetLanguage() == language) return;
 
 	wxDELETE(m_locale);
-    m_locale = new FbLocale;
-    m_locale->Init(language);
+	m_locale = new FbLocale;
+	m_locale->Init(language);
 
-    FbMainFrame * frame = wxDynamicCast(wxGetApp().GetTopWindow(), FbMainFrame);
-    if (frame) frame->Localize(language);
+	FbMainFrame * frame = wxDynamicCast(wxGetApp().GetTopWindow(), FbMainFrame);
+	if (frame) frame->Localize(language);
 
 	FbGenres::Init();
 }
 
 bool MyRuLibApp::OnInit()
 {
-	FbCollection::LoadConfig();
-    Localize();
+	wxRegisterId(ID_MENU_HIGHEST);
+	
+	#ifdef FB_SYSLOG_LOGGING
+	wxLog::SetActiveTarget(new FbLogSyslog);
+	#endif // FB_SYSLOG_LOGGING
 
-	OpenLog();
+	FbCollection::LoadConfig();
+	Localize();
+
+	#ifndef FB_SYSLOG_LOGGING
+	wxLog::SetActiveTarget(new FbLogStream);
+	#endif // FB_SYSLOG_LOGGING
+
 	#ifdef __WXDEBUG__
 	wxLog::SetVerbose(true);
 	#endif // __WXDEBUG__
@@ -137,17 +147,9 @@ wxFileName MyRuLibApp::GetDatabaseFile()
 int MyRuLibApp::OnExit()
 {
 	StopDownload();
-    wxDELETE(m_locale);
+	wxDELETE(m_locale);
 	wxDELETE(m_collection);
 	return wxApp::OnExit();
-}
-
-void MyRuLibApp::OpenLog()
-{
-	wxFileName logname = FbDatabase::GetConfigName();
-	logname.SetExt(wxT("log"));
-	wxLog * logger = new FbLogStream(logname.GetFullPath());
-	wxLog::SetActiveTarget(logger);
 }
 
 bool MyRuLibApp::OpenDatabase(const wxString &filename)
@@ -163,7 +165,7 @@ bool MyRuLibApp::OpenDatabase(const wxString &filename)
 		delete collection;
 	}
 	if (ok) {
-		FbParams::AddRecent(filename, FbParams::GetStr(DB_LIBRARY_TITLE));
+		FbParamItem::AddRecent(filename, FbParams(DB_LIBRARY_TITLE));
 		UpdateLibPath();
 	}
 	return ok;
@@ -198,7 +200,7 @@ void MyRuLibApp::SetLibFile(const wxString & filename)
 void MyRuLibApp::UpdateLibPath()
 {
 	wxFileName dirname = GetLibFile();
-	dirname.SetPath(FbParams::GetStr(DB_LIBRARY_DIR));
+	dirname.SetPath(FbParams(DB_LIBRARY_DIR));
 	if (dirname.IsRelative()) {
 		wxFileName filename = GetLibFile();
 		dirname.MakeAbsolute(filename.GetPath());

@@ -1,13 +1,14 @@
 #include "FbMasterTypes.h"
-#include "FbBookList.h"
-#include "FbBookTree.h"
+#include "models/FbBookList.h"
+#include "models/FbBookTree.h"
+#include "models/FbAuthList.h"
+#include "models/FbClssTree.h"
+#include "models/FbDateTree.h"
+#include "models/FbDownList.h"
+#include "models/FbFldrTree.h"
+#include "models/FbGenrTree.h"
+#include "models/FbSeqnList.h"
 #include "FbBookPanel.h"
-#include "FbAuthList.h"
-#include "FbDateTree.h"
-#include "FbDownList.h"
-#include "FbGenrTree.h"
-#include "FbFldrTree.h"
-#include "FbSeqnList.h"
 #include "FbGenres.h"
 #include "FbConst.h"
 
@@ -15,32 +16,28 @@
 //  FbMasterDateInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbDateDayData::GetInfo() const
+FbMasterInfo FbDateDayData::GetInfo(FbModel & model) const
 {
-	return FbMasterDateInfo(this->GetCode(), m_lib_min, m_lib_max, m_usr_min, m_usr_max);
+	return FbMasterDateInfo(this->GetCode());
 }
 
 IMPLEMENT_CLASS(FbMasterDateInfo, FbMasterInfoBase)
 
 wxString FbMasterDateInfo::GetWhere(wxSQLite3Database &database) const
 {
-	return wxT("((books.id BETWEEN ? AND ?)OR(books.id BETWEEN ? AND ?))AND(books.created=?)");
+	return wxT("books.created=?");
 }
 
 void FbMasterDateInfo::Bind(wxSQLite3Statement &stmt) const
 {
-	stmt.Bind(1, m_lib_min);
-	stmt.Bind(2, m_lib_max);
-	stmt.Bind(3, m_usr_min);
-	stmt.Bind(4, m_usr_max);
-	stmt.Bind(5, m_id);
+	stmt.Bind(1, m_id);
 }
 
 //-----------------------------------------------------------------------------
 //  FbMasterAuthInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbAuthListData::GetInfo() const
+FbMasterInfo FbAuthListData::GetInfo(FbModel & model) const
 {
 	return FbMasterAuthInfo(this->GetCode());
 }
@@ -103,7 +100,7 @@ void FbMasterAuthInfo::MakeTree(wxEvtHandler *owner, FbThread * thread, wxSQLite
 //  FbMasterSeqnInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbSeqnListData::GetInfo() const
+FbMasterInfo FbSeqnListData::GetInfo(FbModel & model) const
 {
 	return FbMasterSeqnInfo(this->GetCode());
 }
@@ -147,7 +144,7 @@ void FbMasterSeqnInfo::Bind(wxSQLite3Statement &stmt) const
 //  FbMasterGenrInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbGenrChildData::GetInfo() const
+FbMasterInfo FbGenrChildData::GetInfo(FbModel & model) const
 {
 	return FbMasterGenrInfo(this->GetCode());
 }
@@ -169,7 +166,7 @@ void FbMasterGenrInfo::Bind(wxSQLite3Statement &stmt) const
 //  FbMasterDownInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbDownListData::GetInfo() const
+FbMasterInfo FbDownListData::GetInfo(FbModel & model) const
 {
 	return FbMasterDownInfo(this->GetCode());
 }
@@ -195,7 +192,7 @@ void FbMasterDownInfo::Bind(wxSQLite3Statement &stmt) const
 //  FbMasterCommInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbCommChildData::GetInfo() const
+FbMasterInfo FbCommChildData::GetInfo(FbModel & model) const
 {
 	return FbMasterCommInfo();
 }
@@ -215,7 +212,7 @@ void FbMasterCommInfo::Bind(wxSQLite3Statement &stmt) const
 //  FbMasterRateInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbRateChildData::GetInfo() const
+FbMasterInfo FbRateChildData::GetInfo(FbModel & model) const
 {
 	return FbMasterRateInfo(this->GetCode());
 }
@@ -236,7 +233,7 @@ void FbMasterRateInfo::Bind(wxSQLite3Statement &stmt) const
 //  FbMasterFldrInfo
 //-----------------------------------------------------------------------------
 
-FbMasterInfo FbFolderChildData::GetInfo() const
+FbMasterInfo FbFolderChildData::GetInfo(FbModel & model) const
 {
 	return FbMasterFldrInfo(this->GetCode());
 }
@@ -280,9 +277,21 @@ void FbMasterFindInfo::Bind(wxSQLite3Statement &stmt) const
 
 void * FbMasterFindInfo::Execute(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter)
 {
-	if (thread->IsClosed()) return NULL;
+	if (!DoFind(owner, thread, filter)) {
+		FbCommandEvent event(fbEVT_BOOK_ACTION, ID_FOUND_NOTHING, m_title);
+		wxWindow * frame = ((wxWindow*)owner)->GetParent();
+		event.SetEventObject(frame);
+		event.Post();
+	}
+	return NULL;
+}
+
+bool FbMasterFindInfo::DoFind(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter)
+{
+	if (thread->IsClosed()) return false;
 
 	FbCommonDatabase database;
+	database.JoinThread(thread);
 	FbGenreFunction func_genre;
 	FbAggregateFunction func_aggregate;
 	FbSearchFunction func_title(m_title);
@@ -290,7 +299,7 @@ void * FbMasterFindInfo::Execute(wxEvtHandler * owner, FbThread * thread, const 
 	database.CreateFunction(wxT("AGGREGATE"), 1, func_aggregate);
 	database.CreateFunction(wxT("GENRE"), 1, func_genre);
 	database.AttachConfig();
-	if (thread->IsClosed()) return NULL;
+	if (thread->IsClosed()) return false;
 
 	m_auth = !m_author.IsEmpty();
 	m_full = database.TableExists(wxT("fts_book"));
@@ -312,12 +321,36 @@ void * FbMasterFindInfo::Execute(wxEvtHandler * owner, FbThread * thread, const 
 	wxSQLite3Statement stmt = database.PrepareStatement(sql);
 	if (m_full) Bind(stmt);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-	if (thread->IsClosed()) return NULL;
+	if (!result.IsOk()) return false;
+
+	bool ok = !result.Eof();
 
 	switch (GetMode()) {
 		case FB2_MODE_LIST: MakeList(owner, thread, result); break;
 		case FB2_MODE_TREE: MakeTree(owner, thread, result); break;
 	}
 
-	return NULL;
+	return ok;
+}
+
+//-----------------------------------------------------------------------------
+//  FbMasterClssInfo
+//-----------------------------------------------------------------------------
+
+FbMasterInfo FbClssModelData::GetInfo(FbModel & model) const
+{
+	FbClssTreeModel & owner = (FbClssTreeModel&) model;
+	return FbMasterClssInfo(owner.GetBookSQL(), this->GetCode());
+}
+
+IMPLEMENT_CLASS(FbMasterClssInfo, FbMasterInfoBase)
+
+wxString FbMasterClssInfo::GetWhere(wxSQLite3Database &database) const
+{
+	return m_sql;
+}
+
+void FbMasterClssInfo::Bind(wxSQLite3Statement &stmt) const
+{
+	stmt.Bind(1, m_id);
 }

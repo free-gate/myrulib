@@ -1,7 +1,7 @@
 #include "FbTreeModel.h"
 #include "FbTreeView.h"
-#include <wx/wxsqlite3.h>
 #include <wx/listbase.h>
+#include <wx/renderer.h>
 
 #include "FbLogoBitmap.h"
 
@@ -35,26 +35,6 @@ FbModelItem & FbModelItem::operator =(const FbModelItem &item)
 //-----------------------------------------------------------------------------
 
 IMPLEMENT_CLASS(FbModelData, wxObject)
-
-static void Assign(wxSQLite3ResultSet &res, const wxString& column, int &value)
-{
-    for (int i=0; i<res.GetColumnCount(); i++) {
-        if (res.GetColumnName(i).CmpNoCase(column)==0) {
-            value = res.GetInt(i);
-            return;
-        }
-    }
-}
-
-static void Assign(wxSQLite3ResultSet &res, const wxString& column, wxString &value)
-{
-    for (int i=0; i<res.GetColumnCount(); i++) {
-        if (res.GetColumnName(i).CmpNoCase(column)==0) {
-            value = res.GetString(i);
-            return;
-        }
-    }
-}
 
 wxString FbModelData::Format(int number)
 {
@@ -174,16 +154,18 @@ static wxColour MiddleColour(wxColour text, wxColour back)
 }
 
 FbModel::PaintContext::PaintContext(FbModel &model, wxDC &dc):
-    // Set brush colour
-    m_normalBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX), wxSOLID),
-    m_hilightBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT), wxSOLID),
-    m_unfocusBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW), wxSOLID),
-    // Set font colour
-    m_normalColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT)),
+	m_window(model.GetOwner()), 
+	// Set brush colour
+	m_normalBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX), wxSOLID),
+	m_hilightBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT), wxSOLID),
+	m_unfocusBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW), wxSOLID),
+	// Set font colour
+	m_normalColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT)),
 	m_hilightColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)),
-    m_graytextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT)),
-    // Set pen for borders
+	m_graytextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT)),
+	// Set pen for borders
 	m_borderPen(wxSystemSettings::GetColour(wxSYS_COLOUR_3DLIGHT), 1, wxSOLID),
+	m_directory(model.GetOwner()->HasFlag(fbTR_DIRECTORY)),
 	// Current item flags
 	m_current(false),
 	m_selected(false),
@@ -214,7 +196,7 @@ int CompareSizeT(size_t x, size_t y)
 IMPLEMENT_CLASS(FbModel, wxObject)
 
 FbModel::FbModel() :
-    m_owner(NULL), m_position(0), m_shift(0), m_ctrls(CompareSizeT)
+	m_owner(NULL), m_position(0), m_shift(0), m_ctrls(CompareSizeT)
 {
 }
 
@@ -229,16 +211,31 @@ const wxBitmap & FbModel::GetBitmap(int state)
 	return bitmaps[state % 3];
 }
 
+void FbModel::DrawButton(const FbModelItem &data, wxWindow * window, wxDC &dc, wxRect &rect)
+{
+	int h = rect.height; if (h % 2 == 0) h--;
+	wxRect r(rect.x, rect.y, h, h);
+	rect.x += h + 2;
+	if (!data.HasChildren()) return;
+	r.Deflate(1);
+    int flag = data.IsExpanded() ? wxCONTROL_EXPANDED: 0;
+	wxRendererNative::GetDefault().DrawTreeItemButton(window, dc, r, flag);
+}
+
 void FbModel::DrawItem(FbModelItem &data, wxDC &dc, PaintContext &ctx, const wxRect &rect, const FbColumnArray &cols)
 {
 	if (ctx.m_selected) {
 		dc.SetBrush(m_focused ? ctx.m_hilightBrush : ctx.m_unfocusBrush);
-        dc.SetTextForeground(ctx.m_hilightColour);
+		dc.SetTextForeground(ctx.m_hilightColour);
 	} else {
 		dc.SetBrush (ctx.m_normalBrush);
 		dc.SetTextForeground(data.IsGray() ? ctx.m_graytextColour : ctx.m_normalColour);
 	}
-	dc.SetPen(*wxTRANSPARENT_PEN);
+	if (ctx.m_current) {
+		dc.SetPen(ctx.m_borderPen);
+	} else {
+		dc.SetPen(*wxTRANSPARENT_PEN);
+	}
 	dc.SetFont(data.IsBold() ? ctx.m_boldFont : ctx.m_normalFont);
 	dc.SetClippingRegion(rect);
 	dc.DrawRectangle(rect);
@@ -257,6 +254,7 @@ void FbModel::DrawItem(FbModelItem &data, wxDC &dc, PaintContext &ctx, const wxR
 		rect.Deflate(3, 2);
 		wxString text = data[0];
 		dc.SetClippingRegion(rect);
+		if (ctx.m_directory) DrawButton(data, ctx.m_window, dc, rect);
 		dc.DrawLabel(text, bitmap, rect, wxALIGN_CENTRE_VERTICAL);
 		dc.DestroyClippingRegion();
 	} else {
@@ -274,6 +272,7 @@ void FbModel::DrawItem(FbModelItem &data, wxDC &dc, PaintContext &ctx, const wxR
 			rect.Deflate(3, 2);
 			wxString text = data[col.GetColumn()];
 			dc.SetClippingRegion(rect);
+			if (ctx.m_directory && i == 0) DrawButton(data, ctx.m_window, dc, rect);
 			dc.DrawLabel(text, i ? wxNullBitmap : bitmap, rect, col.GetAlignment() | wxALIGN_CENTRE_VERTICAL);
 			dc.DestroyClippingRegion();
 			x += w;
@@ -354,12 +353,13 @@ void FbListModel::DoDrawTree(wxDC &dc, PaintContext &ctx, const wxRect &rect, co
 	{
 		row++;
 		wxRect rect(0, y, ww, h);
-        FbModelItem item = GetData(row);
+		FbModelItem item = GetData(row);
 		if (ctx.m_multuply) {
 			ctx.m_current = m_position == row;
 			ctx.m_selected = IsSelected(row);
 		} else {
-	        ctx.m_selected = m_position == row;
+			ctx.m_current = false;
+			ctx.m_selected = m_position == row;
 		}
 		if (item) DrawItem(item, dc, ctx, rect, cols);
 	}
@@ -371,11 +371,11 @@ int FbListModel::GoFirstRow()
 
 	if (count) {
 		m_position = 1;
-	    return m_position;
-    } else {
-    	m_position = 0;
-        return wxNOT_FOUND;
-    }
+		return m_position;
+	} else {
+		m_position = 0;
+		return wxNOT_FOUND;
+	}
 }
 
 int FbListModel::GoLastRow()
@@ -384,16 +384,16 @@ int FbListModel::GoLastRow()
 
 	if (count) {
 		m_position = count;
-	    return m_position;
-    } else {
+		return m_position;
+	} else {
 		m_position = 0;
-        return wxNOT_FOUND;
-    }
+		return wxNOT_FOUND;
+	}
 }
 
 int FbListModel::GoNextRow(size_t delta)
 {
- 	size_t count = GetRowCount();
+	size_t count = GetRowCount();
 	if (count) {
 		m_position = m_position + delta <= count ? m_position + delta : count;
 		return m_position;
@@ -403,7 +403,7 @@ int FbListModel::GoNextRow(size_t delta)
 
 int FbListModel::GoPriorRow(size_t delta)
 {
- 	size_t count = GetRowCount();
+	size_t count = GetRowCount();
 	if (count) {
 		m_position = m_position <= delta ? 1 : m_position - delta;
 		return m_position;
@@ -413,7 +413,7 @@ int FbListModel::GoPriorRow(size_t delta)
 
 size_t FbListModel::FindRow(size_t row, bool select)
 {
- 	size_t count = GetRowCount();
+	size_t count = GetRowCount();
 	if (count && row && row <= count ) {
 		if (select) m_position = row;
 		return row;
@@ -520,8 +520,8 @@ void FbTreeModel::DrawTreeItem(FbModelItem &data, wxDC &dc, PaintContext &ctx, c
 	} else {
 		row++;
 		if (y >= rect.GetTop()) {
+			ctx.m_current = m_position == row;
 			if (ctx.m_multuply) {
-				ctx.m_current = m_position == row;
 				ctx.m_selected = IsSelected(row);
 			} else {
 				ctx.m_selected = m_position == row;

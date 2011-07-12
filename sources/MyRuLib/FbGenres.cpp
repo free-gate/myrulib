@@ -1,5 +1,5 @@
 #include "FbGenres.h"
-#include "FbGenrTree.h"
+#include "models/FbGenrTree.h"
 
 //-----------------------------------------------------------------------------
 //  FbGenreGroup
@@ -269,9 +269,9 @@ FbModel * FbGenres::CreateModel()
 void FbGenres::GetNames(FbStringHash & names)
 {
 	wxCriticalSectionLocker locker(sm_section);
-    for (FbStringHash::iterator it = sm_names.begin(); it != sm_names.end(); it++ ) {
+	for (FbStringHash::iterator it = sm_names.begin(); it != sm_names.end(); it++ ) {
 		names[it->first] = it->second;
-    }
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -15,7 +15,7 @@ void * FbAlphabetThread::Entry()
 	int position = 0;
 	wxString engA = (wxChar) 0x0041;
 	wxString rusA = (wxChar) 0x0410;
-	wxString last = FbParams::GetStr(FB_LAST_LETTER).Left(1);
+	wxString last = FbParams(FB_LAST_LETTER).Str().Left(1);
 
 	int pos = 0;
 	int level = 0;
@@ -24,6 +24,7 @@ void * FbAlphabetThread::Entry()
 	wxArrayString items;
 	wxString sql = wxT("SELECT distinct letter, count(id) FROM authors GROUP BY letter ORDER BY letter");
 	FbCommonDatabase database;
+	database.JoinThread(this);
 	wxSQLite3ResultSet set = database.ExecuteQuery(sql);
 	while (set.NextRow()) {
 		pos++;
@@ -64,7 +65,7 @@ void * FbAlphabetThread::Entry()
 //-----------------------------------------------------------------------------
 
 BEGIN_EVENT_TABLE(FbAlphabetCombo, wxOwnerDrawnComboBox)
-    EVT_FB_LETTERS(wxID_ANY, FbAlphabetCombo::OnLetters)
+	EVT_FB_LETTERS(wxID_ANY, FbAlphabetCombo::OnLetters)
 END_EVENT_TABLE()
 
 void FbAlphabetCombo::OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const
@@ -118,13 +119,13 @@ wxCoord FbAlphabetCombo::OnMeasureItem( size_t item ) const
 
 bool FbAlphabetCombo::SetFont(const wxFont& font)
 {
-    bool ok = wxOwnerDrawnComboBox::SetFont(font);
-    if (ok) {
+	bool ok = wxOwnerDrawnComboBox::SetFont(font);
+	if (ok) {
 		wxClientDC dc(this);
 		dc.SetFont(font);
 		m_rowHeight = dc.GetCharHeight() + 4;
-    }
-    return ok;
+	}
+	return ok;
 }
 
 void FbAlphabetCombo::OnLetters(FbLettersEvent &event)

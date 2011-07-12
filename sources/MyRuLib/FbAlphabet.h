@@ -27,7 +27,7 @@ class FbAlphabetCombo : public wxOwnerDrawnComboBox
 			: m_rowHeight(0), m_thread(this), m_divider(-1) { m_thread.Execute(); }
 
 		virtual ~FbAlphabetCombo()
-			{ m_thread.Wait(); }
+			{ m_thread.Close(); m_thread.Wait(); }
 
 		virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const;
 
@@ -36,7 +36,7 @@ class FbAlphabetCombo : public wxOwnerDrawnComboBox
 		virtual wxCoord OnMeasureItemWidth( size_t WXUNUSED(item) ) const
 			{ return -1; }
 
-        virtual bool SetFont(const wxFont& font);
+		virtual bool SetFont(const wxFont& font);
 
 		void SetText(const wxString &text = wxEmptyString)
 			{ m_text = text; Refresh(); }

@@ -67,6 +67,22 @@ wxAlignment FbColumns::GetAlign(int field)
 	}
 }
 
+int FbColumns::GetFixed(int field)
+{
+	switch (field) {
+		case BF_NUMB: return  3;
+		case BF_CODE: return  7;
+		case BF_RATE: return  9;
+		case BF_LANG: return  2;
+		case BF_TYPE: return  4;
+		case BF_DATE: return 10;
+		case BF_SIZE: return 10;
+		case BF_BITE: return 14;
+		case BF_DOWN: return 10;
+		default: return 0;
+	}
+}
+
 wxChar FbColumns::GetChar(int field)
 {
 	if (BF_AUTH <= field && field < BF_LAST)
@@ -108,10 +124,7 @@ void FbColumns::Create(const wxArrayInt & columns, FbListMode mode, FbTreeViewCt
 	for (size_t i = 0; i < count; i++) {
 		int index = columns[i];
 		if (BF_AUTH <= index && index < BF_LAST) {
-			int size = GetSize(index);
-			wxString name = GetName(index);
-			wxAlignment align = GetAlign(index);
-			ctrl.AddColumn(index, name, size, align);
+			ctrl.AddColumn(index, GetName(index), GetSize(index), GetAlign(index), GetFixed(index));
 		}
 	}
 	ctrl.Refresh();

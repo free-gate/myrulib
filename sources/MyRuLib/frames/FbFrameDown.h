@@ -6,17 +6,15 @@
 class FbFrameDown : public FbFrameBase
 {
 	public:
-		FbFrameDown(wxAuiMDIParentFrame * parent);
+		FbFrameDown(wxAuiNotebook * parent, bool select = false);
 		wxString GetTitle() const { return _("Downloads"); };
 		void UpdateFolder(const int iFolder, const FbFolderType type);
-	protected:
-		virtual void CreateControls();
 	private:
 		void CreateColumns();
 		void CreateBookInfo();
 		void FillFolders(const int iCurrent = 0);
 		void DeleteItems(const wxTreeItemId &root, wxArrayInt &items);
-		wxToolBar m_ToolBar;
+		FbToolBar m_ToolBar;
 	private:
 		void OnFavoritesDel(wxCommandEvent & event);
 		void OnFolderAppend(wxCommandEvent & event);
@@ -27,8 +25,8 @@ class FbFrameDown : public FbFrameBase
 		void OnFolderSelected(wxTreeEvent & event);
 		void OnMoveUp(wxCommandEvent& event);
 		void OnMoveDown(wxCommandEvent& event);
-		DECLARE_EVENT_TABLE()
 		DECLARE_CLASS(FbFrameDown)
+		DECLARE_EVENT_TABLE()
 };
 
 #endif // __FBFRAMEDOWN_H__

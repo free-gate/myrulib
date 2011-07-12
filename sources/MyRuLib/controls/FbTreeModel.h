@@ -22,7 +22,7 @@ class FbModelData: public wxObject
 			{}
 		virtual wxString GetValue(FbModel & model, size_t col = 0) const
 			{ return wxEmptyString; }
-		virtual void SetValue(FbModel & model, size_t col, const wxString &name)
+		virtual void SetValue(FbModel & model, size_t col, const wxString &value)
 			{}
 		virtual bool FullRow(FbModel & model) const
 			{ return false; }
@@ -46,11 +46,18 @@ class FbModelData: public wxObject
 			{ return NULL; }
 		virtual int GetType() const
 			{ return 0; }
+		virtual bool HasChildren(FbModel & model) const
+			{ return 0; }
+		virtual bool IsExpanded(FbModel & model) const
+			{ return false; }
+		virtual bool Expand(FbModel & model, bool expand) 
+			{ return false; }
 	public:
-		// Use this functions only for MyRuLib application
-		virtual FbMasterInfo GetInfo() const;
-		virtual int GetBook() const { return 0; }
+#ifdef _MYRULIB
+		virtual FbMasterInfo GetInfo(FbModel & model) const;
 		virtual FbViewItem GetView() const { return FbViewItem::None; }
+#endif // _MYRULIB
+		virtual int GetBook() const { return 0; }
 	public:
 		int GetState(FbModel & model) const;
 		void SetState(FbModel & model, bool state);
@@ -104,14 +111,20 @@ class FbModelItem: public wxObject
 			{ return m_data ? FbModelItem(*m_model, m_data->Items(*m_model, index)) : FbModelItem(); }
 		FbModelItem GetParent()
 			{ return m_data ? FbModelItem(*m_model, m_data->GetParent(*m_model)) : FbModelItem(); }
-		void SetValue(size_t col, const wxString &name)
-			{ if (m_data) m_data->SetValue(*m_model, col, name); }
+		void SetValue(size_t col, const wxString &value)
+			{ if (m_data) m_data->SetValue(*m_model, col, value); }
 		int GetState() const
 			{ return m_data ? m_data->GetState(*m_model) : 0; }
 		void SetState(bool state)
 			{ if (m_data) m_data->SetState(*m_model, state); }
 		int GetBook() const 
 			{ return m_data ? m_data->GetBook() : 0; }
+		bool HasChildren() const
+			{ return m_data ? m_data->HasChildren(*m_model) : false; }
+		bool IsExpanded() const
+			{ return m_data ? m_data->IsExpanded(*m_model) : false; }
+		bool Expand(bool expand = true) 
+			{ return m_data ? m_data->Expand(*m_model, expand) : false; }
 	private:
 		FbModel * m_model;
 		FbModelData * m_data;
@@ -163,17 +176,19 @@ class FbChildData: public FbModelData
 class FbColumnInfo: public wxObject
 {
 	public:
-		FbColumnInfo(size_t column, int width, int alignment)
-			: m_column(column), m_width(width), m_alignment(alignment) {}
+		FbColumnInfo(size_t column, int width, int alignment, int fixed = 0)
+			: m_column(column), m_width(width), m_alignment(alignment), m_fixed(fixed) {}
 		FbColumnInfo(const FbColumnInfo &info)
-			: m_column(info.m_column), m_width(info.m_width), m_alignment(info.m_alignment) {}
+			: m_column(info.m_column), m_width(info.m_width), m_alignment(info.m_alignment), m_fixed(info.m_fixed) {}
 		size_t GetColumn() const { return m_column; }
 		int GetWidth() const { return m_width; }
 		int GetAlignment() const { return m_alignment; }
+		int GetFixed() const { return m_fixed; }
 	private:
 		size_t m_column;
 		int m_width;
 		int m_alignment;
+		int m_fixed;
 		DECLARE_CLASS(FbColumnInfo);
 };
 
@@ -191,6 +206,7 @@ class FbModel: public wxObject
 		class PaintContext{
 			public:
 				PaintContext(FbModel &mode, wxDC &dc);
+				wxWindow * m_window;
 				wxBrush m_normalBrush;
 				wxBrush m_hilightBrush;
 				wxBrush m_unfocusBrush;
@@ -200,6 +216,7 @@ class FbModel: public wxObject
 				wxFont m_normalFont;
 				wxFont m_boldFont;
 				wxPen m_borderPen;
+				bool m_directory;
 				bool m_current;
 				bool m_selected;
 				bool m_multuply;
@@ -214,6 +231,7 @@ class FbModel: public wxObject
 		virtual ~FbModel() {}
 
 		void DrawTree(wxDC &dc, const wxRect &rect, const FbColumnArray &cols, size_t pos, int h);
+
 		void SetFocused(bool focused)
 			{ m_focused = focused; }
 		FbModelItem GetData(size_t row)
@@ -261,6 +279,7 @@ class FbModel: public wxObject
 	protected:
 		const wxBitmap & GetBitmap(int state);
 		void DrawItem(FbModelItem &data, wxDC &dc, PaintContext &ctx, const wxRect &rect, const FbColumnArray &cols);
+		void DrawButton(const FbModelItem &data, wxWindow * window, wxDC &dc, wxRect &rect);
 		virtual void DoDrawTree(wxDC &dc, PaintContext &ctx, const wxRect &rect, const FbColumnArray &cols, size_t pos, int h) = 0;
 		virtual FbModelItem DoGetData(size_t row, int &level) = 0;
 		bool IsSelected(size_t row);

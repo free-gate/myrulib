@@ -5,17 +5,11 @@
 #include "FbBookEvent.h"
 #include "FbMasterInfo.h"
 #include "FbMasterTypes.h"
-#include "FbBookList.h"
-#include "FbBookTree.h"
+#include "models/FbBookList.h"
+#include "models/FbBookTree.h"
 
-FbMenuMap FbBookMenu::sm_key;
-
-FbMenuMap FbBookMenu::sm_type;
-
-int FbBookMenu::sm_next;
-
-FbBookMenu::FbBookMenu(wxWindow * frame, FbModelItem item, int book)
-	: m_frame(frame), m_auth(0), m_seqn(0), m_book(book)
+FbBookMenu::FbBookMenu(FbModelItem item, int book)
+	: m_auth(0), m_seqn(0), m_book(book)
 {
 	if (book) return;
 
@@ -36,30 +30,8 @@ FbBookMenu::FbBookMenu(wxWindow * frame, FbModelItem item, int book)
 	}
 }
 
-int FbBookMenu::SetKey(int key, FbMenuType type)
-{
-	sm_next++;
-	sm_key[sm_next] = key;
-	sm_type[sm_next] = type;
-	return sm_next;
-}
-
-bool FbBookMenu::GetKey(int id, int &key, FbMenuType &type)
-{
-	bool ok = sm_key.count(id) && sm_type.count(id);
-	if (ok) {
-		key = sm_key[id];
-		type = (FbMenuType) sm_type[id];
-	}
-	return ok;
-}
-
 void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 {
-	sm_key.empty();
-	sm_type.empty();
-	sm_next = ID_FAVORITES_ADD;
-
 	Append(ID_OPEN_BOOK, _("Open book") + (wxString)wxT("\tEnter"));
 
 	FbMasterDownInfo * down = wxDynamicCast(&master, FbMasterDownInfo);
@@ -74,13 +46,13 @@ void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 	if ( m_book > 0 ) Append(ID_BOOK_PAGE, _("Online books page"));
 	AppendSeparator();
 
-	Append(wxID_COPY, _("Copy") + (wxString)wxT("\tCtrl+C"));
+	AppendImg(wxID_COPY, _("Copy") + (wxString)wxT("\tCtrl+C"), wxART_COPY);
 	Append(wxID_SELECTALL, _("Select all") + (wxString)wxT("\tCtrl+A"));
 	Append(ID_UNSELECTALL, _("Undo selection"));
 	Append(ID_SHOW_COLUMNS, _("Table columns"));
 	AppendSeparator();
 
-	Append(wxID_DELETE, _("Delete book"));
+	AppendImg(wxID_DELETE, _("Delete book"), wxART_DELETE);
 	AppendSeparator();
 
 	if (bShowOrder) Append(wxID_ANY, _("Sort by"), new FbMenuSort);
@@ -88,14 +60,14 @@ void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 	AppendCheckItem(ID_FILTER_USE, _("Use filter"));
 	AppendSeparator();
 
-	AppendAuthorsMenu();
-	AppendSeriesMenu();
+	AppendAuth();
+	AppendSeqn();
 	AppendSeparator();
 
 	FbMasterFldrInfo * info = wxDynamicCast(&master, FbMasterFldrInfo);
 	int folder = info ? info->GetId() : 0;
 	if (!info || folder) Append(ID_FAVORITES_ADD, _("Add to favourites"));
-	AppendFoldersMenu(folder);
+	AppendFldr(folder);
 	Append(wxID_ANY, _("Rate this book"), new FbMenuRating);
 	if (info) Append(ID_FAVORITES_DEL, _("Delete bookmark"));
 	AppendSeparator();
@@ -104,10 +76,10 @@ void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 	Append(wxID_PROPERTIES, _("Properties"));
 }
 
-void FbBookMenu::AppendAuthorsMenu()
+void FbBookMenu::AppendAuth()
 {
 	wxString text = _("Jump to author");
-	wxMenu * submenu = NULL;
+	FbMenu * submenu = NULL;
 
 	wxString sql = wxT("SELECT id, full_name FROM authors WHERE %s ORDER BY search_name");
 	if (m_book) {
@@ -124,19 +96,18 @@ void FbBookMenu::AppendAuthorsMenu()
 	FbCommonDatabase database;
 	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
 	while (result.NextRow()) {
-		wxString text = result.GetString(1);
-		if (text.IsEmpty()) continue;
-		if (submenu == NULL) submenu = new wxMenu;
-		int id = SetKey(result.GetInt(0), MenuAuth);
-		submenu->Append(id, text);
+		wxString name = result.GetString(1);
+		if (name.IsEmpty()) continue;
+		if (submenu == NULL) submenu = new FbMenu;
+		submenu->AppendSub(FbMenu::AUTH, result.GetInt(0), name);
 	}
 	Append(wxID_ANY, text, submenu)->Enable(submenu);
 }
 
-void FbBookMenu::AppendSeriesMenu()
+void FbBookMenu::AppendSeqn()
 {
 	wxString text = _("Jump to series");
-	wxMenu * submenu = NULL;
+	FbMenu * submenu = NULL;
 
 	wxString sql = wxT("SELECT id, value FROM sequences WHERE %s ORDER BY value");
 	if (m_book) {
@@ -153,19 +124,18 @@ void FbBookMenu::AppendSeriesMenu()
 	FbCommonDatabase database;
 	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
 	while (result.NextRow()) {
-		wxString text = result.GetString(1);
-		if (text.IsEmpty()) continue;
-		if (submenu == NULL) submenu = new wxMenu;
-		int id = SetKey(result.GetInt(0), MenuSeqn);
-		submenu->Append(id, text);
+		wxString name = result.GetString(1);
+		if (name.IsEmpty()) continue;
+		if (submenu == NULL) submenu = new FbMenu;
+		submenu->AppendSub(FbMenu::SEQN, result.GetInt(0), name);
 	}
 	Append(wxID_ANY, text, submenu)->Enable(submenu);
 }
 
-void FbBookMenu::AppendFoldersMenu(int folder)
+void FbBookMenu::AppendFldr(int folder)
 {
 	wxString text = _("Add to folders");
-	wxMenu * submenu = NULL;
+	FbMenu * submenu = NULL;
 
 	wxString sql = wxT("SELECT id, value FROM folders ORDER BY value");
 	FbLocalDatabase database;
@@ -174,11 +144,8 @@ void FbBookMenu::AppendFoldersMenu(int folder)
 	while (result.NextRow()) {
 		int key = result.GetInt(0);
 		if (folder == key) continue;
-		if (submenu == NULL) submenu = new wxMenu;
-		int id = SetKey(result.GetInt(0), MenuFldr);
-		submenu->Append(id, result.GetString(1));
+		if (submenu == NULL) submenu = new FbMenu;
+		submenu->AppendSub(FbMenu::FLDR, key, result.GetString(1));
 	}
 	Append(wxID_ANY, text, submenu)->Enable(submenu);
 }
-
-

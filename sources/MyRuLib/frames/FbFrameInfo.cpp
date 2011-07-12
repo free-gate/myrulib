@@ -9,40 +9,30 @@
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 
-IMPLEMENT_CLASS(FbFrameInfo, FbAuiMDIChildFrame)
+IMPLEMENT_CLASS(FbFrameInfo, FbHtmlWindow)
 
-BEGIN_EVENT_TABLE(FbFrameInfo, FbAuiMDIChildFrame)
+BEGIN_EVENT_TABLE(FbFrameInfo, FbHtmlWindow)
 	EVT_MENU(wxID_SAVE, FbFrameInfo::OnSave)
 END_EVENT_TABLE()
 
-FbFrameInfo::FbFrameInfo(wxAuiMDIParentFrame * parent)
-	: FbAuiMDIChildFrame(parent, ID_FRAME_INFO, GetTitle())
+FbFrameInfo::FbFrameInfo(wxAuiNotebook * parent)
+	: FbHtmlWindow(parent, ID_FRAME_INFO)
 {
-	CreateControls();
 	UpdateFonts(false);
+	parent->AddPage( this, GetTitle(), false );
 }
 
 void FbFrameInfo::Load(const wxString & html)
 {
-	m_info.SetPage(html);
-	m_info.SetFocus();
-}
-
-void FbFrameInfo::CreateControls()
-{
-	UpdateMenu();
-	m_info.Create(this);
-	wxBoxSizer * sizer = new wxBoxSizer(wxVERTICAL);
-	sizer->Add( &m_info, 1, wxEXPAND, 5 );
-	SetSizer(sizer);
-	Layout();
+	SetPage(html);
+	SetFocus();
 }
 
 class FbFrameInfoThread
 	: public FbProgressThread
 {
 public:
-    FbFrameInfoThread(wxEvtHandler * owner) 
+	FbFrameInfoThread(wxEvtHandler * owner)
 		: FbProgressThread(owner) {}
 protected:
 	virtual void * Entry();
@@ -67,7 +57,7 @@ void FbFrameInfoThread::WriteTitle()
 	m_html += wxT("<TABLE>");
 	m_html += wxString::Format(wxT("<TR><TD colspan=2 align=center>%s</TD></TR>"), title);
 	m_html += wxT("<TR><TD colspan=2 align=center>");
-	m_html += wxString::Format(wxT("<B>%s</B>"), FbParams::GetStr(DB_LIBRARY_TITLE).c_str());
+	m_html += wxString::Format(wxT("<B>%s</B>"), FbParams(DB_LIBRARY_TITLE).Str().c_str());
 	m_html += wxT("</TD></TR>");
 	m_html += wxString::Format(wxT("<TR><TD colspan=2>%s</TD></TR>"), wxGetApp().GetLibFile().c_str());
 	m_html += wxString::Format(wxT("<TR><TD colspan=2>%s</TD></TR>"), wxGetApp().GetLibPath().c_str());
@@ -180,8 +170,6 @@ void FbFrameInfoThread::WriteTypes()
 
 void * FbFrameInfoThread::Entry()
 {
-	wxCriticalSectionLocker enter(sm_queue);
-
 	DoStart(_("Collection info"), 3);
 
 	WriteTitle();
@@ -214,7 +202,7 @@ void FbFrameInfo::OnSave(wxCommandEvent& event)
 	);
 
 	if (dlg.ShowModal() == wxID_OK) {
-   		wxString html = * m_info.GetParser()->GetSource();
+		wxString html = * GetParser()->GetSource();
 		wxFileOutputStream stream(dlg.GetPath());
 		wxTextOutputStream text(stream);
 		text.WriteString(html);
@@ -224,32 +212,5 @@ void FbFrameInfo::OnSave(wxCommandEvent& event)
 
 void FbFrameInfo::UpdateFonts(bool refresh)
 {
-	FbAuiMDIChildFrame::UpdateFont(&m_info, refresh);
+//	FbAuiMDIChildFrame::UpdateFont(&m_info, refresh);
 }
-
-FbFrameInfo::MainMenu::MainMenu()
-{
-	Append(new MenuFile,   _("&File"));
-	Append(new MenuLib,    _("&Library"));
-	Append(new MenuFrame,  _("&Catalog"));
-	Append(new MenuView,   _("&View"));
-	Append(new MenuSetup,  _("&Tools"));
-	Append(new MenuWindow, _("&Window"));
-	Append(new MenuHelp,   _("&?"));
-}
-
-FbFrameInfo::MainMenu::MenuFile::MenuFile()
-{
-	AppendImg(wxID_NEW,  _("Add file") + (wxString)wxT("\tCtrl+N"), wxART_NEW);
-	AppendImg(wxID_OPEN, _("Add folder") + (wxString)wxT("\tCtrl+O"), wxART_FOLDER_OPEN);
-	AppendImg(wxID_SAVE, _("Save report as...") + (wxString)wxT("\tCtrl+S"), wxART_FILE_SAVE_AS);
-	AppendSeparator();
-	AppendImg(wxID_EXIT, _("Exit") + (wxString)wxT("\tAlt-F4"), wxART_QUIT);
-}
-
-wxMenuBar * FbFrameInfo::CreateMenuBar()
-{
-	return new MainMenu;
-}
-
-

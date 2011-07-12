@@ -1,34 +1,30 @@
 #include "FbConst.h"
 #include <wx/utils.h>
 
-#include "../version.inc"
-
-#define TXT(text) wxT(wxSTRINGIZE(text))
+#include "config.h"
 
 wxString MyRuLib::ProgramName()
 {
-	return (wxString)TXT(PROGRAM_NAME) + wxT(' ') + TXT(VERSION_MAJOR) + wxT('.') + TXT(VERSION_MINOR);
-}
-
-wxString MyRuLib::ProgramInfo()
-{
-	return ProgramName() + wxT('.') + TXT(VERSION_BUILD);
-	return TXT(PROGRAM_HOMEPAGE);
+	return (wxString)wxT(PACKAGE_NAME)
+#ifdef FB_INCLUDE_READER
+		+ wxT("CR")
+#endif
+	+ wxT(' ') + wxT(PACKAGE_VERSION);
 }
 
 wxString MyRuLib::HomePage()
 {
-	return wxT(PROGRAM_HOMEPAGE);
+	return wxT(PACKAGE_URL);
 }
 
 wxString MyRuLib::MailAddr()
 {
-	return wxT(PROGRAM_MAILADDR);
+	return wxT(PACKAGE_BUGREPORT);
 }
 
 wxString MyRuLib::UserAgent()
 {
-	return (wxString)TXT(PROGRAM_NAME) + wxT(' ') + TXT(VERSION_MAJOR) + wxT('.') + TXT(VERSION_MINOR) + TXT(VERSION_BUILD) + wxT('/') + ::wxGetOsDescription(); 
+	return (wxString)wxT(PACKAGE_NAME) + wxT('/') + wxT(PACKAGE_VERSION) + wxT(' ') + ::wxGetOsDescription();
 }
 
 static wxString GetRussianAlphabet()
@@ -47,9 +43,6 @@ const wxString alphabetEn = wxT("#ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 const wxString strAlphabet = alphabetRu + alphabetEn;
 const wxString strRusJE = (wxChar)0x0415;
 const wxString strRusJO = (wxChar)0x0416;
-
-const wxString strUpdateAuthorCount = wxT("UPDATE authors SET number=(SELECT COUNT(id) FROM books WHERE books.id_author=authors.id)");
-const wxString strUpdateSequenCount = wxT("UPDATE sequences SET number=(SELECT COUNT(DISTINCT id_book) FROM bookseq WHERE bookseq.id_seq=sequences.id)");
 
 wxString GetRatingText(int index)
 {
@@ -93,3 +86,11 @@ void FbMessageBox(const wxString &info, const wxString &text)
 	wxMessageBox(CreateMessage(info, text));
 }
 
+wxString TrimTitle(const wxString &title)
+{
+	if (title.Len() > 32) {
+		return title.Left(32).BeforeLast(wxT(' ')) << wxChar(0x2026);
+	} else {
+		return title;
+	}
+}

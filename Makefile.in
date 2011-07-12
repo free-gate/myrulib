@@ -44,62 +44,97 @@ WX_RESCOMP = @WX_RESCOMP@
 ### Variables: ###
 
 DESTDIR = 
-EXPAT_STATIC_CFLAGS = -DXML_STATIC -DHAVE_MEMMOVE -I$(srcdir)/3rdparty/expat \
+EXPAT_CFLAGS = -DXML_STATIC -DHAVE_MEMMOVE -I$(srcdir)/3rdparty/expat \
 	$(CPPFLAGS) $(CFLAGS)
-EXPAT_STATIC_OBJECTS =  \
-	expat_static_xmlparse.o \
-	expat_static_xmlrole.o \
-	expat_static_xmltok.o \
-	expat_static_xmltok_impl.o \
-	expat_static_xmltok_ns.o
-FAXPP_STATIC_CFLAGS = -DHAVE_CONFIG -I./faxpp \
-	-I$(srcdir)/3rdparty/faxpp/include $(CPPFLAGS) $(CFLAGS)
-FAXPP_STATIC_OBJECTS =  \
-	faxpp_static_attlistdecl.o \
-	faxpp_static_buffer.o \
-	faxpp_static_cdata.o \
-	faxpp_static_char_classes.o \
-	faxpp_static_comment.o \
-	faxpp_static_conditional.o \
-	faxpp_static_doctype.o \
-	faxpp_static_element.o \
-	faxpp_static_elementdecl.o \
-	faxpp_static_entitydecl.o \
-	faxpp_static_error.o \
-	faxpp_static_event.o \
-	faxpp_static_notationdecl.o \
-	faxpp_static_pi.o \
-	faxpp_static_reference.o \
-	faxpp_static_token.o \
-	faxpp_static_tokenizer_states.o \
-	faxpp_static_transcode.o \
-	faxpp_static_xmldecl.o \
-	faxpp_static_xml_parser.o \
-	faxpp_static_xml_tokenizer.o
-SQLITE3_STATIC_CFLAGS = -DSQLITE_ENABLE_FTS3 -I$(srcdir)/3rdparty/sqlite3 \
-	$(CPPFLAGS) $(CFLAGS)
-SQLITE3_STATIC_OBJECTS =  \
-	sqlite3_static_sqlite3.o
-WXSQLITE3_STATIC_CXXFLAGS = -DNDEBUG -I$(srcdir)/3rdparty/wxsqlite3/include \
-	-I$(srcdir)/3rdparty/sqlite3 $(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
-WXSQLITE3_STATIC_OBJECTS =  \
-	wxsqlite3_static_wxsqlite3.o
-WXBZIP2_STATIC_CFLAGS =  -DNDEBUG  $(WX_CFLAGS) $(CPPFLAGS) $(CFLAGS)
-WXBZIP2_STATIC_CXXFLAGS =  -DNDEBUG  $(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
-WXBZIP2_STATIC_OBJECTS =  \
-	wxbzip2_static_blocksort.o \
-	wxbzip2_static_bzlib.o \
-	wxbzip2_static_compress.o \
-	wxbzip2_static_crctable.o \
-	wxbzip2_static_decompress.o \
-	wxbzip2_static_huffman.o \
-	wxbzip2_static_randtable.o \
-	wxbzip2_static_bzipstream.o
-WXCURL_STATIC_CXXFLAGS = -I3rdparty/wxcurl $(WX_CXXFLAGS) $(CPPFLAGS) \
-	$(CXXFLAGS)
-WXCURL_STATIC_OBJECTS =  \
-	wxcurl_static_base.o \
-	wxcurl_static_http.o
+EXPAT_OBJECTS =  \
+	expat_xmlparse.o \
+	expat_xmlrole.o \
+	expat_xmltok.o \
+	expat_xmltok_impl.o \
+	expat_xmltok_ns.o
+FAXPP_CFLAGS = -DHAVE_CONFIG -I. -I$(srcdir)/3rdparty/faxpp/include $(CPPFLAGS) \
+	$(CFLAGS)
+FAXPP_OBJECTS =  \
+	faxpp_attlistdecl.o \
+	faxpp_buffer.o \
+	faxpp_cdata.o \
+	faxpp_char_classes.o \
+	faxpp_comment.o \
+	faxpp_conditional.o \
+	faxpp_doctype.o \
+	faxpp_element.o \
+	faxpp_elementdecl.o \
+	faxpp_entitydecl.o \
+	faxpp_error.o \
+	faxpp_event.o \
+	faxpp_notationdecl.o \
+	faxpp_pi.o \
+	faxpp_reference.o \
+	faxpp_token.o \
+	faxpp_tokenizer_states.o \
+	faxpp_transcode.o \
+	faxpp_xmldecl.o \
+	faxpp_xml_parser.o \
+	faxpp_xml_tokenizer.o
+SQLITE3_CFLAGS = -DSQLITE_ENABLE_FTS3 -I$(srcdir)/3rdparty/sqlite3 $(CPPFLAGS) \
+	$(CFLAGS)
+SQLITE3_OBJECTS =  \
+	sqlite3_sqlite3.o
+CRENGINE_CXXFLAGS = -I3rdparty/crengine/include \
+	-I$(srcdir)/../wxWidgets/src/jpeg -I$(srcdir)/../wxWidgets/src/png \
+	-I$(srcdir)/3rdparty/crengine/png $(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+CRENGINE_OBJECTS =  \
+	crengine_chmfmt.o \
+	crengine_cp_stats.o \
+	crengine_crgui.o \
+	crengine_cri18n.o \
+	crengine_crskin.o \
+	crengine_crtest.o \
+	crengine_crtxtenc.o \
+	crengine_epubfmt.o \
+	crengine_hist.o \
+	crengine_hyphman.o \
+	crengine_lstridmap.o \
+	crengine_lvbmpbuf.o \
+	crengine_lvdocview.o \
+	crengine_lvdrawbuf.o \
+	crengine_lvfnt.o \
+	crengine_lvfntman.o \
+	crengine_lvimg.o \
+	crengine_lvmemman.o \
+	crengine_lvpagesplitter.o \
+	crengine_lvrend.o \
+	crengine_lvstream.o \
+	crengine_lvstring.o \
+	crengine_lvstsheet.o \
+	crengine_lvstyles.o \
+	crengine_lvtextfm.o \
+	crengine_lvtinydom.o \
+	crengine_lvxml.o \
+	crengine_pdbfmt.o \
+	crengine_props.o \
+	crengine_rtfimp.o \
+	crengine_s32utils.o \
+	crengine_txtselector.o \
+	crengine_w32utils.o \
+	crengine_wolutil.o \
+	crengine_wordfmt.o \
+	crengine_xutils.o
+WXSQLITE3_CXXFLAGS = -DNDEBUG -I$(srcdir)/3rdparty/wxsqlite3/include \
+	$(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+WXSQLITE3_OBJECTS =  \
+	wxsqlite3_wxsqlite3.o
+WXBZIP2_CFLAGS =  -DNDEBUG  $(WX_CFLAGS) $(CPPFLAGS) $(CFLAGS)
+WXBZIP2_CXXFLAGS =  -DNDEBUG  $(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+WXBZIP2_OBJECTS =  \
+	wxbzip2_blocksort.o \
+	wxbzip2_bzlib.o \
+	wxbzip2_compress.o \
+	wxbzip2_crctable.o \
+	wxbzip2_decompress.o \
+	wxbzip2_huffman.o \
+	wxbzip2_randtable.o \
+	wxbzip2_bzipstream.o
 ZIPSCAN_CFLAGS = -DNDEBUG -I$(srcdir)/sources/MyRuLib \
 	-I$(srcdir)/3rdparty/wxsqlite3/include $(WX_CFLAGS) $(CPPFLAGS) $(CFLAGS)
 ZIPSCAN_CXXFLAGS = -DNDEBUG -I$(srcdir)/sources/MyRuLib \
@@ -111,16 +146,17 @@ ZIPSCAN_OBJECTS =  \
 BIN2C_CFLAGS =   $(CPPFLAGS) $(CFLAGS)
 BIN2C_OBJECTS =  \
 	bin2c_bin2c.o
-MYRULIB_CFLAGS = -I. -DNDEBUG -I$(srcdir)/sources/MyRuLib \
-	-I$(srcdir)/3rdparty/faxpp/include -I$(srcdir)/3rdparty/wxsqlite3/include \
-	-I$(srcdir)/3rdparty/wxbzipstream $(WX_CFLAGS) $(CPPFLAGS) $(CFLAGS)
-MYRULIB_CXXFLAGS = -I. -DNDEBUG -I$(srcdir)/sources/MyRuLib \
-	-I$(srcdir)/3rdparty/faxpp/include -I$(srcdir)/3rdparty/wxsqlite3/include \
-	-I$(srcdir)/3rdparty/wxbzipstream $(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+MYRULIB_CFLAGS = -I. -DNDEBUG -D_MYRULIB -I$(srcdir)/sources/MyRuLib \
+	-I$(srcdir)/3rdparty/wxsqlite3/include -I$(srcdir)/3rdparty/wxbzipstream \
+	$(WX_CFLAGS) $(CPPFLAGS) $(CFLAGS)
+MYRULIB_CXXFLAGS = -I. -DNDEBUG -D_MYRULIB -I$(srcdir)/sources/MyRuLib \
+	-I$(srcdir)/3rdparty/wxsqlite3/include -I$(srcdir)/3rdparty/wxbzipstream \
+	$(WX_CXXFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 MYRULIB_OBJECTS =  \
 	myrulib_FbChoiceCtrl.o \
 	myrulib_FbComboBox.o \
 	myrulib_FbHtmlWindow.o \
+	myrulib_FbLogModel.o \
 	myrulib_FbNotebook.o \
 	myrulib_FbSearchCombo.o \
 	myrulib_FbToolBar.o \
@@ -128,45 +164,26 @@ MYRULIB_OBJECTS =  \
 	myrulib_FbTreeView.o \
 	myrulib_FbURL.o \
 	myrulib_FbViewItem.o \
-	myrulib_LimitedTextCtrl.o \
 	myrulib_ProgressBar.o \
 	myrulib_FbAboutDlg.o \
-	myrulib_FbAlphabet.o \
-	myrulib_FbAuthList.o \
 	myrulib_FbAuthorDlg.o \
-	myrulib_FbBookData.o \
-	myrulib_FbBookEvent.o \
-	myrulib_FbBookList.o \
-	myrulib_FbBookMenu.o \
-	myrulib_FbBookPanel.o \
-	myrulib_FbBookTraverser.o \
-	myrulib_FbBookTree.o \
-	myrulib_FbCacheBook.o \
 	myrulib_FbColumnDlg.o \
-	myrulib_FbColumns.o \
-	myrulib_FbCollection.o \
 	myrulib_FbConvertDlg.o \
-	myrulib_FbCounter.o \
 	myrulib_FbConfigDlg.o \
-	myrulib_FbConst.o \
-	myrulib_FbDatabase.o \
 	myrulib_FbDataOpenDlg.o \
-	myrulib_FbDataPath.o \
-	myrulib_FbDateTime.o \
-	myrulib_FbDateTree.o \
-	myrulib_FbDeleteThread.o \
-	myrulib_FbDownList.o \
-	myrulib_FbEditBook.o \
+	myrulib_FbDirImportDlg.o \
 	myrulib_FbExportDlg.o \
-	myrulib_FbExportTree.o \
-	myrulib_FbExtractInfo.o \
-	myrulib_FbDownloader.o \
 	myrulib_FbFilterDlg.o \
-	myrulib_FbFilterObj.o \
-	myrulib_FbFilterTree.o \
-	myrulib_FbFldrTree.o \
+	myrulib_FbParamsDlg.o \
+	myrulib_FbProgressDlg.o \
+	myrulib_FbReaderDlg.o \
+	myrulib_FbSequenDlg.o \
+	myrulib_FbServiceDlg.o \
+	myrulib_FbTitleDlg.o \
+	myrulib_FbViewerDlg.o \
 	myrulib_FbFrameAuth.o \
 	myrulib_FbFrameBase.o \
+	myrulib_FbFrameClss.o \
 	myrulib_FbFrameDate.o \
 	myrulib_FbFrameDown.o \
 	myrulib_FbFrameFind.o \
@@ -175,9 +192,40 @@ MYRULIB_OBJECTS =  \
 	myrulib_FbFrameHtml.o \
 	myrulib_FbFrameGenr.o \
 	myrulib_FbFrameSeqn.o \
+	myrulib_FbCoolReader.o \
+	myrulib_FbAuthList.o \
+	myrulib_FbBookList.o \
+	myrulib_FbBookTree.o \
+	myrulib_FbClssTree.o \
+	myrulib_FbDateTree.o \
+	myrulib_FbDownList.o \
+	myrulib_FbExportTree.o \
+	myrulib_FbFilterTree.o \
+	myrulib_FbFldrTree.o \
+	myrulib_FbGenrTree.o \
+	myrulib_FbSeqnList.o \
+	myrulib_FbAlphabet.o \
+	myrulib_FbBookData.o \
+	myrulib_FbBookEvent.o \
+	myrulib_FbBookMenu.o \
+	myrulib_FbBookPanel.o \
+	myrulib_FbBookTraverser.o \
+	myrulib_FbCacheBook.o \
+	myrulib_FbColumns.o \
+	myrulib_FbCollection.o \
+	myrulib_FbConst.o \
+	myrulib_FbDatabase.o \
+	myrulib_FbDataPath.o \
+	myrulib_FbDateTime.o \
+	myrulib_FbDeleteThread.o \
+	myrulib_FbEditBook.o \
+	myrulib_FbExtractInfo.o \
+	myrulib_FbDownloader.o \
+	myrulib_FbFilterObj.o \
+	myrulib_FbFilterThread.o \
+	myrulib_FbFrameThread.o \
 	myrulib_FbGenres.o \
 	myrulib_FbGenreThread.o \
-	myrulib_FbGenrTree.o \
 	myrulib_FbImportCtx.o \
 	myrulib_FbImportReader.o \
 	myrulib_FbImportThread.o \
@@ -191,30 +239,23 @@ MYRULIB_OBJECTS =  \
 	myrulib_FbMasterTypes.o \
 	myrulib_FbMenu.o \
 	myrulib_FbParams.o \
-	myrulib_FbParamsDlg.o \
 	myrulib_FbParsingCtx.o \
 	myrulib_FbPreviewReader.o \
 	myrulib_FbPreviewThread.o \
 	myrulib_FbPreviewWindow.o \
-	myrulib_FbProgressDlg.o \
-	myrulib_FbSeqnList.o \
-	myrulib_FbSequenDlg.o \
-	myrulib_FbServiceDlg.o \
 	myrulib_FbServiceThread.o \
 	myrulib_FbThread.o \
-	myrulib_FbTitleDlg.o \
 	myrulib_FbUpdateThread.o \
 	myrulib_FbViewContext.o \
 	myrulib_FbViewData.o \
 	myrulib_FbViewThread.o \
-	myrulib_FbViewerDlg.o \
 	myrulib_FbWindow.o \
 	myrulib_MyRuLibApp.o \
 	myrulib_ZipReader.o \
 	myrulib_md5.o \
 	myrulib_base64.o \
 	$(__myrulib___win32rc)
-MYRULIB_ODEP =  ru.inc uk.inc be.inc cs.inc sv.inc
+MYRULIB_ODEP = ru.inc uk.inc be.inc cs.inc sv.inc $(__fb2_css_inc___depname)
 
 ### Conditionally set variables: ###
 
@@ -222,20 +263,17 @@ MYRULIB_ODEP =  ru.inc uk.inc be.inc cs.inc sv.inc
 @COND_DEPS_TRACKING_1@CCC = $(BK_DEPS) $(CC)
 @COND_DEPS_TRACKING_0@CXXC = $(CXX)
 @COND_DEPS_TRACKING_1@CXXC = $(BK_DEPS) $(CXX)
-@COND_USE_EXPAT_builtin@__expat_static___depname = \
-@COND_USE_EXPAT_builtin@	$(LIBPREFIX)expat_static$(LIBEXT)
-@COND_USE_FAXPP_builtin@__faxpp_static___depname = \
-@COND_USE_FAXPP_builtin@	$(LIBPREFIX)faxpp_static$(LIBEXT)
-@COND_USE_SQLITE_builtin@__sqlite3_static___depname \
-@COND_USE_SQLITE_builtin@	= $(LIBPREFIX)sqlite3_static$(LIBEXT)
-@COND_USE_CURL_yes@__wxcurl_static___depname = \
-@COND_USE_CURL_yes@	$(LIBPREFIX)wxcurl_static$(LIBEXT)
+@COND_USE_EXPAT_builtin@__expat___depname = $(LIBPREFIX)expat$(LIBEXT)
+@COND_USE_FAXPP_builtin@__faxpp___depname = $(LIBPREFIX)faxpp$(LIBEXT)
+@COND_USE_SQLITE_builtin@__sqlite3___depname = $(LIBPREFIX)sqlite3$(LIBEXT)
+@COND_USE_READER_yes@__crengine___depname = $(LIBPREFIX)crengine$(LIBEXT)
 @COND_PLATFORM_MAC_0@__zipscan___mac_setfilecmd = @true
 @COND_PLATFORM_MAC_1@__zipscan___mac_setfilecmd = \
 @COND_PLATFORM_MAC_1@	$(SETFILE) -t APPL zipscan$(EXEEXT)
 @COND_PLATFORM_MAC_0@__bin2c___mac_setfilecmd = @true
 @COND_PLATFORM_MAC_1@__bin2c___mac_setfilecmd = \
 @COND_PLATFORM_MAC_1@	$(SETFILE) -t APPL bin2c$(EXEEXT)
+@COND_USE_READER_yes@__fb2_css_inc___depname = fb2_css.inc
 @COND_PLATFORM_MAC_0@__myrulib___mac_setfilecmd = @true
 @COND_PLATFORM_MAC_1@__myrulib___mac_setfilecmd = \
 @COND_PLATFORM_MAC_1@	$(SETFILE) -t APPL myrulib$(EXEEXT)
@@ -246,7 +284,7 @@ COND_PLATFORM_OS2_1___myrulib___os2_emxbindcmd = $(NM) myrulib$(EXEEXT) | if \
 
 ### Targets: ###
 
-all: $(__expat_static___depname) $(__faxpp_static___depname) $(__sqlite3_static___depname) $(LIBPREFIX)wxsqlite3_static$(LIBEXT) $(LIBPREFIX)wxbzip2_static$(LIBEXT) $(__wxcurl_static___depname) zipscan$(EXEEXT) bin2c$(EXEEXT) myrulib$(EXEEXT)
+all: $(__expat___depname) $(__faxpp___depname) $(__sqlite3___depname) $(__crengine___depname) $(LIBPREFIX)wxsqlite3$(LIBEXT) $(LIBPREFIX)wxbzip2$(LIBEXT) zipscan$(EXEEXT) bin2c$(EXEEXT) myrulib$(EXEEXT)
 
 install: install_myrulib
 	$(INSTALL) -d $(DESTDIR)$(datadir)/locale/ru/LC_MESSAGES
@@ -263,7 +301,7 @@ install: install_myrulib
 	(cd $(srcdir)/sources/MyRuLib/desktop ; $(INSTALL_DATA)  myrulib.png $(DESTDIR)$(datadir)/icons/hicolor/48x48/apps)
 	$(INSTALL_DIR) $(DESTDIR)$(datadir)/applications
 	(cd $(srcdir)/sources/MyRuLib/desktop ; $(INSTALL_DATA)  myrulib.desktop $(DESTDIR)$(datadir)/applications)
-	$(INSTALL) -d $(DESTDIR)$(datadir)/pixmaps/
+	$(INSTALL) -d $(DESTDIR)$(datadir)/pixmaps
 	ln -s ../icons/hicolor/48x48/apps/myrulib.png $(DESTDIR)$(datadir)/pixmaps/myrulib.png
 
 uninstall: uninstall_myrulib
@@ -282,13 +320,13 @@ install-strip: install
 clean: 
 	rm -rf ./.deps ./.pch
 	rm -f ./*.o
-	rm -f $(LIBPREFIX)expat_static$(LIBEXT)
-	rm -f $(LIBPREFIX)faxpp_static$(LIBEXT)
-	rm -f $(LIBPREFIX)sqlite3_static$(LIBEXT)
+	rm -f $(LIBPREFIX)expat$(LIBEXT)
+	rm -f $(LIBPREFIX)faxpp$(LIBEXT)
+	rm -f $(LIBPREFIX)sqlite3$(LIBEXT)
+	rm -f $(LIBPREFIX)crengine$(LIBEXT)
 	rm -f ./wxsqlite3.cpp
-	rm -f $(LIBPREFIX)wxsqlite3_static$(LIBEXT)
-	rm -f $(LIBPREFIX)wxbzip2_static$(LIBEXT)
-	rm -f $(LIBPREFIX)wxcurl_static$(LIBEXT)
+	rm -f $(LIBPREFIX)wxsqlite3$(LIBEXT)
+	rm -f $(LIBPREFIX)wxbzip2$(LIBEXT)
 	rm -f zipscan$(EXEEXT)
 	rm -f bin2c$(EXEEXT)
 	rm -f ./ru.mo
@@ -301,46 +339,47 @@ clean:
 	rm -f ./be.inc
 	rm -f ./cs.inc
 	rm -f ./sv.inc
+	rm -f ./fb2_css.inc
 	rm -f myrulib$(EXEEXT)
 
 distclean: clean
 	rm -f config.cache config.log config.status bk-deps bk-make-pch shared-ld-sh Makefile
 
-@COND_USE_EXPAT_builtin@$(LIBPREFIX)expat_static$(LIBEXT): $(EXPAT_STATIC_OBJECTS)
+@COND_USE_EXPAT_builtin@$(LIBPREFIX)expat$(LIBEXT): $(EXPAT_OBJECTS)
 @COND_USE_EXPAT_builtin@	rm -f $@
-@COND_USE_EXPAT_builtin@	$(AR) $(AROPTIONS) $@ $(EXPAT_STATIC_OBJECTS)
+@COND_USE_EXPAT_builtin@	$(AR) $(AROPTIONS) $@ $(EXPAT_OBJECTS)
 @COND_USE_EXPAT_builtin@	$(RANLIB) $@
 
-@COND_USE_FAXPP_builtin@$(LIBPREFIX)faxpp_static$(LIBEXT): $(FAXPP_STATIC_OBJECTS)
+@COND_USE_FAXPP_builtin@$(LIBPREFIX)faxpp$(LIBEXT): $(FAXPP_OBJECTS)
 @COND_USE_FAXPP_builtin@	rm -f $@
-@COND_USE_FAXPP_builtin@	$(AR) $(AROPTIONS) $@ $(FAXPP_STATIC_OBJECTS)
+@COND_USE_FAXPP_builtin@	$(AR) $(AROPTIONS) $@ $(FAXPP_OBJECTS)
 @COND_USE_FAXPP_builtin@	$(RANLIB) $@
 
-@COND_USE_SQLITE_builtin@$(LIBPREFIX)sqlite3_static$(LIBEXT): $(SQLITE3_STATIC_OBJECTS)
+@COND_USE_SQLITE_builtin@$(LIBPREFIX)sqlite3$(LIBEXT): $(SQLITE3_OBJECTS)
 @COND_USE_SQLITE_builtin@	rm -f $@
-@COND_USE_SQLITE_builtin@	$(AR) $(AROPTIONS) $@ $(SQLITE3_STATIC_OBJECTS)
+@COND_USE_SQLITE_builtin@	$(AR) $(AROPTIONS) $@ $(SQLITE3_OBJECTS)
 @COND_USE_SQLITE_builtin@	$(RANLIB) $@
+
+@COND_USE_READER_yes@$(LIBPREFIX)crengine$(LIBEXT): $(CRENGINE_OBJECTS)
+@COND_USE_READER_yes@	rm -f $@
+@COND_USE_READER_yes@	$(AR) $(AROPTIONS) $@ $(CRENGINE_OBJECTS)
+@COND_USE_READER_yes@	$(RANLIB) $@
 
 wxsqlite3.cpp: $(srcdir)/3rdparty/wxsqlite3/src/wxsqlite3.cpp $(srcdir)/sources/WxSQLite3/wxsqlite3.patch
 	patch -o ./wxsqlite3.cpp $(srcdir)/3rdparty/wxsqlite3/src/wxsqlite3.cpp < $(srcdir)/sources/WxSQLite3/wxsqlite3.patch
 
-$(LIBPREFIX)wxsqlite3_static$(LIBEXT): $(WXSQLITE3_STATIC_OBJECTS)
+$(LIBPREFIX)wxsqlite3$(LIBEXT): $(WXSQLITE3_OBJECTS)
 	rm -f $@
-	$(AR) $(AROPTIONS) $@ $(WXSQLITE3_STATIC_OBJECTS)
+	$(AR) $(AROPTIONS) $@ $(WXSQLITE3_OBJECTS)
 	$(RANLIB) $@
 
-$(LIBPREFIX)wxbzip2_static$(LIBEXT): $(WXBZIP2_STATIC_OBJECTS)
+$(LIBPREFIX)wxbzip2$(LIBEXT): $(WXBZIP2_OBJECTS)
 	rm -f $@
-	$(AR) $(AROPTIONS) $@ $(WXBZIP2_STATIC_OBJECTS)
+	$(AR) $(AROPTIONS) $@ $(WXBZIP2_OBJECTS)
 	$(RANLIB) $@
 
-@COND_USE_CURL_yes@$(LIBPREFIX)wxcurl_static$(LIBEXT): $(WXCURL_STATIC_OBJECTS)
-@COND_USE_CURL_yes@	rm -f $@
-@COND_USE_CURL_yes@	$(AR) $(AROPTIONS) $@ $(WXCURL_STATIC_OBJECTS)
-@COND_USE_CURL_yes@	$(RANLIB) $@
-
-zipscan$(EXEEXT): $(ZIPSCAN_OBJECTS) $(__sqlite3_static___depname) $(LIBPREFIX)wxsqlite3_static$(LIBEXT)
-	$(CXX) -o $@ $(ZIPSCAN_OBJECTS) -L.     $(LDFLAGS)  -lwxsqlite3_static $(WX_LIBS) $(LIBS)
+zipscan$(EXEEXT): $(ZIPSCAN_OBJECTS) $(__sqlite3___depname) $(LIBPREFIX)wxsqlite3$(LIBEXT)
+	$(CXX) -o $@ $(ZIPSCAN_OBJECTS) -L.     $(LDFLAGS)  -lwxsqlite3 $(WX_LIBS) $(LIBS)
 	
 	$(__zipscan___mac_setfilecmd)
 
@@ -379,8 +418,11 @@ cs.inc: bin2c$(EXEEXT) cs.mo
 sv.inc: bin2c$(EXEEXT) sv.mo
 	./bin2c ./sv.mo ./sv.inc file
 
-myrulib$(EXEEXT): $(MYRULIB_OBJECTS) $(__expat_static___depname) $(__sqlite3_static___depname) $(__wxcurl_static___depname) $(__faxpp_static___depname) $(LIBPREFIX)wxsqlite3_static$(LIBEXT) $(LIBPREFIX)wxbzip2_static$(LIBEXT) $(__myrulib___win32rc)
-	$(CXX) -o $@ $(MYRULIB_OBJECTS) -L. -L.  $(LDFLAGS_GUI)   $(LDFLAGS)  -lwxsqlite3_static -lwxbzip2_static $(WX_LIBS) $(LIBS)
+@COND_USE_READER_yes@fb2_css.inc: bin2c$(EXEEXT) $(srcdir)/3rdparty/crengine/css/fb2.css
+@COND_USE_READER_yes@	./bin2c $(srcdir)/3rdparty/crengine/css/fb2.css ./fb2_css.inc file
+
+myrulib$(EXEEXT): $(MYRULIB_OBJECTS) $(__expat___depname) $(__faxpp___depname) $(__sqlite3___depname) $(__crengine___depname) $(LIBPREFIX)wxbzip2$(LIBEXT) $(LIBPREFIX)wxsqlite3$(LIBEXT) $(__myrulib___win32rc)
+	$(CXX) -o $@ $(MYRULIB_OBJECTS) -L. -L.  $(LDFLAGS_GUI)   $(LDFLAGS)  -lwxbzip2 -lwxsqlite3 $(WX_LIBS) $(LIBS)
 	
 	$(__myrulib___mac_setfilecmd)
 	$(__myrulib___os2_emxbindcmd)
@@ -393,119 +435,221 @@ install_myrulib: myrulib$(EXEEXT)
 uninstall_myrulib: 
 	rm -f $(DESTDIR)$(bindir)/myrulib$(EXEEXT)
 
-expat_static_xmlparse.o: $(srcdir)/3rdparty/expat/xmlparse.c
-	$(CCC) -c -o $@ $(EXPAT_STATIC_CFLAGS) $(srcdir)/3rdparty/expat/xmlparse.c
+expat_xmlparse.o: $(srcdir)/3rdparty/expat/xmlparse.c
+	$(CCC) -c -o $@ $(EXPAT_CFLAGS) $(srcdir)/3rdparty/expat/xmlparse.c
 
-expat_static_xmlrole.o: $(srcdir)/3rdparty/expat/xmlrole.c
-	$(CCC) -c -o $@ $(EXPAT_STATIC_CFLAGS) $(srcdir)/3rdparty/expat/xmlrole.c
+expat_xmlrole.o: $(srcdir)/3rdparty/expat/xmlrole.c
+	$(CCC) -c -o $@ $(EXPAT_CFLAGS) $(srcdir)/3rdparty/expat/xmlrole.c
 
-expat_static_xmltok.o: $(srcdir)/3rdparty/expat/xmltok.c
-	$(CCC) -c -o $@ $(EXPAT_STATIC_CFLAGS) $(srcdir)/3rdparty/expat/xmltok.c
+expat_xmltok.o: $(srcdir)/3rdparty/expat/xmltok.c
+	$(CCC) -c -o $@ $(EXPAT_CFLAGS) $(srcdir)/3rdparty/expat/xmltok.c
 
-expat_static_xmltok_impl.o: $(srcdir)/3rdparty/expat/xmltok_impl.c
-	$(CCC) -c -o $@ $(EXPAT_STATIC_CFLAGS) $(srcdir)/3rdparty/expat/xmltok_impl.c
+expat_xmltok_impl.o: $(srcdir)/3rdparty/expat/xmltok_impl.c
+	$(CCC) -c -o $@ $(EXPAT_CFLAGS) $(srcdir)/3rdparty/expat/xmltok_impl.c
 
-expat_static_xmltok_ns.o: $(srcdir)/3rdparty/expat/xmltok_ns.c
-	$(CCC) -c -o $@ $(EXPAT_STATIC_CFLAGS) $(srcdir)/3rdparty/expat/xmltok_ns.c
+expat_xmltok_ns.o: $(srcdir)/3rdparty/expat/xmltok_ns.c
+	$(CCC) -c -o $@ $(EXPAT_CFLAGS) $(srcdir)/3rdparty/expat/xmltok_ns.c
 
-faxpp_static_attlistdecl.o: $(srcdir)/3rdparty/faxpp/src/attlistdecl.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/attlistdecl.c
+faxpp_attlistdecl.o: $(srcdir)/3rdparty/faxpp/src/attlistdecl.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/attlistdecl.c
 
-faxpp_static_buffer.o: $(srcdir)/3rdparty/faxpp/src/buffer.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/buffer.c
+faxpp_buffer.o: $(srcdir)/3rdparty/faxpp/src/buffer.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/buffer.c
 
-faxpp_static_cdata.o: $(srcdir)/3rdparty/faxpp/src/cdata.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/cdata.c
+faxpp_cdata.o: $(srcdir)/3rdparty/faxpp/src/cdata.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/cdata.c
 
-faxpp_static_char_classes.o: $(srcdir)/3rdparty/faxpp/src/char_classes.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/char_classes.c
+faxpp_char_classes.o: $(srcdir)/3rdparty/faxpp/src/char_classes.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/char_classes.c
 
-faxpp_static_comment.o: $(srcdir)/3rdparty/faxpp/src/comment.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/comment.c
+faxpp_comment.o: $(srcdir)/3rdparty/faxpp/src/comment.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/comment.c
 
-faxpp_static_conditional.o: $(srcdir)/3rdparty/faxpp/src/conditional.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/conditional.c
+faxpp_conditional.o: $(srcdir)/3rdparty/faxpp/src/conditional.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/conditional.c
 
-faxpp_static_doctype.o: $(srcdir)/3rdparty/faxpp/src/doctype.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/doctype.c
+faxpp_doctype.o: $(srcdir)/3rdparty/faxpp/src/doctype.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/doctype.c
 
-faxpp_static_element.o: $(srcdir)/3rdparty/faxpp/src/element.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/element.c
+faxpp_element.o: $(srcdir)/3rdparty/faxpp/src/element.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/element.c
 
-faxpp_static_elementdecl.o: $(srcdir)/3rdparty/faxpp/src/elementdecl.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/elementdecl.c
+faxpp_elementdecl.o: $(srcdir)/3rdparty/faxpp/src/elementdecl.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/elementdecl.c
 
-faxpp_static_entitydecl.o: $(srcdir)/3rdparty/faxpp/src/entitydecl.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/entitydecl.c
+faxpp_entitydecl.o: $(srcdir)/3rdparty/faxpp/src/entitydecl.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/entitydecl.c
 
-faxpp_static_error.o: $(srcdir)/3rdparty/faxpp/src/error.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/error.c
+faxpp_error.o: $(srcdir)/3rdparty/faxpp/src/error.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/error.c
 
-faxpp_static_event.o: $(srcdir)/3rdparty/faxpp/src/event.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/event.c
+faxpp_event.o: $(srcdir)/3rdparty/faxpp/src/event.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/event.c
 
-faxpp_static_notationdecl.o: $(srcdir)/3rdparty/faxpp/src/notationdecl.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/notationdecl.c
+faxpp_notationdecl.o: $(srcdir)/3rdparty/faxpp/src/notationdecl.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/notationdecl.c
 
-faxpp_static_pi.o: $(srcdir)/3rdparty/faxpp/src/pi.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/pi.c
+faxpp_pi.o: $(srcdir)/3rdparty/faxpp/src/pi.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/pi.c
 
-faxpp_static_reference.o: $(srcdir)/3rdparty/faxpp/src/reference.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/reference.c
+faxpp_reference.o: $(srcdir)/3rdparty/faxpp/src/reference.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/reference.c
 
-faxpp_static_token.o: $(srcdir)/3rdparty/faxpp/src/token.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/token.c
+faxpp_token.o: $(srcdir)/3rdparty/faxpp/src/token.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/token.c
 
-faxpp_static_tokenizer_states.o: $(srcdir)/3rdparty/faxpp/src/tokenizer_states.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/tokenizer_states.c
+faxpp_tokenizer_states.o: $(srcdir)/3rdparty/faxpp/src/tokenizer_states.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/tokenizer_states.c
 
-faxpp_static_transcode.o: $(srcdir)/3rdparty/faxpp/src/transcode.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/transcode.c
+faxpp_transcode.o: $(srcdir)/3rdparty/faxpp/src/transcode.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/transcode.c
 
-faxpp_static_xmldecl.o: $(srcdir)/3rdparty/faxpp/src/xmldecl.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xmldecl.c
+faxpp_xmldecl.o: $(srcdir)/3rdparty/faxpp/src/xmldecl.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xmldecl.c
 
-faxpp_static_xml_parser.o: $(srcdir)/3rdparty/faxpp/src/xml_parser.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xml_parser.c
+faxpp_xml_parser.o: $(srcdir)/3rdparty/faxpp/src/xml_parser.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xml_parser.c
 
-faxpp_static_xml_tokenizer.o: $(srcdir)/3rdparty/faxpp/src/xml_tokenizer.c
-	$(CCC) -c -o $@ $(FAXPP_STATIC_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xml_tokenizer.c
+faxpp_xml_tokenizer.o: $(srcdir)/3rdparty/faxpp/src/xml_tokenizer.c
+	$(CCC) -c -o $@ $(FAXPP_CFLAGS) $(srcdir)/3rdparty/faxpp/src/xml_tokenizer.c
 
-sqlite3_static_sqlite3.o: $(srcdir)/3rdparty/sqlite3/sqlite3.c
-	$(CCC) -c -o $@ $(SQLITE3_STATIC_CFLAGS) $(srcdir)/3rdparty/sqlite3/sqlite3.c
+sqlite3_sqlite3.o: $(srcdir)/3rdparty/sqlite3/sqlite3.c
+	$(CCC) -c -o $@ $(SQLITE3_CFLAGS) $(srcdir)/3rdparty/sqlite3/sqlite3.c
 
-wxsqlite3_static_wxsqlite3.o: wxsqlite3.cpp
-	$(CXXC) -c -o $@ $(WXSQLITE3_STATIC_CXXFLAGS) wxsqlite3.cpp
+crengine_chmfmt.o: $(srcdir)/3rdparty/crengine/src/chmfmt.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/chmfmt.cpp
 
-wxbzip2_static_blocksort.o: $(srcdir)/3rdparty/wxbzipstream/bzip/blocksort.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/blocksort.c
+crengine_cp_stats.o: $(srcdir)/3rdparty/crengine/src/cp_stats.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/cp_stats.cpp
 
-wxbzip2_static_bzlib.o: $(srcdir)/3rdparty/wxbzipstream/bzip/bzlib.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/bzlib.c
+crengine_crgui.o: $(srcdir)/3rdparty/crengine/src/crgui.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/crgui.cpp
 
-wxbzip2_static_compress.o: $(srcdir)/3rdparty/wxbzipstream/bzip/compress.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/compress.c
+crengine_cri18n.o: $(srcdir)/3rdparty/crengine/src/cri18n.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/cri18n.cpp
 
-wxbzip2_static_crctable.o: $(srcdir)/3rdparty/wxbzipstream/bzip/crctable.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/crctable.c
+crengine_crskin.o: $(srcdir)/3rdparty/crengine/src/crskin.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/crskin.cpp
 
-wxbzip2_static_decompress.o: $(srcdir)/3rdparty/wxbzipstream/bzip/decompress.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/decompress.c
+crengine_crtest.o: $(srcdir)/3rdparty/crengine/src/crtest.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/crtest.cpp
 
-wxbzip2_static_huffman.o: $(srcdir)/3rdparty/wxbzipstream/bzip/huffman.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/huffman.c
+crengine_crtxtenc.o: $(srcdir)/3rdparty/crengine/src/crtxtenc.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/crtxtenc.cpp
 
-wxbzip2_static_randtable.o: $(srcdir)/3rdparty/wxbzipstream/bzip/randtable.c
-	$(CCC) -c -o $@ $(WXBZIP2_STATIC_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/randtable.c
+crengine_epubfmt.o: $(srcdir)/3rdparty/crengine/src/epubfmt.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/epubfmt.cpp
 
-wxbzip2_static_bzipstream.o: $(srcdir)/3rdparty/wxbzipstream/bzipstream.cpp
-	$(CXXC) -c -o $@ $(WXBZIP2_STATIC_CXXFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzipstream.cpp
+crengine_hist.o: $(srcdir)/3rdparty/crengine/src/hist.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/hist.cpp
 
-wxcurl_static_base.o: $(srcdir)/3rdparty/wxcurl/base.cpp
-	$(CXXC) -c -o $@ $(WXCURL_STATIC_CXXFLAGS) $(srcdir)/3rdparty/wxcurl/base.cpp
+crengine_hyphman.o: $(srcdir)/3rdparty/crengine/src/hyphman.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/hyphman.cpp
 
-wxcurl_static_http.o: $(srcdir)/3rdparty/wxcurl/http.cpp
-	$(CXXC) -c -o $@ $(WXCURL_STATIC_CXXFLAGS) $(srcdir)/3rdparty/wxcurl/http.cpp
+crengine_lstridmap.o: $(srcdir)/3rdparty/crengine/src/lstridmap.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lstridmap.cpp
+
+crengine_lvbmpbuf.o: $(srcdir)/3rdparty/crengine/src/lvbmpbuf.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvbmpbuf.cpp
+
+crengine_lvdocview.o: $(srcdir)/3rdparty/crengine/src/lvdocview.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvdocview.cpp
+
+crengine_lvdrawbuf.o: $(srcdir)/3rdparty/crengine/src/lvdrawbuf.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvdrawbuf.cpp
+
+crengine_lvfnt.o: $(srcdir)/3rdparty/crengine/src/lvfnt.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvfnt.cpp
+
+crengine_lvfntman.o: $(srcdir)/3rdparty/crengine/src/lvfntman.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvfntman.cpp
+
+crengine_lvimg.o: $(srcdir)/3rdparty/crengine/src/lvimg.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvimg.cpp
+
+crengine_lvmemman.o: $(srcdir)/3rdparty/crengine/src/lvmemman.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvmemman.cpp
+
+crengine_lvpagesplitter.o: $(srcdir)/3rdparty/crengine/src/lvpagesplitter.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvpagesplitter.cpp
+
+crengine_lvrend.o: $(srcdir)/3rdparty/crengine/src/lvrend.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvrend.cpp
+
+crengine_lvstream.o: $(srcdir)/3rdparty/crengine/src/lvstream.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvstream.cpp
+
+crengine_lvstring.o: $(srcdir)/3rdparty/crengine/src/lvstring.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvstring.cpp
+
+crengine_lvstsheet.o: $(srcdir)/3rdparty/crengine/src/lvstsheet.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvstsheet.cpp
+
+crengine_lvstyles.o: $(srcdir)/3rdparty/crengine/src/lvstyles.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvstyles.cpp
+
+crengine_lvtextfm.o: $(srcdir)/3rdparty/crengine/src/lvtextfm.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvtextfm.cpp
+
+crengine_lvtinydom.o: $(srcdir)/3rdparty/crengine/src/lvtinydom.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvtinydom.cpp
+
+crengine_lvxml.o: $(srcdir)/3rdparty/crengine/src/lvxml.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/lvxml.cpp
+
+crengine_pdbfmt.o: $(srcdir)/3rdparty/crengine/src/pdbfmt.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/pdbfmt.cpp
+
+crengine_props.o: $(srcdir)/3rdparty/crengine/src/props.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/props.cpp
+
+crengine_rtfimp.o: $(srcdir)/3rdparty/crengine/src/rtfimp.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/rtfimp.cpp
+
+crengine_s32utils.o: $(srcdir)/3rdparty/crengine/src/s32utils.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/s32utils.cpp
+
+crengine_txtselector.o: $(srcdir)/3rdparty/crengine/src/txtselector.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/txtselector.cpp
+
+crengine_w32utils.o: $(srcdir)/3rdparty/crengine/src/w32utils.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/w32utils.cpp
+
+crengine_wolutil.o: $(srcdir)/3rdparty/crengine/src/wolutil.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/wolutil.cpp
+
+crengine_wordfmt.o: $(srcdir)/3rdparty/crengine/src/wordfmt.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/wordfmt.cpp
+
+crengine_xutils.o: $(srcdir)/3rdparty/crengine/src/xutils.cpp
+	$(CXXC) -c -o $@ $(CRENGINE_CXXFLAGS) $(srcdir)/3rdparty/crengine/src/xutils.cpp
+
+wxsqlite3_wxsqlite3.o: wxsqlite3.cpp
+	$(CXXC) -c -o $@ $(WXSQLITE3_CXXFLAGS) wxsqlite3.cpp
+
+wxbzip2_blocksort.o: $(srcdir)/3rdparty/wxbzipstream/bzip/blocksort.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/blocksort.c
+
+wxbzip2_bzlib.o: $(srcdir)/3rdparty/wxbzipstream/bzip/bzlib.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/bzlib.c
+
+wxbzip2_compress.o: $(srcdir)/3rdparty/wxbzipstream/bzip/compress.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/compress.c
+
+wxbzip2_crctable.o: $(srcdir)/3rdparty/wxbzipstream/bzip/crctable.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/crctable.c
+
+wxbzip2_decompress.o: $(srcdir)/3rdparty/wxbzipstream/bzip/decompress.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/decompress.c
+
+wxbzip2_huffman.o: $(srcdir)/3rdparty/wxbzipstream/bzip/huffman.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/huffman.c
+
+wxbzip2_randtable.o: $(srcdir)/3rdparty/wxbzipstream/bzip/randtable.c
+	$(CCC) -c -o $@ $(WXBZIP2_CFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzip/randtable.c
+
+wxbzip2_bzipstream.o: $(srcdir)/3rdparty/wxbzipstream/bzipstream.cpp
+	$(CXXC) -c -o $@ $(WXBZIP2_CXXFLAGS) $(srcdir)/3rdparty/wxbzipstream/bzipstream.cpp
 
 zipscan_ZipScan.o: $(srcdir)/sources/ZipScaner/ZipScan.cpp
 	$(CXXC) -c -o $@ $(ZIPSCAN_CXXFLAGS) $(srcdir)/sources/ZipScaner/ZipScan.cpp
@@ -524,6 +668,9 @@ myrulib_FbComboBox.o: $(srcdir)/sources/MyRuLib/controls/FbComboBox.cpp $(MYRULI
 
 myrulib_FbHtmlWindow.o: $(srcdir)/sources/MyRuLib/controls/FbHtmlWindow.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/FbHtmlWindow.cpp
+
+myrulib_FbLogModel.o: $(srcdir)/sources/MyRuLib/controls/FbLogModel.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/FbLogModel.cpp
 
 myrulib_FbNotebook.o: $(srcdir)/sources/MyRuLib/controls/FbNotebook.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/FbNotebook.cpp
@@ -546,122 +693,65 @@ myrulib_FbURL.o: $(srcdir)/sources/MyRuLib/controls/FbURL.cpp $(MYRULIB_ODEP)
 myrulib_FbViewItem.o: $(srcdir)/sources/MyRuLib/controls/FbViewItem.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/FbViewItem.cpp
 
-myrulib_LimitedTextCtrl.o: $(srcdir)/sources/MyRuLib/controls/LimitedTextCtrl.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/LimitedTextCtrl.cpp
-
 myrulib_ProgressBar.o: $(srcdir)/sources/MyRuLib/controls/ProgressBar.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/controls/ProgressBar.cpp
 
-myrulib_FbAboutDlg.o: $(srcdir)/sources/MyRuLib/FbAboutDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbAboutDlg.cpp
+myrulib_FbAboutDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbAboutDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbAboutDlg.cpp
 
-myrulib_FbAlphabet.o: $(srcdir)/sources/MyRuLib/FbAlphabet.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbAlphabet.cpp
+myrulib_FbAuthorDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbAuthorDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbAuthorDlg.cpp
 
-myrulib_FbAuthList.o: $(srcdir)/sources/MyRuLib/FbAuthList.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbAuthList.cpp
+myrulib_FbColumnDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbColumnDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbColumnDlg.cpp
 
-myrulib_FbAuthorDlg.o: $(srcdir)/sources/MyRuLib/FbAuthorDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbAuthorDlg.cpp
+myrulib_FbConvertDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbConvertDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbConvertDlg.cpp
 
-myrulib_FbBookData.o: $(srcdir)/sources/MyRuLib/FbBookData.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookData.cpp
+myrulib_FbConfigDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbConfigDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbConfigDlg.cpp
 
-myrulib_FbBookEvent.o: $(srcdir)/sources/MyRuLib/FbBookEvent.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookEvent.cpp
+myrulib_FbDataOpenDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbDataOpenDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbDataOpenDlg.cpp
 
-myrulib_FbBookList.o: $(srcdir)/sources/MyRuLib/FbBookList.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookList.cpp
+myrulib_FbDirImportDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbDirImportDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbDirImportDlg.cpp
 
-myrulib_FbBookMenu.o: $(srcdir)/sources/MyRuLib/FbBookMenu.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookMenu.cpp
+myrulib_FbExportDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbExportDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbExportDlg.cpp
 
-myrulib_FbBookPanel.o: $(srcdir)/sources/MyRuLib/FbBookPanel.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookPanel.cpp
+myrulib_FbFilterDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbFilterDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbFilterDlg.cpp
 
-myrulib_FbBookTraverser.o: $(srcdir)/sources/MyRuLib/FbBookTraverser.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookTraverser.cpp
+myrulib_FbParamsDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbParamsDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbParamsDlg.cpp
 
-myrulib_FbBookTree.o: $(srcdir)/sources/MyRuLib/FbBookTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookTree.cpp
+myrulib_FbProgressDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbProgressDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbProgressDlg.cpp
 
-myrulib_FbCacheBook.o: $(srcdir)/sources/MyRuLib/FbCacheBook.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbCacheBook.cpp
+myrulib_FbReaderDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbReaderDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbReaderDlg.cpp
 
-myrulib_FbColumnDlg.o: $(srcdir)/sources/MyRuLib/FbColumnDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbColumnDlg.cpp
+myrulib_FbSequenDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbSequenDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbSequenDlg.cpp
 
-myrulib_FbColumns.o: $(srcdir)/sources/MyRuLib/FbColumns.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbColumns.cpp
+myrulib_FbServiceDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbServiceDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbServiceDlg.cpp
 
-myrulib_FbCollection.o: $(srcdir)/sources/MyRuLib/FbCollection.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbCollection.cpp
+myrulib_FbTitleDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbTitleDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbTitleDlg.cpp
 
-myrulib_FbConvertDlg.o: $(srcdir)/sources/MyRuLib/FbConvertDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbConvertDlg.cpp
-
-myrulib_FbCounter.o: $(srcdir)/sources/MyRuLib/FbCounter.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbCounter.cpp
-
-myrulib_FbConfigDlg.o: $(srcdir)/sources/MyRuLib/FbConfigDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbConfigDlg.cpp
-
-myrulib_FbConst.o: $(srcdir)/sources/MyRuLib/FbConst.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbConst.cpp
-
-myrulib_FbDatabase.o: $(srcdir)/sources/MyRuLib/FbDatabase.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDatabase.cpp
-
-myrulib_FbDataOpenDlg.o: $(srcdir)/sources/MyRuLib/FbDataOpenDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDataOpenDlg.cpp
-
-myrulib_FbDataPath.o: $(srcdir)/sources/MyRuLib/FbDataPath.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDataPath.cpp
-
-myrulib_FbDateTime.o: $(srcdir)/sources/MyRuLib/FbDateTime.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDateTime.cpp
-
-myrulib_FbDateTree.o: $(srcdir)/sources/MyRuLib/FbDateTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDateTree.cpp
-
-myrulib_FbDeleteThread.o: $(srcdir)/sources/MyRuLib/FbDeleteThread.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDeleteThread.cpp
-
-myrulib_FbDownList.o: $(srcdir)/sources/MyRuLib/FbDownList.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDownList.cpp
-
-myrulib_FbEditBook.o: $(srcdir)/sources/MyRuLib/FbEditBook.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbEditBook.cpp
-
-myrulib_FbExportDlg.o: $(srcdir)/sources/MyRuLib/FbExportDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbExportDlg.cpp
-
-myrulib_FbExportTree.o: $(srcdir)/sources/MyRuLib/FbExportTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbExportTree.cpp
-
-myrulib_FbExtractInfo.o: $(srcdir)/sources/MyRuLib/FbExtractInfo.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbExtractInfo.cpp
-
-myrulib_FbDownloader.o: $(srcdir)/sources/MyRuLib/FbDownloader.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDownloader.cpp
-
-myrulib_FbFilterDlg.o: $(srcdir)/sources/MyRuLib/FbFilterDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFilterDlg.cpp
-
-myrulib_FbFilterObj.o: $(srcdir)/sources/MyRuLib/FbFilterObj.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFilterObj.cpp
-
-myrulib_FbFilterTree.o: $(srcdir)/sources/MyRuLib/FbFilterTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFilterTree.cpp
-
-myrulib_FbFldrTree.o: $(srcdir)/sources/MyRuLib/FbFldrTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFldrTree.cpp
+myrulib_FbViewerDlg.o: $(srcdir)/sources/MyRuLib/dialogs/FbViewerDlg.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/dialogs/FbViewerDlg.cpp
 
 myrulib_FbFrameAuth.o: $(srcdir)/sources/MyRuLib/frames/FbFrameAuth.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbFrameAuth.cpp
 
 myrulib_FbFrameBase.o: $(srcdir)/sources/MyRuLib/frames/FbFrameBase.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbFrameBase.cpp
+
+myrulib_FbFrameClss.o: $(srcdir)/sources/MyRuLib/frames/FbFrameClss.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbFrameClss.cpp
 
 myrulib_FbFrameDate.o: $(srcdir)/sources/MyRuLib/frames/FbFrameDate.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbFrameDate.cpp
@@ -687,14 +777,107 @@ myrulib_FbFrameGenr.o: $(srcdir)/sources/MyRuLib/frames/FbFrameGenr.cpp $(MYRULI
 myrulib_FbFrameSeqn.o: $(srcdir)/sources/MyRuLib/frames/FbFrameSeqn.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbFrameSeqn.cpp
 
+myrulib_FbCoolReader.o: $(srcdir)/sources/MyRuLib/frames/FbCoolReader.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/frames/FbCoolReader.cpp
+
+myrulib_FbAuthList.o: $(srcdir)/sources/MyRuLib/models/FbAuthList.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbAuthList.cpp
+
+myrulib_FbBookList.o: $(srcdir)/sources/MyRuLib/models/FbBookList.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbBookList.cpp
+
+myrulib_FbBookTree.o: $(srcdir)/sources/MyRuLib/models/FbBookTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbBookTree.cpp
+
+myrulib_FbClssTree.o: $(srcdir)/sources/MyRuLib/models/FbClssTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbClssTree.cpp
+
+myrulib_FbDateTree.o: $(srcdir)/sources/MyRuLib/models/FbDateTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbDateTree.cpp
+
+myrulib_FbDownList.o: $(srcdir)/sources/MyRuLib/models/FbDownList.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbDownList.cpp
+
+myrulib_FbExportTree.o: $(srcdir)/sources/MyRuLib/models/FbExportTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbExportTree.cpp
+
+myrulib_FbFilterTree.o: $(srcdir)/sources/MyRuLib/models/FbFilterTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbFilterTree.cpp
+
+myrulib_FbFldrTree.o: $(srcdir)/sources/MyRuLib/models/FbFldrTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbFldrTree.cpp
+
+myrulib_FbGenrTree.o: $(srcdir)/sources/MyRuLib/models/FbGenrTree.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbGenrTree.cpp
+
+myrulib_FbSeqnList.o: $(srcdir)/sources/MyRuLib/models/FbSeqnList.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/models/FbSeqnList.cpp
+
+myrulib_FbAlphabet.o: $(srcdir)/sources/MyRuLib/FbAlphabet.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbAlphabet.cpp
+
+myrulib_FbBookData.o: $(srcdir)/sources/MyRuLib/FbBookData.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookData.cpp
+
+myrulib_FbBookEvent.o: $(srcdir)/sources/MyRuLib/FbBookEvent.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookEvent.cpp
+
+myrulib_FbBookMenu.o: $(srcdir)/sources/MyRuLib/FbBookMenu.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookMenu.cpp
+
+myrulib_FbBookPanel.o: $(srcdir)/sources/MyRuLib/FbBookPanel.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookPanel.cpp
+
+myrulib_FbBookTraverser.o: $(srcdir)/sources/MyRuLib/FbBookTraverser.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbBookTraverser.cpp
+
+myrulib_FbCacheBook.o: $(srcdir)/sources/MyRuLib/FbCacheBook.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbCacheBook.cpp
+
+myrulib_FbColumns.o: $(srcdir)/sources/MyRuLib/FbColumns.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbColumns.cpp
+
+myrulib_FbCollection.o: $(srcdir)/sources/MyRuLib/FbCollection.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbCollection.cpp
+
+myrulib_FbConst.o: $(srcdir)/sources/MyRuLib/FbConst.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbConst.cpp
+
+myrulib_FbDatabase.o: $(srcdir)/sources/MyRuLib/FbDatabase.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDatabase.cpp
+
+myrulib_FbDataPath.o: $(srcdir)/sources/MyRuLib/FbDataPath.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDataPath.cpp
+
+myrulib_FbDateTime.o: $(srcdir)/sources/MyRuLib/FbDateTime.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDateTime.cpp
+
+myrulib_FbDeleteThread.o: $(srcdir)/sources/MyRuLib/FbDeleteThread.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDeleteThread.cpp
+
+myrulib_FbEditBook.o: $(srcdir)/sources/MyRuLib/FbEditBook.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbEditBook.cpp
+
+myrulib_FbExtractInfo.o: $(srcdir)/sources/MyRuLib/FbExtractInfo.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbExtractInfo.cpp
+
+myrulib_FbDownloader.o: $(srcdir)/sources/MyRuLib/FbDownloader.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbDownloader.cpp
+
+myrulib_FbFilterObj.o: $(srcdir)/sources/MyRuLib/FbFilterObj.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFilterObj.cpp
+
+myrulib_FbFilterThread.o: $(srcdir)/sources/MyRuLib/FbFilterThread.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFilterThread.cpp
+
+myrulib_FbFrameThread.o: $(srcdir)/sources/MyRuLib/FbFrameThread.cpp $(MYRULIB_ODEP)
+	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbFrameThread.cpp
+
 myrulib_FbGenres.o: $(srcdir)/sources/MyRuLib/FbGenres.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbGenres.cpp
 
 myrulib_FbGenreThread.o: $(srcdir)/sources/MyRuLib/FbGenreThread.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbGenreThread.cpp
-
-myrulib_FbGenrTree.o: $(srcdir)/sources/MyRuLib/FbGenrTree.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbGenrTree.cpp
 
 myrulib_FbImportCtx.o: $(srcdir)/sources/MyRuLib/FbImportCtx.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbImportCtx.cpp
@@ -735,9 +918,6 @@ myrulib_FbMenu.o: $(srcdir)/sources/MyRuLib/FbMenu.cpp $(MYRULIB_ODEP)
 myrulib_FbParams.o: $(srcdir)/sources/MyRuLib/FbParams.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbParams.cpp
 
-myrulib_FbParamsDlg.o: $(srcdir)/sources/MyRuLib/FbParamsDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbParamsDlg.cpp
-
 myrulib_FbParsingCtx.o: $(srcdir)/sources/MyRuLib/FbParsingCtx.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbParsingCtx.cpp
 
@@ -750,26 +930,11 @@ myrulib_FbPreviewThread.o: $(srcdir)/sources/MyRuLib/FbPreviewThread.cpp $(MYRUL
 myrulib_FbPreviewWindow.o: $(srcdir)/sources/MyRuLib/FbPreviewWindow.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbPreviewWindow.cpp
 
-myrulib_FbProgressDlg.o: $(srcdir)/sources/MyRuLib/FbProgressDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbProgressDlg.cpp
-
-myrulib_FbSeqnList.o: $(srcdir)/sources/MyRuLib/FbSeqnList.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbSeqnList.cpp
-
-myrulib_FbSequenDlg.o: $(srcdir)/sources/MyRuLib/FbSequenDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbSequenDlg.cpp
-
-myrulib_FbServiceDlg.o: $(srcdir)/sources/MyRuLib/FbServiceDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbServiceDlg.cpp
-
 myrulib_FbServiceThread.o: $(srcdir)/sources/MyRuLib/FbServiceThread.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbServiceThread.cpp
 
 myrulib_FbThread.o: $(srcdir)/sources/MyRuLib/FbThread.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbThread.cpp
-
-myrulib_FbTitleDlg.o: $(srcdir)/sources/MyRuLib/FbTitleDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbTitleDlg.cpp
 
 myrulib_FbUpdateThread.o: $(srcdir)/sources/MyRuLib/FbUpdateThread.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbUpdateThread.cpp
@@ -782,9 +947,6 @@ myrulib_FbViewData.o: $(srcdir)/sources/MyRuLib/FbViewData.cpp $(MYRULIB_ODEP)
 
 myrulib_FbViewThread.o: $(srcdir)/sources/MyRuLib/FbViewThread.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbViewThread.cpp
-
-myrulib_FbViewerDlg.o: $(srcdir)/sources/MyRuLib/FbViewerDlg.cpp $(MYRULIB_ODEP)
-	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbViewerDlg.cpp
 
 myrulib_FbWindow.o: $(srcdir)/sources/MyRuLib/FbWindow.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/FbWindow.cpp
@@ -802,7 +964,7 @@ myrulib_base64.o: $(srcdir)/sources/MyRuLib/wx/base64.cpp $(MYRULIB_ODEP)
 	$(CXXC) -c -o $@ $(MYRULIB_CXXFLAGS) $(srcdir)/sources/MyRuLib/wx/base64.cpp
 
 myrulib_resource_rc.o: $(srcdir)/sources/MyRuLib/res/resource.rc $(MYRULIB_ODEP)
-	$(WX_RESCOMP) -i$< -o$@  --include-dir . --include-dir . --define NDEBUG --include-dir $(srcdir)/sources/MyRuLib --include-dir $(srcdir)/3rdparty/faxpp/include --include-dir $(srcdir)/3rdparty/wxsqlite3/include --include-dir $(srcdir)/3rdparty/wxbzipstream
+	$(WX_RESCOMP) -i$< -o$@  --include-dir . --include-dir . --define NDEBUG --define _MYRULIB --include-dir $(srcdir)/sources/MyRuLib --include-dir $(srcdir)/3rdparty/wxsqlite3/include --include-dir $(srcdir)/3rdparty/wxbzipstream
 
 
 # Include dependency info, if present:

@@ -42,12 +42,6 @@ dnl ### begin block 20_COND_PLATFORM_WIN32_1[myrulib.bkl] ###
         COND_PLATFORM_WIN32_1=""
     fi
     AC_SUBST(COND_PLATFORM_WIN32_1)
-dnl ### begin block 20_COND_USE_CURL_yes[myrulib.bkl] ###
-    COND_USE_CURL_yes="#"
-    if test "x$USE_CURL" = "xyes" ; then
-        COND_USE_CURL_yes=""
-    fi
-    AC_SUBST(COND_USE_CURL_yes)
 dnl ### begin block 20_COND_USE_EXPAT_builtin[myrulib.bkl] ###
     COND_USE_EXPAT_builtin="#"
     if test "x$USE_EXPAT" = "xbuiltin" ; then
@@ -60,6 +54,12 @@ dnl ### begin block 20_COND_USE_FAXPP_builtin[myrulib.bkl] ###
         COND_USE_FAXPP_builtin=""
     fi
     AC_SUBST(COND_USE_FAXPP_builtin)
+dnl ### begin block 20_COND_USE_READER_yes[myrulib.bkl] ###
+    COND_USE_READER_yes="#"
+    if test "x$USE_READER" = "xyes" ; then
+        COND_USE_READER_yes=""
+    fi
+    AC_SUBST(COND_USE_READER_yes)
 dnl ### begin block 20_COND_USE_SQLITE_builtin[myrulib.bkl] ###
     COND_USE_SQLITE_builtin="#"
     if test "x$USE_SQLITE" = "xbuiltin" ; then

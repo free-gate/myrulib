@@ -19,30 +19,39 @@
 //  FbImportThread
 //-----------------------------------------------------------------------------
 
-FbImportThread::FbImportThread(wxEvtHandler * owner, wxThreadKind kind)
-	: FbProgressThread(owner, kind),
+FbImportThread::FbImportThread(wxEvtHandler * owner, long flags)
+	: FbProgressThread(owner, wxTHREAD_JOINABLE),
 		m_database(NULL),
-		m_fullpath(FbParams::GetInt(FB_SAVE_FULLPATH))
+		m_fullpath(FbParams(FB_SAVE_FULLPATH)),
+		m_flags(flags)
 {
+}
+
+void * FbImportThread::Entry()
+{
+	int result = Execute() ? wxID_OK : wxID_CANCEL;
+	FbCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, result).Post(GetOwner());
+	return NULL;
+}
+
+bool FbImportThread::Execute()
+{
+	SetRoot(wxGetApp().GetLibPath());
+
+	FbCommonDatabase database;
+	database.JoinThread(this);
+	m_database = &database;
+
+	if (IsClosed()) return false;
+
+	DoParse(HasFlag(fbIMP_ONLY_NEW));
+
+	return true;
 }
 
 void FbImportThread::SetRoot(const wxString & dir)
 {
 	m_basepath = dir;
-}
-
-void * FbImportThread::Entry()
-{
-	SetRoot(wxGetApp().GetLibPath());
-
-	FbCommonDatabase database;
-	m_database = &database;
-
-	FbCounter counter(database);
-	DoParse();
-	counter.Execute();
-
-	return NULL;
 }
 
 wxString FbImportThread::GetRelative(const wxString &filename)
@@ -58,13 +67,15 @@ wxString FbImportThread::GetAbsolute(const wxString &filename)
 	return m_fullpath ? filename : (wxString)wxEmptyString;
 }
 
-bool FbImportThread::OnFile(const wxString &filename, bool progress)
+bool FbImportThread::OnFile(const wxString &filename, bool progress, bool only_new)
 {
 	FbAutoCommit transaction(*m_database);
 	wxFFileInputStream in(filename);
 	if (Ext(filename) == wxT("zip")) {
+		if (only_new && FbImportZip::Exists(*m_database, GetRelative(filename))) return false;
 		return FbImportZip(*this, in, filename).Save(progress);
 	} else {
+		if (only_new && FbImportBook::Exists(*m_database, GetRelative(filename))) return false;
 		return FbImportBook(*this, in, filename).Save();
 	}
 }
@@ -73,16 +84,13 @@ bool FbImportThread::OnFile(const wxString &filename, bool progress)
 //  FbZipImportThread
 //-----------------------------------------------------------------------------
 
-void FbZipImportThread::DoParse()
+void FbZipImportThread::DoParse(bool only_new)
 {
-	SetInfo(_("Processing file:"));
-	wxCriticalSectionLocker enter(sm_queue);
-
 	size_t count = m_filelist.Count();
 	wxLogMessage(_("Start import %d file(s)"), count);
 	for (size_t i = 0; i < count; i++) {
 		if (IsClosed()) break;
-		OnFile(m_filelist[i], true);
+		OnFile(m_filelist[i], true, only_new);
 	}
 	wxLogMessage(_("Finish import %d file(s)"), count);
 }
@@ -112,13 +120,14 @@ private:
 class FbImportTraverser : public wxDirTraverser
 {
 public:
-	FbImportTraverser(FbDirImportThread* thread) : m_thread(thread), m_progress(0) { };
+	FbImportTraverser(FbDirImportThread * thread, bool only_new)
+		: m_thread(thread), m_progress(0), m_only_new(only_new) {}
 
 	virtual wxDirTraverseResult OnFile(const wxString& filename)
 	{
 		if (m_thread->IsClosed()) return wxDIR_STOP;
 		m_thread->DoStep( wxFileName(filename).GetFullName() );
-		m_thread->OnFile(filename, false);
+		m_thread->OnFile(filename, false, m_only_new);
 		return wxDIR_CONTINUE;
 	}
 
@@ -130,15 +139,13 @@ public:
 	}
 
 private:
-	FbDirImportThread *m_thread;
+	FbDirImportThread * m_thread;
 	unsigned int m_progress;
+	bool m_only_new;
 };
 
-void FbDirImportThread::DoParse()
+void FbDirImportThread::DoParse(bool only_new)
 {
-	SetInfo(_("Processing folder:"));
-	wxCriticalSectionLocker enter(sm_queue);
-
 	wxLogMessage(_("Start import directory %s"), m_dirname.c_str());
 
 	wxDir dir(m_dirname);
@@ -148,13 +155,15 @@ void FbDirImportThread::DoParse()
 	}
 
 	{
-		DoStart(m_dirname);
+		wxString msg = _("Processing folder:");
+		msg << wxT(' ') << m_dirname;
+		DoPulse(msg);
 		FbImportCounter counter;
 		dir.Traverse(counter);
-		DoStart(m_dirname, counter.GetCount());
+		DoStart(msg, counter.GetCount());
 	}
 
-	FbImportTraverser traverser(this);
+	FbImportTraverser traverser(this, only_new);
 	dir.Traverse(traverser);
 
 	DoFinish();
@@ -166,8 +175,8 @@ void FbDirImportThread::DoParse()
 //  FbLibImportThread
 //-----------------------------------------------------------------------------
 
-FbLibImportThread::FbLibImportThread(wxEvtHandler * owner, const wxString &file, const wxString &dir, const wxString &lib, bool import)
-	: FbDirImportThread(owner, dir, wxTHREAD_JOINABLE), m_file(file), m_dir(dir), m_lib(lib), m_import(import)
+FbLibImportThread::FbLibImportThread(wxEvtHandler * owner, const wxString &file, const wxString &dir, const wxString &lib, long flags)
+	: FbDirImportThread(owner, dir, flags), m_file(file), m_dir(dir), m_lib(lib)
 {
 	wxURL(MyRuLib::HomePage()).GetProtocol();
 }
@@ -238,35 +247,26 @@ bool FbLibImportThread::CreateLib()
 bool FbLibImportThread::Execute()
 {
 	if (!CreateLib()) return false;
-
 	if (IsClosed()) return false;
 
-	FbProgressEvent(ID_PROGRESS_PULSE, _("Create full text search index")).Post(GetOwner());
+	DoPulse(_("Create full text search index"));
 
 	FbMainDatabase database;
 	int flags = WXSQLITE_OPEN_READWRITE | WXSQLITE_OPEN_CREATE | WXSQLITE_OPEN_FULLMUTEX;
 	database.Open(m_file, wxEmptyString, flags);
 	if (!database.IsOpen()) return false;
+	database.JoinThread(this);
+	database.CreateFullText(false, this);
 	database.SetText(DB_LIBRARY_DIR, m_dir);
 	m_database = &database;
 
 	if (IsClosed()) return false;
 
-	if (m_import) {
+	if (HasFlag(fbIMP_IMPORT)) {
 		SetRoot(m_dir);
-		FbProgressEvent(ID_PROGRESS_START, _("Processing folder:"), 1000).Post(GetOwner());
-		FbCounter counter(database);
-		DoParse();
-		counter.Execute();
+		DoParse(HasFlag(fbIMP_ONLY_NEW));
 	}
 
 	return true;
-}
-
-void * FbLibImportThread::Entry()
-{
-	int result = Execute() ? wxID_OK : wxID_CANCEL;
-	FbCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, result).Post(GetOwner());
-	return NULL;
 }
 

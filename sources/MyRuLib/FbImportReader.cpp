@@ -32,23 +32,32 @@ wxString Md5(md5_context & md5)
 
 WX_DEFINE_OBJARRAY(FbZipEntryList);
 
-FbImportZip::FbImportZip(FbImportThread & owner, wxInputStream &in, const wxString &zipname):
+int FbImportZip::Exists(wxSQLite3Database &database, const wxString &filename)
+{
+	wxString sql = wxT("SELECT id FROM archives WHERE file_name=?");
+	wxSQLite3Statement stmt = database.PrepareStatement(sql);
+	stmt.Bind(1, filename);
+	wxSQLite3ResultSet result = stmt.ExecuteQuery();
+	return result.NextRow() ? result.GetInt(0) : 0;
+}
+
+FbImportZip::FbImportZip(FbImportThread & owner, wxInputStream &in, const wxString &filename):
 	m_owner(owner),
 	m_database(*owner.m_database),
 	m_conv(wxT("cp866")),
 	m_zip(in, m_conv),
-	m_filename(owner.GetRelative(zipname)),
-	m_filepath(owner.GetAbsolute(zipname)),
+	m_filename(owner.GetRelative(filename)),
+	m_filepath(owner.GetAbsolute(filename)),
 	m_filesize(in.GetLength()),
 	m_ok(m_zip.IsOk())
 {
 	if (!m_ok) {
-		wxLogError(_("Zip read error %s"), zipname.c_str());
+		wxLogError(_("Zip read error %s"), filename.c_str());
 		return;
 	}
-	wxLogMessage(_("Import zip %s"), m_filename.c_str());
+	wxLogMessage(_("Import zip %s"), filename.c_str());
 
-    while (wxZipEntry * entry = m_zip.GetNextEntry()) {
+	while (wxZipEntry * entry = m_zip.GetNextEntry()) {
 		if (entry->GetSize()) {
 			wxString filename = entry->GetInternalName();
 			if (Ext(filename) == wxT("fbd")) {
@@ -61,7 +70,7 @@ FbImportZip::FbImportZip(FbImportThread & owner, wxInputStream &in, const wxStri
 			}
 		}
 		if (m_owner.IsClosed()) break;
-    }
+	}
 }
 
 wxZipEntry * FbImportZip::GetInfo(const wxString & filename)
@@ -105,9 +114,10 @@ int FbImportZip::Save(bool progress)
 
 void FbImportZip::Make(bool progress)
 {
+	wxString info = _("Processing file:"); info << wxT(' ');
 	size_t skipped = 0;
 	size_t existed = m_list.Count();
-	if (progress) m_owner.DoStart(m_filename, existed);
+	if (progress) m_owner.DoStart(info + m_filename, existed);
 
 	size_t processed = 0;
 	for (size_t i=0; i<existed; i++) {
@@ -131,6 +141,15 @@ void FbImportZip::Make(bool progress)
 //-----------------------------------------------------------------------------
 //  FbImportBook
 //-----------------------------------------------------------------------------
+
+int FbImportBook::Exists(wxSQLite3Database &database, const wxString &filename)
+{
+	wxString sql = wxT("SELECT id FROM books WHERE file_name=?1 AND id_archive=0 UNION SELECT id_book FROM files WHERE file_name=?1");
+	wxSQLite3Statement stmt = database.PrepareStatement(sql);
+	stmt.Bind(1, filename);
+	wxSQLite3ResultSet result = stmt.ExecuteQuery();
+	return result.NextRow() ? result.GetInt(0) : 0;
+}
 
 void FbImportBook::NewNode(const wxString &name, const FbStringHash &atts)
 {
@@ -265,6 +284,11 @@ int FbImportBook::FindByMD5()
 	return result.NextRow() ? result.GetInt(0) : 0;
 }
 
+static int CompareAuthors(AuthorItem ** n1, AuthorItem ** n2)
+{
+	return (*n1)->GetId() - (*n2)->GetId();
+}
+
 bool FbImportBook::AppendBook()
 {
 	bool ok = true;
@@ -274,36 +298,41 @@ bool FbImportBook::AppendBook()
 	int id_book = - m_database.NewId(DB_NEW_BOOK);
 	int today = FbDateTime::Today().Code();
 
+	int prior;
+	m_authors.Sort(CompareAuthors);
 	for (size_t i = 0; i < m_authors.Count(); i++) {
 		int author = m_authors[i].GetId();
-		{
-			wxString sql = wxT("INSERT INTO books(id,id_archive,id_author,title,genres,file_name,file_path,file_size,file_type,lang,created,md5sum) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-			wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-			stmt.Bind(1, id_book);
-			stmt.Bind(2, m_archive);
-			stmt.Bind(3, author);
-			stmt.Bind(4, m_title);
-			stmt.Bind(5, m_genres);
-			stmt.Bind(6, m_filename);
-			stmt.Bind(7, m_filepath);
-			stmt.Bind(8, (wxLongLong)m_filesize);
-			stmt.Bind(9, m_filetype);
-			stmt.Bind(10, m_lang);
-			stmt.Bind(11, today);
-			stmt.Bind(12, m_md5sum);
-			ok = stmt.ExecuteUpdate() && ok;
-		}
+		if (i && prior == author) {
+			wxLogWarning(_("Dublicate author: %s %s"), m_authors[i].GetFullName().c_str(), m_message.c_str());
+			continue; 
+		} 
+		prior = author;
+		wxString sql = wxT("INSERT INTO books(id,id_archive,id_author,title,genres,file_name,file_path,file_size,file_type,lang,created,md5sum) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+		stmt.Bind(1, id_book);
+		stmt.Bind(2, m_archive);
+		stmt.Bind(3, author);
+		stmt.Bind(4, m_title);
+		stmt.Bind(5, m_genres);
+		stmt.Bind(6, m_filename);
+		stmt.Bind(7, m_filepath);
+		stmt.Bind(8, (wxLongLong)m_filesize);
+		stmt.Bind(9, m_filetype);
+		stmt.Bind(10, m_lang);
+		stmt.Bind(11, today);
+		stmt.Bind(12, m_md5sum);
+		ok = stmt.ExecuteUpdate() && ok;
 	}
 
-    for (size_t i = 0; i < m_sequences.Count(); i++) {
+	for (size_t i = 0; i < m_sequences.Count(); i++) {
 		SequenceItem &sequence = m_sequences[i];
-        wxString sql = wxT("INSERT INTO bookseq(id_book,id_seq,number) VALUES (?,?,?)");
-        wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-        stmt.Bind(1, id_book);
-        stmt.Bind(2, sequence.GetId());
-        stmt.Bind(3, sequence.GetNumber());
+		wxString sql = wxT("INSERT INTO bookseq(id_book,id_seq,number) VALUES (?,?,?)");
+		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
+		stmt.Bind(1, id_book);
+		stmt.Bind(2, sequence.GetId());
+		stmt.Bind(3, sequence.GetNumber());
 		ok = stmt.ExecuteUpdate() && ok;
-    }
+	}
 
 	{
 		wxString content = m_title;
@@ -326,18 +355,14 @@ bool FbImportBook::AppendBook()
 		}
 	}
 
-	FbCounter::AddBook(m_database, id_book);
-
 	return ok;
 }
 bool FbImportBook::AppendFile(int id_book)
 {
-	wxString sql = wxT("SELECT file_name FROM books WHERE id=? AND id_archive=? UNION SELECT file_name FROM files WHERE id_book=? AND id_archive=?");
+	wxString sql = wxT("SELECT file_name FROM books WHERE id=?1 AND id_archive=?2 UNION SELECT file_name FROM files WHERE id_book=?1 AND id_archive=?2");
 	wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
 	stmt.Bind(1, id_book);
 	stmt.Bind(2, m_archive);
-	stmt.Bind(3, id_book);
-	stmt.Bind(4, m_archive);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	while (result.NextRow()) {
 		if (result.GetString(0) == m_filename) {
@@ -369,4 +394,3 @@ bool FbImportBook::Save()
 		return id_book && AppendFile(id_book);
 	}
 }
-

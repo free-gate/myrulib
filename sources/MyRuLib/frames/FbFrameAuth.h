@@ -7,37 +7,36 @@
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
 #include "FbFrameBase.h"
-#include "FbAuthList.h"
+#include "models/FbAuthList.h"
 #include "FbAlphabet.h"
 
-enum FbAuthorListMode
+class FbAuthViewCtrl
+	: public FbMasterViewCtrl
 {
-	FB_AUTHOR_MODE_CHAR,
-	FB_AUTHOR_MODE_TEXT,
-	FB_AUTHOR_MODE_CODE,
+private:
+	void OnMasterReplace(wxCommandEvent& event);
+	void OnMasterAppend(wxCommandEvent& event);
+	void OnMasterModify(wxCommandEvent& event);
+	void OnMasterDelete(wxCommandEvent& event);
+	void OnMasterPage(wxCommandEvent& event);
+	void OnMasterPageUpdateUI(wxUpdateUIEvent & event);
+	DECLARE_EVENT_TABLE()
 };
 
 class FbFrameAuth : public FbFrameBase
 {
 	public:
-		FbFrameAuth(wxAuiMDIParentFrame * parent);
-		virtual wxString GetTitle() const { return _("Authors"); };
+		FbFrameAuth(wxAuiNotebook * parent, bool select = false);
 		void FindAuthor(const wxString &text);
 		void ActivateAuthors();
 		virtual void UpdateFonts(bool refresh);
-	protected:
-		virtual void CreateControls();
-		virtual wxMenuBar * CreateMenuBar();
 	private:
 		void ShowContextMenu(const wxPoint& pos, wxTreeItemId item);
 		void CreateMasterThread();
 		void CreateColumns();
 	private:
-		wxSplitterWindow * m_BooksSplitter;
 		FbAlphabetCombo * m_LetterList;
-	private:
 		FbAuthListInfo m_info;
-		wxString letters;
 	private:
 		void OnBooksCount(FbCountEvent& event);
 		void OnColClick(wxListEvent& event);
@@ -46,13 +45,8 @@ class FbFrameAuth : public FbFrameBase
 		void OnChoiceLetter(wxCommandEvent& event);
 		void OnViewAlphavet(wxCommandEvent& event);
 		void OnViewAlphavetUpdateUI(wxUpdateUIEvent & event);
-		void OnMasterAppend(wxCommandEvent& event);
-		void OnMasterModify(wxCommandEvent& event);
-		void OnMasterDelete(wxCommandEvent& event);
-		void OnMasterReplace(wxCommandEvent& event);
-		void OnMasterPage(wxCommandEvent& event);
-		void OnMasterPageUpdateUI(wxUpdateUIEvent & event);
 		void OnContextMenu(wxTreeEvent& event);
+		void OnNumber(wxCommandEvent& event);
 		void OnModel( FbArrayEvent& event );
 		void OnArray( FbArrayEvent& event );
 		DECLARE_EVENT_TABLE()
@@ -62,15 +56,6 @@ class FbFrameAuth : public FbFrameBase
 		{
 			public:
 				MasterMenu(int id);
-		};
-	private:
-		class MenuBar: public FbFrameMenu
-		{
-			public:
-				MenuBar();
-		};
-		class MenuMaster: public FbMenu {
-			public: MenuMaster();
 		};
 };
 

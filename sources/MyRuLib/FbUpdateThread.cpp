@@ -4,7 +4,6 @@
 #include "FbDateTime.h"
 #include "FbConst.h"
 #include "FbParams.h"
-#include "FbCounter.h"
 #include "MyRuLibApp.h"
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
@@ -20,28 +19,24 @@ FbUpdateThread::FbUpdateThread()
 
 void * FbUpdateThread::Entry()
 {
-	int date = FbParams::GetInt(DB_DATAFILE_DATE);
+	int date = FbParams(DB_DATAFILE_DATE);
 	int today = FbDateTime::Today().Code() + 20000000;
-	wxString type = Lower(FbParams::GetStr(DB_LIBRARY_TYPE));
+	wxString type = Lower(FbParams(DB_LIBRARY_TYPE));
 	if (date == 0) return NULL;
 
 	FbCommonDatabase database;
-	FbCounter counter(database);
 
 	bool ok = false;
 	while (date && date < today) {
 		FbUpdateItem item(database, date, type);
 		date = item.Execute();
 		if (date) {
-			FbParams::Set(DB_DATAFILE_DATE, date);
+			FbParams(DB_DATAFILE_DATE) = date;
 			ok = true;
 		}
 	}
 
-	if (ok) {
-		counter.Execute();
-		wxLogWarning(_("Database successfully updated"));
-	}
+	if (ok) wxLogWarning(_("Database successfully updated"));
 
 	return NULL;
 }
@@ -164,8 +159,8 @@ void FbUpdateItem::ExecDelete()
 			wxT("books"), wxT("id"),
 		},
 		{
-			wxT("files"), wxT("id_archive"),
-			wxT("archives"), wxT("id"),
+			wxT("files"), wxT("id_book"),
+			wxT("books"), wxT("id"),
 		},
 		{
 			wxT("fts_auth"), wxT("docid"),
@@ -239,18 +234,6 @@ void FbUpdateItem::ExecInsert()
 			wxT("fts_seqn"),  wxT("docid,content"),
 			wxT("sequences"), wxT("id,LOW(value)"),
 			},
-		{
-			wxT("tmp_a"), wxT("id"),
-			wxT("books"), wxT("id"),
-		},
-		{
-			wxT("tmp_s"), wxT("id"),
-			wxT("sequences"), wxT("id"),
-		},
-		{
-			wxT("tmp_d"), wxT("id"),
-			wxT("books"), wxT("created"),
-		},
 	};
 
 	size_t size = sizeof( list ) / sizeof( wxChar * ) / 4;

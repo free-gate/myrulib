@@ -108,10 +108,10 @@ class FbMasterDownInfo: public FbMasterInfoBase
 class FbMasterDateInfo: public FbMasterInfoBase
 {
 	public:
-		FbMasterDateInfo(int id, int lib_min, int lib_max, int usr_min, int usr_max)
-			: m_id(id), m_lib_min(lib_min), m_lib_max(lib_max), m_usr_min(usr_min), m_usr_max(usr_max) {}
+		FbMasterDateInfo(int id)
+			: m_id(id) {}
 		FbMasterDateInfo(const FbMasterDateInfo &info)
-			: FbMasterInfoBase(info), m_id(info.m_id), m_lib_min(info.m_lib_min), m_lib_max(info.m_lib_max), m_usr_min(info.m_usr_min), m_usr_max(info.m_usr_max) {}
+			: FbMasterInfoBase(info), m_id(info.m_id) {}
 		virtual FbMasterInfoBase * Clone() const
 			{ return new FbMasterDateInfo(*this); }
 		int GetId() const
@@ -125,10 +125,6 @@ class FbMasterDateInfo: public FbMasterInfoBase
 		virtual void Bind(wxSQLite3Statement &stmt) const;
 	private:
 		int m_id;
-		int m_lib_min;
-		int m_lib_max;
-		int m_usr_min;
-		int m_usr_max;
 		DECLARE_CLASS(FbMasterDateInfo);
 };
 
@@ -214,12 +210,37 @@ class FbMasterFindInfo: public FbMasterInfoBase
 		virtual void * Execute(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter);
 		virtual wxString GetWhere(wxSQLite3Database &database) const;
 		virtual void Bind(wxSQLite3Statement &stmt) const;
+		bool DoFind(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter);
 	private:
 		wxString m_title;
 		wxString m_author;
 		bool m_full;
 		bool m_auth;
 		DECLARE_CLASS(FbMasterFindInfo);
+};
+
+class FbMasterClssInfo: public FbMasterInfoBase
+{
+	public:
+		FbMasterClssInfo(const wxString &sql, const wxString &id)
+			: m_sql(sql), m_id(id) {}
+		FbMasterClssInfo(const FbMasterClssInfo & info)
+			: FbMasterInfoBase(info), m_sql(info.m_sql), m_id(info.m_id) {}
+		virtual FbMasterClssInfo * Clone() const
+			{ return new FbMasterClssInfo(*this); }
+		wxString GetId() const
+			{ return m_id; }
+		virtual bool operator==(const FbMasterInfoBase & info) {
+			const FbMasterClssInfo * data = wxDynamicCast(&info, FbMasterClssInfo);
+			return data && data->m_sql == m_sql && data->m_id == m_id;
+		}
+	protected:
+		virtual wxString GetWhere(wxSQLite3Database &database) const;
+		virtual void Bind(wxSQLite3Statement &stmt) const;
+	private:
+		const wxString m_sql;
+		const wxString m_id;
+		DECLARE_CLASS(FbMasterClssInfo);
 };
 
 #endif // __FBMASTERTYPES_H__

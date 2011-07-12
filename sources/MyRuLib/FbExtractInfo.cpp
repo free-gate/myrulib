@@ -17,7 +17,7 @@ FbExtractItem::FbExtractItem(wxSQLite3ResultSet & result, int id, const wxString
 {
 	librusec = id_book>0 && (result.GetInt(wxT("file")) == 0);
 	if (librusec) {
-		if (FbParams::IsGenesis()) {
+		if (FbParamItem::IsGenesis()) {
 			book_name << id / 1000 * 1000 << wxT('/') << Lower(md5);
 		} else if (book_name.IsEmpty()) {
 			book_name << id << wxT('.') << ext;
@@ -93,7 +93,7 @@ bool FbExtractItem::FindBook(const wxString &basepath, wxFileName &filename) con
 wxString FbExtractItem::ErrorName() const
 {
 	if (librusec) {
-		return wxString::Format(wxT("$(%s)/%s"), FbParams::GetStr(FB_CONFIG_TYPE).c_str(), book_name.c_str());
+		return wxString::Format(wxT("$(%s)/%s"), FbParams(FB_CONFIG_TYPE).Str().c_str(), book_name.c_str());
 	} else if ( id_archive ) {
 		if ( wxFileName(zip_name).GetName() == book_name )
 			return zip_name.c_str();

@@ -12,11 +12,9 @@
 class FbFrameDate : public FbFrameBase
 {
 	public:
-		FbFrameDate(wxAuiMDIParentFrame * parent);
+		FbFrameDate(wxAuiNotebook * parent, bool select = false);
 		virtual wxString GetTitle() const { return _("Calendar"); };
-		void ActivateAuthors();
 	protected:
-		virtual void CreateControls();
 		void CreateColumns();
 	private:
 		void ReplaceData(int old_id, int new_id, wxTreeItemId selected, const wxString &newname);
@@ -25,13 +23,11 @@ class FbFrameDate : public FbFrameBase
 		void AppendAttay(FbTreeModel &model, const wxArrayInt &items);
 	private:
 		wxSplitterWindow * m_BooksSplitter;
-		wxTextCtrl * m_FindText;
-		wxStaticText * m_FindInfo;
-		wxString m_SequenceText;
-		int m_SequenceCode;
 	private:
 		void OnBooksCount(FbCountEvent & event);
 		void OnModel(FbModelEvent & event);
+		void OnNumber(wxCommandEvent& event);
+		DECLARE_CLASS(FbFrameDate)
 		DECLARE_EVENT_TABLE()
 };
 

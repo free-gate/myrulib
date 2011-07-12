@@ -17,39 +17,6 @@
 #endif // __WXMSW__
 
 //-----------------------------------------------------------------------------
-//  FbCacheData
-//-----------------------------------------------------------------------------
-
-IMPLEMENT_CLASS(FbCacheData, wxObject)
-
-FbCacheData::FbCacheData(int code, const wxString &name, int count)
-	: m_code(code), m_name(name), m_count(count)
-{
-}
-
-FbCacheData::FbCacheData(wxSQLite3ResultSet &result)
-	: m_code(result.GetInt(0)), m_name(result.GetString(1)), m_count(result.GetInt(2))
-{
-}
-
-FbCacheData::FbCacheData(int code, wxSQLite3ResultSet &result)
-	: m_code(code), m_name(result.GetString(0)), m_count(result.GetInt(1))
-{
-}
-
-wxString FbCacheData::GetValue(size_t col) const
-{
-	switch (col) {
-		case  0: return m_name;
-		case  1: return FbCollection::Format(m_count);
-		default: return wxEmptyString;
-	}
-}
-
-#include <wx/arrimpl.cpp>
-WX_DEFINE_OBJARRAY(FbCasheDataArray);
-
-//-----------------------------------------------------------------------------
 //  FbBookAuths
 //-----------------------------------------------------------------------------
 
@@ -140,6 +107,7 @@ FbCollection::FbCollection(const wxString &filename)
 	m_database.Open(filename);
 	m_database.AttachConfig();
 	m_database.CreateFunction(wxT("AGGREGATE"), 1, m_aggregate);
+	m_database.CreateFullText();
 	LoadParams();
 }
 
@@ -175,9 +143,16 @@ wxString FbCollection::GetSeqn(int code, size_t col)
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
 	if (collection == NULL) return wxEmptyString;
-	wxString sql = wxT("SELECT value, number FROM sequences WHERE id=?");
-	FbCacheData * data = collection->GetData(code, collection->m_seqns, sql);
-	return data ? data->GetValue(col) : wxString();
+
+	if (collection->m_seqns.count(code)) {
+		return collection->m_seqns[code];
+	} else {
+		wxString sql = wxT("SELECT value FROM sequences WHERE id="); sql << code;
+		wxSQLite3ResultSet result = collection->m_database.ExecuteQuery(sql);
+		wxString name = result.NextRow() ? result.GetString(0) : wxString();
+		collection->m_seqns[code] = name;
+		return name;
+	}
 }
 
 wxString FbCollection::GetAuth(int code, size_t col)
@@ -187,23 +162,30 @@ wxString FbCollection::GetAuth(int code, size_t col)
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
 	if (collection == NULL) return wxEmptyString;
-	wxString sql = wxT("SELECT full_name, number FROM authors WHERE id=?");
-	FbCacheData * data = collection->GetData(code, collection->m_auths, sql);
-	return data ? data->GetValue(col) : wxString();
+
+	if (collection->m_auths.count(code)) {
+		return collection->m_auths[code];
+	} else {
+		wxString sql = wxT("SELECT full_name, number FROM authors WHERE id="); sql << code;
+		wxSQLite3ResultSet result = collection->m_database.ExecuteQuery(sql);
+		wxString name = result.NextRow() ? result.GetString(0) : wxString();
+		collection->m_auths[code] = name;
+		return name;
+	}
 }
 
-void FbCollection::AddSeqn(FbCacheData * data)
+void FbCollection::AddSeqn(int code, const wxString &name)
 {
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
-	if (collection) collection->AddData(collection->m_seqns, data);
+	if (collection) collection->m_seqns[code] = name;
 }
 
-void FbCollection::AddAuth(FbCacheData * data)
+void FbCollection::AddAuth(int code, const wxString &name)
 {
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
-	if (collection) collection->AddData(collection->m_auths, data);
+	if (collection) collection->m_auths[code] = name;
 }
 
 void FbCollection::AddInfo(FbViewData * info)
@@ -211,14 +193,6 @@ void FbCollection::AddInfo(FbViewData * info)
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
 	if (collection) collection->AddBookInfo(info);
-}
-
-FbCacheData * FbCollection::AddData(FbCasheDataArray &items, FbCacheData * data)
-{
-	size_t count = items.Count();
-	items.Insert(data, 0);
-	if (count > DATA_CACHE_SIZE) items.RemoveAt(DATA_CACHE_SIZE, count - DATA_CACHE_SIZE);
-	return data;
 }
 
 FbCacheBook FbCollection::AddBook(const FbCacheBook & book)
@@ -240,14 +214,14 @@ void FbCollection::ResetSeqn(int code)
 {
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
-	if (collection) collection->ResetData(collection->m_seqns, code);
+	if (collection) collection->m_seqns.erase(code);
 }
 
 void FbCollection::ResetAuth(int code)
 {
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
-	if (collection) collection->ResetData(collection->m_auths, code);
+	if (collection) collection->m_seqns.erase(code);
 }
 
 void FbCollection::ResetInfo(int code)
@@ -269,33 +243,6 @@ void FbCollection::ResetBook(const wxArrayInt &books)
 	wxCriticalSectionLocker locker(sm_section);
 	FbCollection * collection = GetCollection();
 	if (collection) collection->DoResetBook(books);
-}
-
-FbCacheData * FbCollection::GetData(int code, FbCasheDataArray &items, const wxString &sql)
-{
-	size_t count = items.Count();
-	for (size_t i = 0; i < count; i++) {
-		FbCacheData & data = items[i];
-		if (data.GetCode() == code) return &data;
-	}
-
-	wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-	stmt.Bind(1, code);
-	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-	if (result.NextRow())
-		return AddData(items, new FbCacheData(code, result));
-	else return NULL;
-}
-
-void FbCollection::ResetData(FbCasheDataArray &items, int code)
-{
-	size_t count = items.Count();
-	for (size_t i = 0; i < count; i++) {
-		if (items[i].GetCode() == code) {
-			items.RemoveAt(i);
-			break;
-		}
-	}
 }
 
 void FbCollection::DoResetInfo(int code)
@@ -511,7 +458,7 @@ int FbCollection::GetParamInt(int param)
 		if (collection && collection->m_params.count(param))
 			return collection->m_params[param].m_int;
 	}
-	return FbParams::DefaultInt(param);
+	return FbParamItem::DefaultInt(param);
 }
 
 wxString FbCollection::GetParamStr(int param)
@@ -524,7 +471,7 @@ wxString FbCollection::GetParamStr(int param)
 		if (collection && collection->m_params.count(param))
 			return collection->m_params[param].m_str;
 	}
-	return FbParams::DefaultStr(param);
+	return FbParamItem::DefaultStr(param);
 }
 
 void FbCollection::SetParamInt(int param, int value)
@@ -543,7 +490,7 @@ void FbCollection::SetParamInt(int param, int value)
 	if (collection == NULL) return;
 
 	const wxChar * table = param < 100 ? wxT("params") : wxT("config");
-	if (value == FbParams::DefaultInt(param)) {
+	if (value == FbParamItem::DefaultInt(param)) {
 		wxString sql = wxString::Format( wxT("DELETE FROM %s WHERE id=?"), table);
 		wxSQLite3Statement stmt = collection->m_database.PrepareStatement(sql);
 		stmt.Bind(1, param);
@@ -571,7 +518,7 @@ void FbCollection::SetParamStr(int param, const wxString &value)
 	if (collection == NULL) return;
 
 	const wxChar * table = param < 100 ? wxT("params") : wxT("config");
-	if (value == FbParams::DefaultStr(param)) {
+	if (value == FbParamItem::DefaultStr(param)) {
 		wxString sql = wxString::Format( wxT("DELETE FROM %s WHERE id=?"), table);
 		wxSQLite3Statement stmt = collection->m_database.PrepareStatement(sql);
 		stmt.Bind(1, param);

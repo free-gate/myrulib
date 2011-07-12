@@ -7,7 +7,7 @@
 
 FbDownloader::FbDownloader(): m_condition(m_mutex), m_closed(false)
 {
-	wxURL(MyRuLib::HomePage()).GetProtocol().SetTimeout(FbParams::GetInt(FB_WEB_TIMEOUT));
+	wxURL(MyRuLib::HomePage()).GetProtocol().SetTimeout(FbParams(FB_WEB_TIMEOUT));
 }
 
 void FbDownloader::Signal()
@@ -63,7 +63,7 @@ wxString FbDownloader::GetBook()
 
 wxString FbDownloader::GetFilename(const wxString &md5sum, bool bCreateFolder)
 {
-	wxString path = FbParams::GetPath(FB_DOWNLOAD_DIR);
+	wxString path = FbParamItem::GetPath(FB_DOWNLOAD_DIR);
 
 	wxString name = md5sum;
 	for (int i=1; i<=3; i++) {

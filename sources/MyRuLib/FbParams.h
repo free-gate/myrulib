@@ -61,6 +61,7 @@ enum FbParamKey {
 	FB_FILTER_USR  = 142,
 	FB_FILTER_LANG = 143,
 	FB_FILTER_TYPE = 144,
+	FB_FILTER_DEL  = 145,
 
 	FB_AUTO_DOWNLD  = 150,
 	FB_USE_PROXY	= 151,
@@ -100,9 +101,11 @@ enum FbParamKey {
 	FB_ALPHABET_EN   = 193,
 	FB_LANG_LOCALE   = 194,
 	FB_IMAGE_WIDTH   = 195,
+	FB_STATUS_SHOW   = 196,
 
 	FB_GRAY_FONT     = 211,
 	FB_CLEAR_LOG     = 212,
+	FB_NUMBER_FORMAT = 213,
 
 	FB_TITLE_0 = 220,
 	FB_TITLE_1 = 221,
@@ -110,6 +113,16 @@ enum FbParamKey {
 	FB_TITLE_3 = 223,
 	FB_TITLE_4 = 224,
 	FB_TITLE_5 = 225,
+	
+	FB_READER_FONT_COLOUR  = 901,
+	FB_READER_BACK_COLOUR  = 902,
+	FB_READER_FONT_NAME    = 903,
+	FB_READER_FONT_SIZE    = 904,
+	FB_HEADER_FONT_NAME    = 905,
+	FB_HEADER_FONT_SIZE    = 906,
+	FB_HEADER_FONT_COLOUR  = 907,
+	FB_READER_SHOW_HEADER  = 908,
+	FB_READER_INTERLINE    = 909,
 };
 
 enum FbFrameKey {
@@ -118,11 +131,21 @@ enum FbFrameKey {
 	FB_BOOK_COLUMNS,
 };
 
-class FbParams {
+class FbParamItem {
 	public:
-		static int GetInt(int param);
+		FbParamItem(const FbParamItem & item): m_param(item.m_param) {}
+		FbParamItem(int param): m_param(param) {}
+		FbParamItem(wxWindowID winid, int param): m_param(Param(winid, param)) {}
+		operator int () const;
+		operator wxFont () const;
+		operator wxString () const;
+		FbParamItem & operator = (int value);
+		FbParamItem & operator = (bool value);
+		FbParamItem & operator = (const wxString & value);
+		int Int() const;
+		wxString Str() const;
+	public:
 		static int GetInt(wxWindowID winid, int param);
-		static wxString GetStr(int param);
 		static wxString GetPath(int param);
 		static wxString GetStr(wxWindowID winid, int param);
 		static wxFont GetFont(int param);
@@ -137,7 +160,21 @@ class FbParams {
 		static void AddRecent(const wxString &text, const wxString &title);
 		static bool IsGenesis();
 	private:
+		static wxString GetStr(int param);
+		static int GetInt(int param);
 		static int Param(wxWindowID winid, int param);
+		const int m_param;
 };
+
+class FbParamList {
+	public:
+		FbParamList() {}
+		FbParamItem operator()(int param)
+			{ return FbParamItem(param); }
+		FbParamItem operator()(wxWindowID winid, int param)
+			{ return FbParamItem(winid, param); }
+};
+
+extern FbParamList FbParams;
 
 #endif // __FBPARAMS_H__
