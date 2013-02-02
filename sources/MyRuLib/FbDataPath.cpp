@@ -7,7 +7,7 @@ wxString FbStandardPaths::GetDefaultName() const
 	wxString result = wxStandardPaths::GetDocumentsDir();
 
 #if wxCHECK_VERSION(2, 9, 0)
-	result = AppendPathComponent(result, wxEmptyString);
+	result = AppendPathComponent(result, wxTheApp->GetAppName());
 #else
 	result = AppendAppName(result);
 #endif
@@ -17,16 +17,16 @@ wxString FbStandardPaths::GetDefaultName() const
 
 wxString FbStandardPaths::GetUserConfigDir() const
 {
-#if defined(__WIN32__)
+#ifdef __WXMSW__
 	wxString result = wxStandardPaths::GetUserConfigDir();
-#else
+#else  // __WXMSW__
 	wxString result = wxStandardPaths::GetUserConfigDir() + wxT("/.config/");
-#endif
+#endif // __WXMSW__
 
 	if (!wxFileName::DirExists(result)) wxFileName::Mkdir(result);
 
 #if wxCHECK_VERSION(2, 9, 0)
-	result = AppendPathComponent(result, wxEmptyString);
+	result = AppendPathComponent(result, wxTheApp->GetAppName());
 #else
 	result = AppendAppName(result);
 #endif

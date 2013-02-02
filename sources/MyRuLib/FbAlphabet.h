@@ -1,11 +1,26 @@
 #ifndef __FBALPHABET_H__
 #define __FBALPHABET_H__
 
-#include <wx/dcmemory.h>
-#include <wx/combo.h>
-#include <wx/odcombo.h>
+#include "controls/FbComboBox.h"
+#include "controls/FbTreeModel.h"
 #include "FbBookEvent.h"
 #include "FbThread.h"
+
+class FbAlphabetData: public FbModelData
+{
+	public:
+		FbAlphabetData(const wxString & letter, int count = 0)
+			: m_letter(letter), m_count(Format(count)) {}
+		FbAlphabetData(const wxString & letter, const wxString & count)
+			: m_letter(letter), m_count(count) {}
+		virtual FbModelData * Clone() const
+			{ return new FbAlphabetData(m_letter, m_count); }
+		virtual wxString GetValue(FbModel & model, size_t col = 0) const;
+	private:
+		wxString m_letter;
+		wxString m_count;
+		DECLARE_CLASS(FbAlphabetData);
+};
 
 class FbAlphabetThread: public FbThread
 {
@@ -20,35 +35,33 @@ class FbAlphabetThread: public FbThread
 		wxEvtHandler * m_owner;
 };
 
-class FbAlphabetCombo : public wxOwnerDrawnComboBox
+class FbAlphabetCombo : public FbComboBox
 {
 	public:
-		FbAlphabetCombo()
-			: m_rowHeight(0), m_thread(this), m_divider(-1) { m_thread.Execute(); }
+		FbAlphabetCombo();
 
-		virtual ~FbAlphabetCombo()
-			{ m_thread.Close(); m_thread.Wait(); }
+		virtual ~FbAlphabetCombo();
 
-		virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const;
+		void UpdateModel();
+
+		virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int index, FbModelItem item, int flags ) const;
 
 		virtual wxCoord OnMeasureItem( size_t item ) const;
 
-		virtual wxCoord OnMeasureItemWidth( size_t WXUNUSED(item) ) const
-			{ return -1; }
+		virtual wxCoord OnMeasureItemWidth( size_t WXUNUSED(item) ) const { return -1; }
 
 		virtual bool SetFont(const wxFont& font);
 
-		void SetText(const wxString &text = wxEmptyString)
-			{ m_text = text; Refresh(); }
+		void SetText(const wxString &text = wxEmptyString);
 
 	private:
 		int m_rowHeight;
-		FbAlphabetThread m_thread;
+		FbAlphabetThread * m_thread;
 		wxString m_text;
 		int m_divider;
 
 	private:
-		void OnLetters(FbLettersEvent &event);
+		void OnModel( FbModelEvent& event );
 		DECLARE_EVENT_TABLE()
 };
 

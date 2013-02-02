@@ -2,6 +2,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "FbClientData.h"
 #include "dialogs/FbExportDlg.h"
 #include "FbMainMenu.h"
@@ -22,7 +23,7 @@ FbFrameDate::FbFrameDate(wxAuiNotebook * parent, bool select)
 	: FbFrameBase(parent, ID_FRAME_DATE, GetTitle(), select)
 {
 	m_MasterList = new FbMasterViewCtrl;
-	m_MasterList->Create(this, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
+	m_MasterList->Create(this, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style());
 	CreateColumns();
 
 	CreateBooksPanel(this);
@@ -31,13 +32,19 @@ FbFrameDate::FbFrameDate(wxAuiNotebook * parent, bool select)
 	CreateControls(select);
 
 	m_MasterThread = new FbDateTreeThread(this, m_MasterFile);
+	m_MasterThread->SetCountSQL(GetCountSQL(), m_filter);
 	m_MasterThread->Execute();
+}
+
+wxString FbFrameDate::GetCountSQL()
+{
+	return wxT("SELECT created, COUNT(DISTINCT id) FROM books WHERE 1 %s GROUP BY created");
 }
 
 void FbFrameDate::CreateColumns()
 {
-	m_MasterList->AddColumn(0, _("Date"), 40, wxALIGN_LEFT);
-	m_MasterList->AddColumn(1, _("Num."), 10, wxALIGN_RIGHT);
+	m_MasterList->AddColumn(0, _("Date"), -10, wxALIGN_LEFT);
+	m_MasterList->AddColumn(1, _("Num."), 6, wxALIGN_RIGHT);
 }
 
 void FbFrameDate::OnBooksCount(FbCountEvent& event)

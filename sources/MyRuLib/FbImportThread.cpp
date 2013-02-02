@@ -1,6 +1,7 @@
 #include "FbImportThread.h"
 #include "FbImportReader.h"
 #include "FbInternetBook.h"
+#include "FbSmartPtr.h"
 #include <wx/dir.h>
 #include <wx/list.h>
 #include <wx/wfstream.h>
@@ -9,7 +10,6 @@
 #include "FbDateTime.h"
 #include "FbGenres.h"
 #include "FbParams.h"
-#include "ZipReader.h"
 #include "MyRuLibApp.h"
 #include "polarssl/md5.h"
 #include "wx/base64.h"
@@ -31,6 +31,7 @@ void * FbImportThread::Entry()
 {
 	int result = Execute() ? wxID_OK : wxID_CANCEL;
 	FbCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, result).Post(GetOwner());
+	FbCommandEvent(wxEVT_COMMAND_MENU_SELECTED, ID_PROGRESS_FINISH).Post();
 	return NULL;
 }
 
@@ -52,6 +53,9 @@ bool FbImportThread::Execute()
 void FbImportThread::SetRoot(const wxString & dir)
 {
 	m_basepath = dir;
+#ifdef __WXMSW__
+	m_volume = wxFileName(dir).GetVolume();
+#endif
 }
 
 wxString FbImportThread::GetRelative(const wxString &filename)
@@ -64,7 +68,12 @@ wxString FbImportThread::GetRelative(const wxString &filename)
 
 wxString FbImportThread::GetAbsolute(const wxString &filename)
 {
+#ifdef __WXMSW__
+	if (m_fullpath || wxFileName(filename).GetVolume() != m_volume) return filename;
+	return wxEmptyString;
+#else
 	return m_fullpath ? filename : (wxString)wxEmptyString;
+#endif
 }
 
 bool FbImportThread::OnFile(const wxString &filename, bool progress, bool only_new)
@@ -201,13 +210,8 @@ bool FbLibImportThread::Extract(const wxString &filename)
 	wxFFileInputStream in(filename);
 	wxZipInputStream zip(in);
 
-	bool ok = zip.IsOk();
-	if (!ok) return false;
-
-	if (wxZipEntry * entry = zip.GetNextEntry()) {
-		ok = zip.OpenEntry(*entry);
-		delete entry;
-	} else ok = false;
+    FbSmartPtr<wxZipEntry> entry;
+    bool ok = zip.IsOk() && (entry = zip.GetNextEntry()) && zip.OpenEntry(*entry);
 	if (!ok) return false;
 
 	wxString msg = _("Extract file"); msg << wxT(": ") << m_lib;

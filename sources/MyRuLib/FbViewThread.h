@@ -3,8 +3,8 @@
 
 #include <wx/wx.h>
 #include <wx/thread.h>
-#include <wx/wxsqlite3.h>
 #include "FbCacheBook.h"
+#include "FbDatabase.h"
 #include "controls/FbViewItem.h"
 #include "FbThread.h"
 #include "FbViewContext.h"
@@ -24,8 +24,9 @@ class FbViewThread: public FbThread
 		void OpenBook();
 		void OpenNone();
 		void SendHTML(wxWindowID winid, const wxString &html);
-		wxString GetDescr(wxSQLite3Database &database);
-		wxString GetFiles(wxSQLite3Database &database);
+		wxString GetDescr(FbDatabase & database);
+		wxString GetFiles(FbDatabase & database);
+		wxString GetSeqns(FbDatabase & database);
 	private:
 		wxEvtHandler * m_frame;
 		FbViewContext m_ctx;

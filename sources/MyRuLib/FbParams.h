@@ -102,10 +102,14 @@ enum FbParamKey {
 	FB_LANG_LOCALE   = 194,
 	FB_IMAGE_WIDTH   = 195,
 	FB_STATUS_SHOW   = 196,
+	FB_USE_COOLREADER = 197,
+	FB_FILE_LENGTH   = 198,
 
 	FB_GRAY_FONT     = 211,
 	FB_CLEAR_LOG     = 212,
 	FB_NUMBER_FORMAT = 213,
+	FB_GRID_HRULES   = 214,
+	FB_GRID_VRULES   = 215,
 
 	FB_TITLE_0 = 220,
 	FB_TITLE_1 = 221,
@@ -113,7 +117,7 @@ enum FbParamKey {
 	FB_TITLE_3 = 223,
 	FB_TITLE_4 = 224,
 	FB_TITLE_5 = 225,
-	
+
 	FB_READER_FONT_COLOUR  = 901,
 	FB_READER_BACK_COLOUR  = 902,
 	FB_READER_FONT_NAME    = 903,
@@ -123,6 +127,8 @@ enum FbParamKey {
 	FB_HEADER_FONT_COLOUR  = 907,
 	FB_READER_SHOW_HEADER  = 908,
 	FB_READER_INTERLINE    = 909,
+	FB_READER_HYPHENATION  = 910,
+	FB_READER_PAGE_COUNT   = 911,
 };
 
 enum FbFrameKey {
@@ -173,6 +179,8 @@ class FbParamList {
 			{ return FbParamItem(param); }
 		FbParamItem operator()(wxWindowID winid, int param)
 			{ return FbParamItem(winid, param); }
+	public:
+		long Style(long style = wxBORDER_SUNKEN) const;
 };
 
 extern FbParamList FbParams;

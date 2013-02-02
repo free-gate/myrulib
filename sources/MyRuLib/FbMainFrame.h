@@ -5,11 +5,14 @@
 #include <wx/aui/aui.h>
 #include <wx/toolbar.h>
 #include <wx/textctrl.h>
-#include "controls/ProgressBar.h"
-#include "FbLogoBitmap.h"
+#include <wx/srchctrl.h>
 #include "FbBookEvent.h"
-#include "FbMasterInfo.h"
 #include "FbWindow.h"
+
+class FbMasterInfo;
+class FbSearchCtrl;
+class ProgressBar;
+class FbTreeViewCtrl;
 
 class FbMainFrame : public wxFrame
 {
@@ -19,8 +22,7 @@ class FbMainFrame : public wxFrame
 		virtual wxString GetTitle() const;
 		void Localize(int language);
 		wxAuiNotebook * GetNotebook() { return &m_FrameNotebook; }
-	protected:
-		virtual bool ProcessEvent(wxEvent& event);
+        void UpdateBook(int id);
 	private:
 		bool Create(wxWindow * parent, wxWindowID id, const wxString & title);
 		wxWindow * GetActiveChild();
@@ -43,9 +45,8 @@ class FbMainFrame : public wxFrame
 		void OpenClss(int code, bool select = true);
 		wxWindow * CreateFrame(wxWindowID id, bool select = false);
 	private:
-		wxEvent * m_LastEvent;
-		wxTextCtrl * m_FindAuthor;
-		wxTextCtrl * m_FindTitle;
+		FbSearchCtrl * m_FindAuthor;
+		FbSearchCtrl * m_FindTitle;
 		ProgressBar * m_ProgressBar;
 		wxAuiManager m_FrameManager;
 		wxAuiNotebook m_FrameNotebook;
@@ -55,6 +56,9 @@ class FbMainFrame : public wxFrame
 		wxMenu * m_MenuTree;
 		wxMenu * m_MenuRead;
 	private:
+		void OnEnableUI(wxUpdateUIEvent & event) {
+			event.Enable(true);
+		}
 		void OnDisableUI(wxUpdateUIEvent & event) {
 			event.Enable(false);
 		}
@@ -69,11 +73,14 @@ class FbMainFrame : public wxFrame
 		void OnDatabaseGenres(wxCommandEvent & event);
 		void OnInfoCommand(wxCommandEvent & event);
 		void OnFindAuthor(wxCommandEvent& event);
-		void OnFindAuthorEnter(wxCommandEvent& event);
-		void OnFindTitle(wxCommandEvent & event);
-		void OnFindTitleEnter(wxCommandEvent& event);
+		void OnFindTitle(wxCommandEvent& event);
+		void OnSelectAll(wxCommandEvent& event);
+		void OnDelete(wxCommandEvent& event);
+		void OnUnselect(wxCommandEvent& event);
 		void OnFullScreen(wxCommandEvent& event);
 		void OnFullScreenUpdate(wxUpdateUIEvent& event);
+		void OnInitFrame(wxCommandEvent& event);
+		void OnClassMenu(wxCommandEvent& event);
 		void OnMenuFrame(wxCommandEvent& event);
 		void OnMenuNothing(wxCommandEvent& event);
 		void OnMenuAuthor(wxCommandEvent& event);
@@ -87,6 +94,7 @@ class FbMainFrame : public wxFrame
 		void OnNewZip( wxCommandEvent& event );
 		void OnRegZip( wxCommandEvent& event );
 		void OnFolder( wxCommandEvent& event );
+		void OnImportFinish(wxCommandEvent& event);
 		void OnProgressUpdate(wxUpdateUIEvent& event);
 		void OnHideLog(wxCommandEvent& event);
 		void OnUpdateFolder(FbFolderEvent & event);
@@ -115,6 +123,7 @@ class FbMainFrame : public wxFrame
 		void OnNotebookChanged(wxAuiNotebookEvent& event);
 		void OnNotebookClosed(wxAuiNotebookEvent& event);
 		void OnSubmenu(wxCommandEvent& event);
+		void OnSubCtrl(wxCommandEvent& event);
 		void OnStatusBarUpdate(wxUpdateUIEvent  & event);
 		void OnSubmenuUpdateUI(wxUpdateUIEvent & event);
 		void OnIdle( wxIdleEvent & event);

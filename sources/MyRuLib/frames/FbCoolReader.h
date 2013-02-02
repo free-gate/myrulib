@@ -6,6 +6,7 @@
 #include <crgui.h>
 #include <wx/dialog.h>
 #include <wx/splitter.h>
+#include <wx/fdrepdlg.h>
 #include <wx/aui/tabmdi.h>
 #include "FbMenu.h"
 #include "controls/FbTreeView.h"
@@ -68,18 +69,27 @@ class FbCoolReader: public wxWindow, public LVDocViewCallback
 			public:
 				MenuBook();
 		};
+	protected:
+		class FindReplaceData: public wxFindReplaceData {
+			public:
+				int m_position;
+		};
 	public:
 		static bool InitCREngine();
 		static void GetFonts(wxArrayString & fonts);
-		static FbCoolReader * Open(wxAuiNotebook * parent, const wxString &filename, bool select = false);
+		static FbCoolReader * Open(int book, const wxString &filename);
 
-		FbCoolReader();
+		FbCoolReader(int book);
 		virtual ~FbCoolReader();
 		bool Create(wxAuiNotebook * parent);
 
 		void Setup(bool refresh);
 
 		void OnOptionsChange( CRPropRef oldprops, CRPropRef newprops, CRPropRef changed );
+
+		void DoEvent(wxEvent& event) {
+			GetEventHashTable().HandleEvent(event, this);
+		}
 
 		void OnAbout( wxCommandEvent& event );
 		void OnScroll( wxScrollWinEvent& event );
@@ -94,6 +104,12 @@ class FbCoolReader: public wxWindow, public LVDocViewCallback
 		void OnInitDialog( wxInitDialogEvent& event);
 		void OnShowHeader( wxCommandEvent& event );
 		void OnShowHeaderUI( wxUpdateUIEvent& event );
+		void OnCopy( wxCommandEvent& event );
+		void OnFind( wxCommandEvent& event );
+		void OnFindFirst( wxFindDialogEvent& event );
+		void OnFindNext( wxFindDialogEvent& event );
+		void OnFindClose( wxFindDialogEvent& event );
+		void OnEditBook( wxCommandEvent & event );
 	private:
 		void SetupPageHeader();
 		bool LoadDocument( const wxString & fname );
@@ -110,15 +126,33 @@ class FbCoolReader: public wxWindow, public LVDocViewCallback
 		void OnKeyDown(wxKeyEvent& event);
 		void OnMouseLDown( wxMouseEvent & event );
 		void OnMouseRDown( wxMouseEvent & event );
+		void OnMouseLDClick( wxMouseEvent & event );
 		void OnMouseMotion(wxMouseEvent& event);
 		void OnIdle( wxIdleEvent &event );
 		void OnEraseBackground(wxEraseEvent& WXUNUSED(event)) { ;; } // reduce flicker
 		void ToggleViewMode();
 		virtual void OnExternalLink( lString16 url, ldomNode * node );
+
+	private:
+		void OnCopuUpdateUI(wxUpdateUIEvent & event) {
+			event.Enable(!m_sel_text.IsEmpty());
+		}
+		void OnEnableUI(wxUpdateUIEvent & event) {
+			event.Enable(true);
+		}
+		void OnDisableUI(wxUpdateUIEvent & event) {
+			event.Enable(false);
+		}
 	protected:
 		void Repaint() { m_dirty = true; }
 	private:
+		int m_book;
 		bool m_dirty;
+		FindReplaceData * m_findData;
+		wxFindReplaceDialog * m_findDlg;
+
+		ldomXPointer m_sel_pos;
+		wxString m_sel_text;
 
 		bool _firstRender;
 		bool _allowRender;

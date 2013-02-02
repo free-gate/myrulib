@@ -38,7 +38,7 @@ FbMenuBar::MenuEdit::MenuEdit()
 	AppendSeparator();
 	#ifdef FB_INCLUDE_READER
 	Append(ID_READER_OPTIONS , _("Cool Reader options"));
-	#endif // FB_INCLUDE_READER	
+	#endif // FB_INCLUDE_READER
 	Append(wxID_PREFERENCES  , _("Settings"));
 }
 
@@ -86,8 +86,9 @@ FbMenuBar::MenuTree::MenuTree()
 	Append(ID_ORDER_MENU   , _("Sort by")       , new FbMenuSort );
 	Append(wxID_ANY        , _("Preview area")  , new MenuPreview);
 	AppendSeparator();
-	Append(ID_FILTER_SET   , _("Filter setup")  );
+	Append(ID_FILTER_SET   , _("Filter setup...")  );
 	AppendCheckItem(ID_FILTER_USE, _("Use filter"));
+	AppendCheckItem(ID_FILTER_DEL, _("Show deleted"));
 	AppendSeparator();
 	Append(ID_EDIT_COMMENTS , _("Add comments"));
 }
@@ -97,6 +98,7 @@ FbMenuBar::MenuTree::MenuTree()
 FbMenuBar::MenuRead::MenuRead()
 {
 	Append( ID_READER_CONTENT, _("Table of Contents") );
+	Append( wxID_FIND, _("Find text...") );
 	AppendSeparator();
 	Append( ID_READER_ZOOM_IN, _( "Zoom In" ) );
 	Append( ID_READER_ZOOM_OUT, _( "Zoom Out" ) );

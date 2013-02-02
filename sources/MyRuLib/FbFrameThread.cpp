@@ -3,12 +3,23 @@
 #include "FbBookEvent.h"
 #include "FbConst.h"
 
-void FbFrameThread::AttachCounter(wxSQLite3Database &database, const wxString &filename)
+//-----------------------------------------------------------------------------
+//  FbFrameThread
+//-----------------------------------------------------------------------------
+
+FbFrameDatabase::FbFrameDatabase(FbThread * thread, wxString &filename)
 {
-	wxSQLite3Statement stmt = database.PrepareStatement(wxT("ATTACH ? AS cnt"));
-	stmt.Bind(1, filename);
-	stmt.ExecuteUpdate();
+	bool create = filename.IsEmpty();
+	if (create) filename = wxFileName::CreateTempFileName(wxT("fb"));
+	int flags = create ? (WXSQLITE_OPEN_CREATE | WXSQLITE_OPEN_READWRITE) : WXSQLITE_OPEN_READONLY;
+	Open(filename, wxEmptyString, flags);
+	JoinThread(thread);
+	AttachCommon();
 }
+
+//-----------------------------------------------------------------------------
+//  FbFrameThread
+//-----------------------------------------------------------------------------
 
 int FbFrameThread::GetCount(wxSQLite3Database &database, int code)
 {
@@ -18,16 +29,16 @@ int FbFrameThread::GetCount(wxSQLite3Database &database, int code)
 	return result.NextRow() ? result.GetInt(0) : 0;
 }
 
+void FbFrameThread::SetCountSQL(const wxString &sql, const FbFilterObj &filter)
+{
+	m_sql = wxString::Format(sql, filter.GetFilterSQL().c_str());
+}
+
 void FbFrameThread::CreateCounter(wxSQLite3Database &database, const wxString &sql)
 {
-	if (!m_counter.IsEmpty()) return ;
-
-	m_counter = wxFileName::CreateTempFileName(wxT("fb"));
-	AttachCounter(database, m_counter);
-
-	database.ExecuteUpdate(wxT("CREATE TABLE cnt.numb(key INTEGER PRIMARY KEY, num INTEGER)"));
-	database.ExecuteUpdate(wxT("INSERT INTO cnt.numb(key, num)") + sql);
-
+	if (IsClosed()) return;
+	database.ExecuteUpdate(wxT("CREATE TABLE numb(key INTEGER PRIMARY KEY, num INTEGER)"));
+	database.ExecuteUpdate(wxT("INSERT INTO numb(key, num)") + m_sql);
 	if (IsClosed()) {
 		database.Close();
 		wxRemoveFile(m_counter);
@@ -46,3 +57,14 @@ wxString FbFrameThread::GetOrder(int order, const wxString &standart)
 	return sql;
 }
 
+//-----------------------------------------------------------------------------
+//  FbCountThread
+//-----------------------------------------------------------------------------
+
+void * FbCountThread::Entry()
+{
+	if (m_sql.IsEmpty()) return NULL;
+	FbFrameDatabase database(this, m_counter);
+	CreateCounter(database, m_sql);
+	return NULL;
+}

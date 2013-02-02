@@ -5,6 +5,8 @@
 #include "FbViewContext.h"
 #include "FbCacheBook.h"
 
+class FbViewThread;
+
 class FbViewData: public wxObject
 {
 	public:
@@ -14,6 +16,7 @@ class FbViewData: public wxObject
 			ISBN,
 			ICON,
 			FILE,
+			SEQN,
 			LAST_FIELD,
 		};
 	public:
@@ -23,7 +26,8 @@ class FbViewData: public wxObject
 		int GetCode() const { return m_id; }
 		void SetText(size_t index, const wxString &text);
 		wxString GetHTML(const FbViewContext &ctx, const FbCacheBook &book) const;
-		void AddImage(wxString &filename, wxString &imagedata);
+		void AddImage(FbViewThread &thread, const wxString &filename, const wxString &imagedata);
+		void AddImage(FbViewThread &thread, const wxString &filename, wxInputStream &stream);
 		void Reset();
 	private:
 		wxString GetTitle(const FbCacheBook &book) const;
@@ -32,7 +36,7 @@ class FbViewData: public wxObject
 		wxString GetComments(const FbViewContext &ctx, const FbCacheBook &book) const;
 		static wxString HTML(const wxString &value, const bool bSingleQuotes = false, const bool bDoubleQuotes = true);
 	public:
-		int m_id;
+		const int m_id;
 		wxString m_text[LAST_FIELD];
 		wxArrayString m_images;
 };

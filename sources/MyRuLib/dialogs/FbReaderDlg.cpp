@@ -7,6 +7,7 @@
 #include "FbViewerDlg.h"
 #include "FbCollection.h"
 #include "FbDataPath.h"
+#include "controls/FbChoiceCtrl.h"
 #include "controls/FbComboBox.h"
 #include "frames/FbCoolReader.h"
 #include "FbLogoBitmap.h"
@@ -21,7 +22,7 @@
 FbReaderDlg::PanelMain::PanelMain(wxWindow *parent, wxArrayString & fonts)
 	: wxPanel(parent)
 {
-	wxFlexGridSizer * fgSizerList = new wxFlexGridSizer(2, 0, 0 );
+	wxFlexGridSizer * fgSizerList = new wxFlexGridSizer( 2 );
 	fgSizerList->AddGrowableCol( 1 );
 	fgSizerList->SetFlexibleDirection( wxBOTH );
 	fgSizerList->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -64,6 +65,13 @@ FbReaderDlg::PanelMain::PanelMain(wxWindow *parent, wxArrayString & fonts)
 	wxColourPickerCtrl * cpBack = new wxColourPickerCtrl( this, ID_READER_BACK_COLOUR);
 	fgSizerList->Add( cpBack, 0, wxALL, 5 );
 	
+	stTitle = new wxStaticText( this, wxID_ANY, _("Hyphenation"));
+	stTitle->Wrap( -1 );
+	fgSizerList->Add( stTitle, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	
+	wxCheckBox * checkbox = new wxCheckBox( this, ID_READER_HYPHENATION, _("Use algorithmic hyphenation"));
+	fgSizerList->Add( checkbox, 0, wxEXPAND|wxALL, 5 );
+
 	this->SetSizer( fgSizerList );
 	this->Layout();
 }
@@ -75,7 +83,7 @@ FbReaderDlg::PanelMain::PanelMain(wxWindow *parent, wxArrayString & fonts)
 FbReaderDlg::PanelPage::PanelPage(wxWindow *parent, wxArrayString & fonts)
 	: wxPanel(parent)
 {
-	wxFlexGridSizer * fgSizerList = new wxFlexGridSizer(2, 0, 0 );
+	wxFlexGridSizer * fgSizerList = new wxFlexGridSizer( 2 );
 	fgSizerList->AddGrowableCol( 1 );
 	fgSizerList->SetFlexibleDirection( wxBOTH );
 	fgSizerList->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -110,6 +118,13 @@ FbReaderDlg::PanelPage::PanelPage(wxWindow *parent, wxArrayString & fonts)
 
 	wxColourPickerCtrl * cpFont = new wxColourPickerCtrl( this, ID_HEADER_FONT_COLOUR);
 	fgSizerList->Add( cpFont, 0, wxALL, 5 );
+	
+	stTitle = new wxStaticText( this, wxID_ANY, _("View mode"));
+	stTitle->Wrap( -1 );
+	fgSizerList->Add( stTitle, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	
+	checkbox = new wxCheckBox( this, ID_READER_PAGE_COUNT, _("Display two pages"));
+	fgSizerList->Add( checkbox, 0, wxEXPAND|wxALL, 5 );
 
 	this->SetSizer( fgSizerList );
 	this->Layout();
@@ -167,6 +182,8 @@ void FbReaderDlg::Assign(bool write)
 		{ FB_HEADER_FONT_SIZE    , FbReaderDlg::ID_HEADER_FONT_SIZE   },
 		{ FB_READER_SHOW_HEADER  , FbReaderDlg::ID_HEADER_SHOW_HEADER },
 		{ FB_READER_INTERLINE    , FbReaderDlg::ID_READER_INTERLINE   },
+		{ FB_READER_HYPHENATION  , FbReaderDlg::ID_READER_HYPHENATION },
+		{ FB_READER_PAGE_COUNT   , FbReaderDlg::ID_READER_PAGE_COUNT  },
 	};
 
 	const size_t count = sizeof(ids) / sizeof(Struct);

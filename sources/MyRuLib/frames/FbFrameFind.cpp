@@ -2,6 +2,7 @@
 #include <wx/artprov.h>
 #include <wx/mimetype.h>
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "FbMainMenu.h"
 #include "FbDatabase.h"
 #include "FbMasterTypes.h"
@@ -17,8 +18,9 @@ BEGIN_EVENT_TABLE(FbFrameFind, FbFrameBase)
 END_EVENT_TABLE()
 
 FbFrameFind::FbFrameFind(wxAuiNotebook * parent, wxWindowID winid, const FbMasterInfo &info, const wxString &title)
-	: FbFrameBase(parent, winid, title),
-		m_info(info), m_title(title)
+	: FbFrameBase(parent, winid, title, true)
+	, m_info(info)
+	, m_title(title)
 {
 	CreateBooksPanel(this);
 	Initialize(m_BooksPanel);

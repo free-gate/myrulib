@@ -13,7 +13,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --prefix=/usr --with-reader
+	./configure --with-icu --with-reader --prefix=/usr 
 	touch configure-stamp
 
 build: build-stamp
@@ -29,11 +29,17 @@ build-stamp: configure-stamp
 clean: 
 	dh_testdir
 	dh_testroot
+	rm -rf ./.deps ./.pch
+	rm -f ./*.o
+	rm -f ./*.a
+	rm -f ./*.mo
+	rm -f ./*.inc
+	rm -f ./*.cpp
+	rm -f ./*.h
+	rm -f zipscan
+	rm -f bin2c
+	rm -f myrulib
 	rm -f build-stamp configure-stamp
-
-	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
-
 	dh_clean 
 
 install: build

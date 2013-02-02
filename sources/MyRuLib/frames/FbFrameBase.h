@@ -5,14 +5,16 @@
 #include <wx/toolbar.h>
 #include <wx/splitter.h>
 #include <wx/aui/tabmdi.h>
-#include "FbBookPanel.h"
 #include "FbBookEvent.h"
 #include "FbParams.h"
 #include "FbWindow.h"
-#include "FbThread.h"
 #include "FbMainMenu.h"
 #include "FbFilterObj.h"
 #include "controls/FbTreeView.h"
+
+class FbBookPanel;
+
+class FbFrameThread;
 
 class FbMasterViewCtrl
 	: public FbTreeViewCtrl
@@ -42,19 +44,23 @@ public:
 
 	virtual ~FbFrameBase();
 
+	void DoEvent(wxEvent& event) {
+		GetEventHashTable().HandleEvent(event, this);
+	}
+
 	virtual wxString GetTitle() { return _("Authors"); }
 
 	public:
-		void UpdateMaster(FbMasterEvent & event);
-		void UpdateInfo(int id);
+		virtual void UpdateMaster();
+		virtual void UpdateMaster(FbMasterEvent & event);
+		virtual void UpdateInfo(int id);
 		virtual void UpdateFonts(bool refresh = true);
-		wxString GetFilterSQL() { return m_filter.GetSQL(); };
-		FbListMode GetListMode() { return m_BooksPanel->GetListMode(); };
 		virtual void ShowFullScreen(bool show);
 		virtual void Localize(bool bUpdateMenu);
-		FbBookPanel * GetBooks() { return m_BooksPanel; }
-		void RefreshBooks() { m_BooksPanel->GetBookList().Refresh(); }
+		FbListMode GetListMode();
+		void RefreshBooks();
 		int GetBookCount() { return m_BookCount; }
+		FbBookPanel * GetBooks() { return m_BooksPanel; }
 		const wxString & GetMasterFile() const { return m_MasterFile; }
 	protected:
 		void CreateControls(bool select);
@@ -65,10 +71,14 @@ public:
 		bool IsFullScreen();
 		virtual void UpdateBooklist();
 		virtual FbMasterInfo GetInfo();
+		virtual wxString GetCountSQL() { return wxEmptyString; }
+		virtual FbFrameThread * CreateCounter();
+		void UpdateCounter();
 	protected:
 		FbTreeViewCtrl * m_MasterList;
 		FbBookPanel * m_BooksPanel;
-		FbThread * m_MasterThread;
+		FbFrameThread * m_MasterThread;
+		FbFrameThread * m_CountThread;
 		wxString m_MasterFile;
 		FbFilterObj m_filter;
 		int m_BookCount;
@@ -81,7 +91,9 @@ public:
 		void OnColClick(wxListEvent& event);
 		void OnFilterSet(wxCommandEvent& event);
 		void OnFilterUse(wxCommandEvent& event);
+		void OnFilterDel(wxCommandEvent& event);
 		void OnFilterUseUpdateUI(wxUpdateUIEvent & event);
+		void OnFilterDelUpdateUI(wxUpdateUIEvent & event);
 		void OnDirectionUpdateUI(wxUpdateUIEvent & event);
 		void OnChangeOrderUpdateUI(wxUpdateUIEvent & event);
 		void OnChangeModeUpdateUI(wxUpdateUIEvent & event);
@@ -97,4 +109,3 @@ public:
 };
 
 #endif //__FBFRAMEBASE_H__
-

@@ -5,6 +5,7 @@
 #include <wx/dialog.h>
 #include <wx/fontpicker.h>
 #include <wx/clrpicker.h>
+#include <wx/treebase.h>
 #include <wx/wxsqlite3.h>
 #include "FbWindow.h"
 #include "controls/FbTreeModel.h"
@@ -41,6 +42,7 @@ class FbParamsDlg : private FbDialog
 			ID_USE_SYMLINKS,
 			ID_TYPE_LIST,
 			ID_TYPE_TOOLBAR,
+			ID_USE_COOLREADER,
 			ID_APPEND_TYPE,
 			ID_MODIFY_TYPE,
 			ID_DELETE_TYPE,
@@ -61,11 +63,14 @@ class FbParamsDlg : private FbDialog
 			ID_REMOVE_FILES,
 			ID_CLEAR_LOG,
 			ID_GRAY_FONT,
+			ID_GRID_HRULES,
+			ID_GRID_VRULES,
 			ID_SAVE_FULLPATH,
 			ID_LANG_LOCALE,
 			ID_LETTERS,
 			ID_WEB_TIMEOUT,
 			ID_WEB_ATTEMPT,
+			ID_FILE_LENGTH,
 			ID_IMAGE_WIDTH,
 		};
 		class LoadThread: public FbThread

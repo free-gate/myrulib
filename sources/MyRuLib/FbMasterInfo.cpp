@@ -35,7 +35,7 @@ void * FbMasterInfoBase::Execute(wxEvtHandler * owner, FbThread * thread, const 
 	}
 	sql = FormatSQL(sql, GetWhere(database), filter);
 
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
+	FbSQLite3Statement stmt = database.PrepareStatement(sql);
 	Bind(stmt);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	if (!result.IsOk()) return NULL;
@@ -164,21 +164,29 @@ wxString FbMasterInfoBase::GetOrderTable() const
 
 wxString FbMasterInfoBase::GetOrderColumn() const
 {
+	if (GetMode() == FB2_MODE_LIST) {
+		switch (GetOrderIndex()) {
+			case BF_NUMB: return wxT("MAX(bookseq.number)");
+			case BF_AUTH: return wxT("AGGREGATE(authors.full_name)") + fbCOLLATE_CYR;
+			case BF_SEQN: return wxT("AGGREGATE(value)") + fbCOLLATE_CYR;
+			default: ;
+		}
+	}
 	switch (GetOrderIndex()) {
-		case BF_NUMB: return wxT("MAX(bookseq.number)");
-		case BF_AUTH: return wxT("AGGREGATE(authors.full_name)" + fbCOLLATE_CYR);
+		case BF_NUMB: return wxT("bookseq.number");
+		case BF_AUTH: return wxT("authors.full_name") + fbCOLLATE_CYR;
 		case BF_CODE: return wxT("books.id");
-		case BF_GENR: return wxT("GENRE(books.genres)" + fbCOLLATE_CYR);
+		case BF_GENR: return wxT("GENRE(books.genres)") + fbCOLLATE_CYR;
 		case BF_RATE: return wxT("states.rating");
 		case BF_LANG: return wxT("books.lang");
 		case BF_TYPE: return wxT("books.file_type");
 		case BF_DATE: return wxT("books.created");
 		case BF_SIZE: return wxT("books.file_size");
 		case BF_BITE: return wxT("books.file_size");
-		case BF_SEQN: return wxT("AGGREGATE(value)" + fbCOLLATE_CYR);
+		case BF_SEQN: return wxT("value") + fbCOLLATE_CYR;
 		case BF_DOWN: return wxT("states.download");
 		case BF_MD5S: return wxT("books.md5sum");
-		default: return wxT("books.title" + fbCOLLATE_CYR);
+		default: return wxT("books.title") + fbCOLLATE_CYR;
 	}
 }
 
@@ -202,7 +210,7 @@ wxString FbMasterInfoBase::GetListSQL(wxSQLite3Database &database) const
 
 wxString FbMasterInfoBase::GetTreeSQL(wxSQLite3Database &database) const
 {
-	return wxT("SELECT DISTINCT books.id_author, bookseq.id_seq, books.id, bookseq.number FROM books LEFT JOIN authors ON authors.id=books.id_author LEFT JOIN bookseq ON bookseq.id_book=books.id  %s WHERE %s ORDER BY (CASE WHEN books.id_author=0 THEN 0 ELSE 1 END), authors.search_name, books.id_author, bookseq.id_seq, %s");
+	return wxT("SELECT DISTINCT books.id_author, bookseq.id_seq, books.id, bookseq.number FROM books LEFT JOIN authors ON authors.id=books.id_author LEFT JOIN bookseq ON bookseq.id_book=books.id  %s WHERE %s ORDER BY (CASE WHEN books.id_author=0 THEN 0 ELSE 1 END), authors.full_name COLLATE CYR, books.id_author, bookseq.id_seq, %s");
 }
 
 wxString FbMasterInfoBase::FormatSQL(const wxString &sql, const wxString &cond, const FbFilterObj &filter) const
@@ -210,7 +218,7 @@ wxString FbMasterInfoBase::FormatSQL(const wxString &sql, const wxString &cond, 
 	wxString table = GetOrderTable();
 	wxString fields = GetOrderFields();
 	wxString where = cond;
-	where << filter.GetSQL();
+	where << filter.GetFilterSQL();
 	wxString result = wxString::Format(sql, table.c_str(), where.c_str(), fields.c_str());
 	return result;
 }
@@ -230,9 +238,8 @@ FbMasterInfo & FbMasterInfo::operator =(const FbMasterInfo &info)
 
 bool FbMasterInfo::operator ==(const FbMasterInfo &info) const
 {
-	if (this->m_data == NULL) {
-		return m_data == NULL;
-	} else return (*this->m_data) == (*info.m_data);
+	if (this->m_data == NULL) return m_data == NULL;
+	return (*this->m_data) == (*info.m_data);
 }
 
 FbMasterInfo FbModelData::GetInfo(FbModel & model) const

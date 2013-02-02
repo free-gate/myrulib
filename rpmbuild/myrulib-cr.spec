@@ -1,49 +1,45 @@
 #
-# spec file for package myrulib-cr (Version 0.28)
+# spec file for package myrulib-cr
 #
-# Copyright (c) 2009-2011 Denis Kandrashin, Kyrill Detinov
+# Copyright (c) 2009, 2010, 2011, 2012 Denis Kandrashin, Kyrill Detinov
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
 
 Name:           myrulib-cr
-Version:        0.28.6
+Version:        0.29.11
 Release:        0
-License:        GPLv3
+License:        GPL-3.0
 Summary:        E-Book Library Manager
 URL:            http://myrulib.lintest.ru
 Group:          Productivity/Other
-Source0:        http://www.lintest.ru/pub/%{name}-%{version}.tar.bz2
-# PATCH-FIX-UPSTREAM myrulib-0.28-cregine_png14.patch lazy.kent@opensuse.org -- fix build against libpng 1.4
-Patch0:         myrulib-0.28-crengine_png14.patch
-# PATCH-FIX-UPSTREAM myrulib-0.28-crengine_lvfntman.patch mail@lintest.ru -- fix build crengine lvfntman
-Patch1:         myrulib-0.28-crengine_lvfntman.patch
+Source0:        http://www.lintest.ru/pub/myrulib_%{version}.orig.tar.bz2
+# Need to build debian packages.
+Source90:       myrulib_%{version}-squeeze1.debian.tar.gz
+Source91:       myrulib_%{version}-squeeze1.dsc
+Source92:       myrulib_%{version}-squeeze1_source.changes
 BuildRequires:  gcc-c++
-BuildRequires:  libfaxpp-devel
+BuildRequires:  libicu-devel
+BuildRequires:  libxml2-devel
 BuildRequires:  libjpeg-devel
-Conflicts:      myrulib
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+Conflicts:      myrulib
 
 %if 0%{?suse_version}
 BuildRequires:  update-desktop-files
-%if 0%{?suse_version} >= 1140
-BuildRequires:  sqlite3-devel
 BuildRequires:  wxWidgets-devel
-%else
-BuildRequires:  wxGTK-devel >= 2.8.10
-%endif
+%define _use_internal_dependency_generator 0
+%define __find_requires %wx_requires
 %endif
 
 %if 0%{?mandriva_version}
+BuildRequires:  libbzip2-devel
 BuildRequires:  libwxgtku2.8-devel >= 2.8.10
 %endif
 
 %if 0%{?fedora_version}
 BuildRequires:  desktop-file-utils
 BuildRequires:  wxGTK-devel >= 2.8.10
-%if 0%{?fedora_version} >= 15
-BuildRequires:  libsqlite3x-devel
-%endif
 %endif
 
 %description
@@ -58,21 +54,19 @@ Authors:
     Denis Kandrashin <mail@lintest.ru>
 
 %prep
-%setup -q
-%patch0
-%patch1
+%setup -qn myrulib-%{version}
 [ ! -x configure ] && %__chmod +x configure
 
 %build
 %configure \
-            --with-faxpp=yes \
-            --with-reader \
-            --without-strip
+    --with-icu \
+    --with-reader \
+    --without-strip
 
-%if 0%{?fedora_version} >= 13
-%__make LDFLAGS="-Wl,--add-needed" %{?_smp_mflags}
+%if 0%{?fedora_version} || 0%{?suse_version}
+make LDFLAGS="-Wl,--add-needed" %{?_smp_mflags}
 %else
-%__make %{?_smp_mflags}
+make %{?_smp_mflags}
 %endif
 
 %install
@@ -80,7 +74,7 @@ Authors:
 %{?buildroot:%__rm -rf "%{buildroot}"}
 %endif
 
-%__make DESTDIR=%{buildroot} install
+make DESTDIR=%{buildroot} install
 %find_lang myrulib
 
 %if 0%{?suse_version}
@@ -108,9 +102,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/myrulib.desktop
 %postun
 %clean_menus
 %endif
-
-%clean
-%{?buildroot:%__rm -rf "%{buildroot}"}
 
 %files -f myrulib.lang
 %defattr(-,root,root,-)

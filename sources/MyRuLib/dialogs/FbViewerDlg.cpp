@@ -10,7 +10,7 @@ BEGIN_EVENT_TABLE( FbViewerDlg, FbDialog )
 END_EVENT_TABLE()
 
 FbViewerDlg::FbViewerDlg( wxWindow* parent, const wxString& type, const wxString& value, bool relative)
-	: FbDialog( parent, wxID_ANY, _("Customize"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER), m_relative(relative)
+	: FbDialog( parent, wxID_ANY, _("Customize"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER), m_coolreader(NULL), m_relative(relative)
 {
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 
@@ -22,9 +22,19 @@ FbViewerDlg::FbViewerDlg( wxWindow* parent, const wxString& type, const wxString
 	bSizerMain->Add( stTitle, 0, wxALL, 5 );
 
 	m_filename = new FbCustomCombo( this, ID_FILENAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
-	m_filename->SetValue(value);
 	m_filename->SetMinSize( wxSize( 300,-1 ) );
 	bSizerMain->Add( m_filename, 0, wxALL|wxEXPAND, 5 );
+
+	#ifdef FB_INCLUDE_READER
+	m_coolreader = new wxCheckBox( this, ID_COOLREADER, _("Use builtin CoolReader3"));
+	bSizerMain->Add( m_coolreader, 0, wxEXPAND|wxALL, 5 );
+	#endif // FB_INCLUDE_READER
+
+	if (value == wxT('*')) {
+		if (m_coolreader) m_coolreader->SetValue(true);
+	} else {
+		m_filename->SetValue(value);
+	}
 
 	wxStdDialogButtonSizer * sdbSizerBtn = CreateStdDialogButtonSizer( wxOK | wxCANCEL );
 	bSizerMain->Add( sdbSizerBtn, 0, wxEXPAND | wxALL, 5 );
@@ -42,7 +52,7 @@ FbViewerDlg::FbViewerDlg( wxWindow* parent, const wxString& type, const wxString
 void FbViewerDlg::OnBtnClick( wxCommandEvent& event )
 {
 	wxString title = _("Select the application to view files");
-	#ifdef __WIN32__
+	#ifdef __WXMSW__
 	wxString wildCard = _("Executable files") + (wxString)wxT(" (*.exe)|*.exe");
 	#else
 	wxString wildCard;
@@ -73,7 +83,7 @@ void FbViewerDlg::OnBtnClick( wxCommandEvent& event )
 
 wxString FbViewerDlg::GetValue()
 {
-	return m_filename->GetValue();
+	return m_coolreader && m_coolreader->GetValue() ? wxString(wxT('*')) : m_filename->GetValue();
 }
 
 void FbViewerDlg::OnTextEnter( wxCommandEvent& event )

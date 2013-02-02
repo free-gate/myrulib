@@ -5,7 +5,6 @@
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
 #include "controls/FbTreeView.h"
-#include "FbBookData.h"
 #include "FbBookTypes.h"
 #include "FbBookEvent.h"
 #include "FbParams.h"
@@ -25,6 +24,7 @@ class FbBookViewCtrl
 	private:
 		void OnMenu(wxCommandEvent& event);
 		void OnCopy(wxCommandEvent & event);
+		void OnDelete(wxCommandEvent& event);
 		void OnSelect(wxCommandEvent & event) { SelectAll(true); }
 		void OnUnselect(wxCommandEvent & event) { SelectAll(false); }
 		void OnEnableUI(wxUpdateUIEvent & event) { event.Enable(GetModel()); }
@@ -52,8 +52,11 @@ class FbBookPanel: public wxSplitterWindow
 		FbTreeViewCtrl & GetBookList() { return m_BookList; }
 		void DoFolderAdd(int folder);
 	public:
+        void DoEvent(wxEvent& event) {
+            GetEventHashTable().HandleEvent(event, this);
+        }
+	public:
 		void EmptyBooks(const int selected  = 0);
-		void AppendBook(BookTreeItemData & data, const wxString & authors = wxEmptyString);
 		void AppendAuthor(int id, const wxString title, wxTreeItemData * data = NULL);
 		void AppendSequence(int id, const wxString title, wxTreeItemData * data = NULL);
 		void SetListMode(FbListMode mode);
@@ -88,6 +91,7 @@ class FbBookPanel: public wxSplitterWindow
 		void OnEditComments(wxCommandEvent & event);
 		void OnEditBook(wxCommandEvent & event);
 		void OnFavoritesAdd(wxCommandEvent & event);
+		void OnCopyUrl(wxCommandEvent & event);
 		void OnOpenBook(wxCommandEvent & event);
 		void OnChangeView(wxCommandEvent & event);
 		void OnBookPage(wxCommandEvent & event);

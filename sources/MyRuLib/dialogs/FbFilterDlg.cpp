@@ -26,10 +26,6 @@ FbFilterDlg::FbFilterDlg(FbFilterObj & filter)
 	m_checkLib->SetValue( filter.m_lib );
 	sbSizerOwner->Add( m_checkLib, 0, wxALL|wxEXPAND, 5 );
 
-	m_checkDel = new wxCheckBox( this, ID_CHECK_DEL, _("Deleted books"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_checkDel->SetValue( filter.m_del );
-	sbSizerOwner->Add( m_checkDel, 0, wxALL|wxEXPAND, 5 );
-
 	m_checkUsr = new wxCheckBox( this, ID_CHECK_USR, _("Local books"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_checkUsr->SetValue( filter.m_usr );
 	sbSizerOwner->Add( m_checkUsr, 0, wxALL|wxEXPAND, 5 );
@@ -40,11 +36,11 @@ FbFilterDlg::FbFilterDlg(FbFilterObj & filter)
 	bSizerList = new wxBoxSizer( wxHORIZONTAL );
 
 	m_treeLang = new FbTreeViewCtrl(this, ID_TREE_LANG, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | fbTR_CHECKBOX);
-	m_treeLang->AddColumn(0, _("Language"), 1);
+	m_treeLang->AddColumn(0, _("Language"), -10);
 	bSizerList->Add( m_treeLang, 1, wxEXPAND|wxTOP|wxBOTTOM|wxLEFT, 5 );
 
 	m_treeType = new FbTreeViewCtrl(this, ID_TREE_TYPE, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | fbTR_CHECKBOX);
-	m_treeType->AddColumn(0, _("File extension"), 1);
+	m_treeType->AddColumn(0, _("File extension"), -10);
 	bSizerList->Add( m_treeType, 1, wxEXPAND|wxALL, 5 );
 
 	bSizerMain->Add( bSizerList, 1, wxEXPAND, 5 );
@@ -87,7 +83,6 @@ void FbFilterDlg::Assign(FbFilterObj & filter)
 {
 	filter.m_lib = m_checkLib->GetValue();
 	filter.m_usr = m_checkUsr->GetValue();
-	filter.m_del = m_checkDel->GetValue();
 
 	FbFilterTreeModel * model;
 

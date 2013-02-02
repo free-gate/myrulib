@@ -41,7 +41,7 @@ class FbSeqnListData: public FbModelData
 class FbSeqnListModel: public FbListModel
 {
 	public:
-		FbSeqnListModel(const wxArrayInt &items);
+		FbSeqnListModel(const wxArrayInt &items, int code = 0);
 		virtual ~FbSeqnListModel(void);
 		virtual void Append(FbModelData * data);
 		virtual void Replace(FbModelData * data);
@@ -55,8 +55,7 @@ class FbSeqnListModel: public FbListModel
 			{ return m_items.Count(); }
 		virtual FbModelItem GetCurrent()
 			{ return GetData(m_position); };
-		void SetCounter(const wxString & filename)
-			{ if (!filename.IsEmpty()) m_database.Open(filename); }
+		void SetCounter(const wxString & filename);
 	protected:
 		virtual FbModelItem DoGetData(size_t row, int &level);
 	private:

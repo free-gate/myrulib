@@ -3,6 +3,7 @@
 #include "FbBookMenu.h"
 #include "FbMainMenu.h"
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "models/FbFldrTree.h"
 #include "FbDatabase.h"
 #include "FbDownloader.h"
@@ -36,7 +37,7 @@ FbFrameFldr::FbFrameFldr(wxAuiNotebook * parent, bool select)
 	sizer->Add( &m_ToolBar, 0, wxEXPAND, 0 );
 
 	m_MasterList = new FbMasterViewCtrl;
-	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
+	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style());
 	CreateColumns();
 	sizer->Add( m_MasterList, 1, wxTOP|wxEXPAND, 2 );
 
@@ -53,7 +54,7 @@ FbFrameFldr::FbFrameFldr(wxAuiNotebook * parent, bool select)
 
 void FbFrameFldr::CreateColumns()
 {
-	m_MasterList->AddColumn (0, _("Folders"), 100, wxALIGN_LEFT);
+	m_MasterList->AddColumn (0, _("Folders"), -10, wxALIGN_LEFT);
 }
 
 void FbFrameFldr::FillFolders(const int current)

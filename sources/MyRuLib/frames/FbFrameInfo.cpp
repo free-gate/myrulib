@@ -4,7 +4,6 @@
 #include "FbConst.h"
 #include "FbParams.h"
 #include "FbMainMenu.h"
-#include "FbThread.h"
 #include "MyRuLibApp.h"
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
@@ -15,11 +14,12 @@ BEGIN_EVENT_TABLE(FbFrameInfo, FbHtmlWindow)
 	EVT_MENU(wxID_SAVE, FbFrameInfo::OnSave)
 END_EVENT_TABLE()
 
-FbFrameInfo::FbFrameInfo(wxAuiNotebook * parent)
+FbFrameInfo::FbFrameInfo(wxAuiNotebook * parent, bool select)
 	: FbHtmlWindow(parent, ID_FRAME_INFO)
 {
 	UpdateFonts(false);
-	parent->AddPage( this, GetTitle(), false );
+	parent->AddPage( this, GetTitle(), select );
+	Update();
 }
 
 void FbFrameInfo::Load(const wxString & html)
@@ -97,7 +97,7 @@ void FbFrameInfoThread::WriteCount()
 	DoStep(_("Total quantity"));
 
 	{
-		wxString sql = (wxT("SELECT COUNT(id), MIN(created), MAX(created), SUM(file_size)/1024/1024 FROM (SELECT DISTINCT id, created, file_size FROM books) AS books"));
+		wxString sql = (wxT("SELECT COUNT(id), MIN(created), MAX(created), SUM(file_size)/1024/1024 FROM (SELECT DISTINCT id, created, file_size FROM books WHERE deleted IS NULL) AS books"));
 		wxSQLite3ResultSet result = m_database.ExecuteQuery(sql);
 		if (result.NextRow()) {
 			min = GetDate(result.GetInt(1));
@@ -150,7 +150,7 @@ void FbFrameInfoThread::WriteTypes()
 	{
 		wxString sql = (wxT("\
 			SELECT file_type, COUNT(id) AS id, SUM(file_size)/1024 \
-			FROM (SELECT DISTINCT id, file_type, file_size FROM books) AS books \
+			FROM (SELECT DISTINCT id, file_type, file_size FROM books WHERE deleted IS NULL) AS books \
 			GROUP BY file_type ORDER BY id DESC \
 		"));
 		wxSQLite3ResultSet result = m_database.ExecuteQuery(sql);

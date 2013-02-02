@@ -3,9 +3,9 @@
 #include "FbParams.h"
 #include "MyRuLibApp.h"
 #include "FbDataPath.h"
-#include "FbBookData.h"
 #include "FbCollection.h"
 #include "FbConst.h"
+#include "controls/FbTreeView.h"
 
 FbParamList FbParams;
 
@@ -95,15 +95,20 @@ int FbParamItem::DefaultInt(int param)
 			case FB_WEB_TIMEOUT: return 600;
 			case FB_WEB_ATTEMPT: return 10;
 			case FB_IMAGE_WIDTH: return 200;
+			case FB_FILE_LENGTH: return 64;
 			case FB_LANG_LOCALE: return wxLANGUAGE_DEFAULT;
 			case FB_NUMBER_FORMAT: return 3;
 			case FB_STATUS_SHOW: return 0;
+			case FB_GRID_HRULES: return 0;
+			case FB_GRID_VRULES: return 1;
 			case FB_READER_FONT_COLOUR : return 0x000000;
 			case FB_READER_BACK_COLOUR : return 0xFFFFE0;
 			case FB_READER_FONT_SIZE   : return 20;
 			case FB_HEADER_FONT_SIZE   : return 14;
 			case FB_READER_SHOW_HEADER : return 1;
 			case FB_READER_INTERLINE   : return 100;
+			case FB_READER_PAGE_COUNT  : return 1;
+			case FB_USE_COOLREADER     : return 1;
 			default: return 0;
 		}
 	else {
@@ -120,12 +125,6 @@ wxString FbParamItem::DefaultStr(int param)
 {
 	if (param < FB_FRAME_OFFSET)
 		switch (param) {
-			case DB_LIBRARY_DIR:
-				return wxT('.');
-			case DB_DOWNLOAD_HOST:
-				return wxT("flibusta.net");
-			case DB_DOWNLOAD_ADDR:
-				return wxT("http://%h/b/%i/download");
 			case FB_DOWNLOAD_DIR:
 				return FbDatabase::GetConfigPath() + wxFileName::GetPathSeparator() + wxT("download");
 			case FB_TEMP_DIR:
@@ -222,5 +221,13 @@ void FbParamItem::Set(wxWindowID winid, int param, const wxString &text)
 
 bool FbParamItem::IsGenesis()
 {
-	return FbParamItem(DB_LIBRARY_TYPE) == wxT("GENESIS");
+	return FbParamItem(DB_LIBRARY_TYPE).Str() == wxT("GENESIS");
+}
+
+long FbParamList::Style(long style) const
+{
+	return style
+		| (FbParams(FB_GRID_VRULES) ? fbTR_VRULES : 0)
+		| (FbParams(FB_GRID_HRULES) ? fbTR_HRULES : 0)
+	;
 }

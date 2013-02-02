@@ -1,13 +1,12 @@
 #include "FbFrameDown.h"
 #include <wx/artprov.h>
+#include "FbBookPanel.h"
 #include "FbBookMenu.h"
 #include "FbMainMenu.h"
 #include "FbConst.h"
 #include "FbDatabase.h"
 #include "models/FbDownList.h"
 #include "MyRuLibApp.h"
-#include "res/start.xpm"
-#include "res/pause.xpm"
 
 IMPLEMENT_CLASS(FbFrameDown, FbFrameBase)
 
@@ -23,6 +22,8 @@ END_EVENT_TABLE()
 	#define fbART_START wxT("gtk-media-play")
 	#define fbART_PAUSE wxT("gtk-media-pause")
 #else
+	#include "res/start.xpm"
+	#include "res/pause.xpm"
 	#define fbART_START wxBitmap(start_xpm)
 	#define fbART_PAUSE wxBitmap(pause_xpm)
 #endif
@@ -46,7 +47,7 @@ FbFrameDown::FbFrameDown(wxAuiNotebook * parent, bool select)
 	sizer->Add( &m_ToolBar, 0, wxEXPAND, 0 );
 
 	m_MasterList = new FbMasterViewCtrl;
-	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
+	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style());
 	CreateColumns();
 	sizer->Add( m_MasterList, 1, wxTOP|wxEXPAND, 2 );
 
@@ -63,7 +64,7 @@ FbFrameDown::FbFrameDown(wxAuiNotebook * parent, bool select)
 
 void FbFrameDown::CreateColumns()
 {
-	m_MasterList->AddColumn (0, _("Folders"), 100, wxALIGN_LEFT);
+	m_MasterList->AddColumn (0, _("Folders"), -10, wxALIGN_LEFT);
 }
 
 void FbFrameDown::FillFolders(const int iCurrent)
@@ -80,6 +81,25 @@ void FbFrameDown::UpdateFolder(const int folder, const FbFolderType type)
 	FbModelItem item = m_MasterList->GetCurrent();
 	FbDownListData * data = wxDynamicCast(&item, FbDownListData);
 	if (data) UpdateBooklist();
+}
+
+void FbFrameDown::UpdateBooklist()
+{
+	FbTreeViewCtrl & booklist = m_BooksPanel->GetBookList();
+	FbMasterDownInfo info = FbMasterDownInfo::DT_WAIT;
+	if (GetInfo() == info) {
+		booklist.SetSortedColumn(0);
+		m_ToolBar.EnableTool(wxID_UP, true);
+		m_ToolBar.EnableTool(wxID_DOWN, true);
+	} else {
+		m_ToolBar.EnableTool(wxID_UP, false);
+		m_ToolBar.EnableTool(wxID_DOWN, false);
+		if (booklist.GetSortedColumn() == 0) {
+			int order = m_BooksPanel->GetListMode() == FB2_MODE_TREE ? BF_NUMB : BF_NAME;
+			booklist.SetSortedColumn(order + 1);
+		}
+	}
+	FbFrameBase::UpdateBooklist();
 }
 
 void FbFrameDown::OnStart(wxCommandEvent & event)

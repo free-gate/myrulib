@@ -28,7 +28,7 @@ wxString FbMasterDateInfo::GetWhere(wxSQLite3Database &database) const
 	return wxT("books.created=?");
 }
 
-void FbMasterDateInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterDateInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -62,7 +62,7 @@ wxString FbMasterAuthInfo::GetTreeSQL(wxSQLite3Database &database) const
 	return wxT("SELECT DISTINCT id_seq, books.id, bookseq.number FROM books LEFT JOIN bookseq ON bookseq.id_book=books.id %s WHERE %s ORDER BY id_seq, %s");
 }
 
-void FbMasterAuthInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterAuthInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -132,10 +132,10 @@ wxString FbMasterSeqnInfo::GetWhere(wxSQLite3Database &database) const
 
 wxString FbMasterSeqnInfo::GetTreeSQL(wxSQLite3Database &database) const
 {
-	return wxT("SELECT DISTINCT books.id_author, books.id, bookseq.number FROM bookseq INNER JOIN books ON bookseq.id_book=books.id LEFT JOIN authors ON authors.id=books.id_author %s WHERE %s ORDER BY (CASE WHEN books.id_author=0 THEN 0 ELSE 1 END), authors.search_name, books.id_author, %s");
+	return wxT("SELECT DISTINCT books.id_author, books.id, bookseq.number FROM bookseq INNER JOIN books ON bookseq.id_book=books.id LEFT JOIN authors ON authors.id=books.id_author %s WHERE %s ORDER BY (CASE WHEN books.id_author=0 THEN 0 ELSE 1 END), authors.full_name COLLATE CYR, books.id_author, %s");
 }
 
-void FbMasterSeqnInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterSeqnInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -157,7 +157,7 @@ wxString FbMasterGenrInfo::GetWhere(wxSQLite3Database &database) const
 	return wxT("books.id IN (SELECT id_book FROM genres WHERE genres.id_genre=?)");
 }
 
-void FbMasterGenrInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterGenrInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -184,8 +184,32 @@ wxString FbMasterDownInfo::GetWhere(wxSQLite3Database &database) const
 	return sql;
 }
 
-void FbMasterDownInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterDownInfo::Bind(FbSQLite3Statement  &stmt) const
 {
+}
+
+void * FbMasterDownInfo::Execute(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter)
+{
+	return m_id == DT_WAIT ? GetDownloads(owner, thread) : FbMasterInfoBase::Execute(owner, thread, filter);
+}
+
+void * FbMasterDownInfo::GetDownloads(wxEvtHandler * owner, FbThread * thread)
+{
+	wxArrayInt items;
+	FbCommonDatabase database;
+	database.AttachConfig();
+	wxString sql = wxT("SELECT DISTINCT id,download FROM states INNER JOIN books ON books.md5sum=states.md5sum WHERE download<0 ORDER BY 2 DESC");
+	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
+	while (result.NextRow()) items.Add(result.GetInt(0));
+	FbArrayEvent(ID_MODEL_CREATE, items, GetIndex()).Post(owner);
+	FbCountEvent(ID_BOOKS_COUNT, *this, items.Count()).Post(owner);
+/*
+	FbBookTreeModel * model = new FbBookTreeModel;
+	FbDownRootData * root = new FbDownRootData(*model, NULL, m_id);
+	model->SetRoot(root);
+	SendTree(owner, thread, model);
+*/
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -204,7 +228,7 @@ wxString FbMasterCommInfo::GetWhere(wxSQLite3Database &database) const
 	return wxT("books.md5sum IN (SELECT DISTINCT md5sum FROM comments)");
 }
 
-void FbMasterCommInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterCommInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 }
 
@@ -224,7 +248,7 @@ wxString FbMasterRateInfo::GetWhere(wxSQLite3Database &database) const
 	return wxT("books.md5sum IN (SELECT md5sum FROM states WHERE rating=?)");
 }
 
-void FbMasterRateInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterRateInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -245,7 +269,7 @@ wxString FbMasterFldrInfo::GetWhere(wxSQLite3Database &database) const
 	return wxT("books.md5sum IN (SELECT md5sum FROM favorites WHERE id_folder=?)");
 }
 
-void FbMasterFldrInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterFldrInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }
@@ -264,15 +288,15 @@ wxString FbMasterFindInfo::GetWhere(wxSQLite3Database &database) const
 		return sql;
 	} else {
 		wxString sql = wxT("SEARCH_T(books.title)");
-		if (m_auth) sql << wxT("AND books.id_author IN (SELECT id FROM authors WHERE SEARCH_A(authors.search_name))");
+		if (m_auth) sql << wxT("AND books.id_author IN (SELECT id FROM authors WHERE SEARCH_A(authors.full_name))");
 		return sql;
 	}
 }
 
-void FbMasterFindInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterFindInfo::Bind(FbSQLite3Statement &stmt) const
 {
-	stmt.Bind(1, FbSearchFunction::AddAsterisk(m_title));
-	if (!m_author.IsEmpty()) stmt.Bind(2, FbSearchFunction::AddAsterisk(m_author));
+	stmt.FTS(1, m_title);
+	if (!m_author.IsEmpty()) stmt.FTS(2, m_author);
 }
 
 void * FbMasterFindInfo::Execute(wxEvtHandler * owner, FbThread * thread, const FbFilterObj &filter)
@@ -318,7 +342,7 @@ bool FbMasterFindInfo::DoFind(wxEvtHandler * owner, FbThread * thread, const FbF
 		if (m_auth) database.CreateFunction(wxT("SEARCH_A"), 1, func_author);
 	}
 
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
+	FbSQLite3Statement  stmt = database.PrepareStatement(sql);
 	if (m_full) Bind(stmt);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	if (!result.IsOk()) return false;
@@ -350,7 +374,7 @@ wxString FbMasterClssInfo::GetWhere(wxSQLite3Database &database) const
 	return m_sql;
 }
 
-void FbMasterClssInfo::Bind(wxSQLite3Statement &stmt) const
+void FbMasterClssInfo::Bind(FbSQLite3Statement  &stmt) const
 {
 	stmt.Bind(1, m_id);
 }

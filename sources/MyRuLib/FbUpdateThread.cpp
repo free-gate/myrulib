@@ -1,5 +1,6 @@
 #include "FbUpdateThread.h"
 #include "FbInternetBook.h"
+#include "FbSmartPtr.h"
 #include "FbDatabase.h"
 #include "FbDateTime.h"
 #include "FbConst.h"
@@ -52,7 +53,7 @@ wxString FbUpdateItem::GetAddr(int date, const wxString &type)
 	return wxString::Format(wxT("%s/%s/%d/%d.zip"), MyRuLib::HomePage().c_str(), type.c_str(), date / 10000, date);
 }
 
-FbUpdateItem::FbUpdateItem(wxSQLite3Database & database, int code, const wxString &type)
+FbUpdateItem::FbUpdateItem(FbDatabase & database, int code, const wxString &type)
 	: m_database(database), m_code(code), m_type(type), m_url(GetAddr(code, type))
 {
 }
@@ -77,14 +78,8 @@ bool FbUpdateItem::OpenZip()
 	wxFFileInputStream in(m_filename);
 	wxZipInputStream zip(in);
 
-	bool ok = zip.IsOk();
-	if (!ok) return false;
-
-	if (wxZipEntry * entry = zip.GetNextEntry()) {
-		ok = zip.OpenEntry(*entry);
-		delete entry;
-	} else ok = false;
-
+    FbSmartPtr<wxZipEntry> entry;
+    bool ok = zip.IsOk() && (entry = zip.GetNextEntry()) && zip.OpenEntry(*entry);
 	if (!ok) return false;
 
 	m_dataname = wxFileName::CreateTempFileName(wxT("~"));
@@ -102,25 +97,13 @@ int FbUpdateItem::DoUpdate()
 		stmt.ExecuteUpdate();
 	}
 
-	int date = 0;
-	{
-		wxString sql = wxT("SELECT value FROM upd.params WHERE id=?");
-		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-		stmt.Bind(1, DB_DATAFILE_DATE);
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		if (result.NextRow()) date = result.GetInt(0);
-	}
+	int date = m_database.Int(DB_DATAFILE_DATE, wxT("SELECT value FROM upd.params WHERE id=?"));
 	if (date <= m_code) return 0;
 
-	{
-		wxString sql = wxT("SELECT text FROM upd.params WHERE id=?");
-		wxSQLite3Statement stmt = m_database.PrepareStatement(sql);
-		stmt.Bind(1, DB_LIBRARY_TYPE);
-		wxSQLite3ResultSet result = stmt.ExecuteQuery();
-		if (!(result.NextRow() && result.GetString(0).Lower() == m_type)) {
-			FbLogError(_("Wrong update library type"), result.GetString(0));
-			return 0;
-		}
+	wxString type = m_database.Str(DB_LIBRARY_TYPE, wxT("SELECT text FROM upd.params WHERE id=?"));
+	if (type.Lower() != m_type) {
+		FbLogError(_("Wrong update library type"), type);
+		return 0;
 	}
 
 	wxSQLite3Transaction trans(&m_database, WXSQLITE_TRANSACTION_EXCLUSIVE);
@@ -199,8 +182,8 @@ void FbUpdateItem::ExecInsert()
 			wxT("books"), wxT("id,id_author,title,file_name,file_size,file_type,md5sum,genres,lang,created,year,annotation,description"),
 		},
 		{
-			wxT("authors"), wxT("id,last_name,first_name,middle_name,full_name,search_name,letter"),
-			wxT("authors"), wxT("id,last_name,first_name,middle_name,AUTH(last_name,first_name,middle_name),LOW(AUTH(last_name,first_name,middle_name)),LTTR(AUTH(last_name,first_name,middle_name))"),
+			wxT("authors"), wxT("id,last_name,first_name,middle_name,full_name,letter"),
+			wxT("authors"), wxT("id,last_name,first_name,middle_name,AUTH(last_name,first_name,middle_name),LTTR(AUTH(last_name,first_name,middle_name))"),
 		},
 		{
 			wxT("sequences"), wxT("id,value"),
@@ -243,3 +226,17 @@ void FbUpdateItem::ExecInsert()
 	}
 }
 
+//-----------------------------------------------------------------------------
+//  FbFulltextThread
+//-----------------------------------------------------------------------------
+
+void * FbFulltextThread::Entry()
+{
+	FbMainDatabase database;
+	database.Open(wxGetApp().GetLibFile());
+	DoPulse(_("Create full text search index"));
+	database.ExecuteUpdate("VACUUM");
+	database.CreateFullText(true, this);
+	FbCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK).Post(GetOwner());
+	return NULL;
+}

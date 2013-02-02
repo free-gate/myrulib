@@ -160,7 +160,6 @@
 		</Build>
 		<Compiler>
 			<Add option="-DFB_PARSE_FAXPP" />
-			<Add option="-DFB_INCLUDE_READER" />
 			<Add option="-D_MYRULIB" />
 			<Add directory="../MyRuLib" />
 			<Add directory="../../3rdparty/crengine/include" />
@@ -174,14 +173,12 @@
 			<Add option="`wx-config --libs`" />
 			<Add library="libWxBZipStream.a" />
 			<Add library="libWxSQLite3.a" />
-			<Add library="libCrEngine.a" />
 			<Add library="libSQLite3.a" />
 			<Add library="libFaxpp.a" />
+			<Add library="libbz2.a" />
 		</Linker>
 		<Unit filename="../MyRuLib/FbAlphabet.cpp" />
 		<Unit filename="../MyRuLib/FbAlphabet.h" />
-		<Unit filename="../MyRuLib/FbBookData.cpp" />
-		<Unit filename="../MyRuLib/FbBookData.h" />
 		<Unit filename="../MyRuLib/FbBookEvent.cpp" />
 		<Unit filename="../MyRuLib/FbBookEvent.h" />
 		<Unit filename="../MyRuLib/FbBookMenu.cpp" />
@@ -214,6 +211,8 @@
 		<Unit filename="../MyRuLib/FbEditBook.h" />
 		<Unit filename="../MyRuLib/FbExtractInfo.cpp" />
 		<Unit filename="../MyRuLib/FbExtractInfo.h" />
+		<Unit filename="../MyRuLib/FbFileReader.cpp" />
+		<Unit filename="../MyRuLib/FbFileReader.h" />
 		<Unit filename="../MyRuLib/FbFilterObj.cpp" />
 		<Unit filename="../MyRuLib/FbFilterObj.h" />
 		<Unit filename="../MyRuLib/FbFilterThread.cpp" />
@@ -263,6 +262,7 @@
 		<Unit filename="../MyRuLib/FbPreviewWindow.h" />
 		<Unit filename="../MyRuLib/FbServiceThread.cpp" />
 		<Unit filename="../MyRuLib/FbServiceThread.h" />
+		<Unit filename="../MyRuLib/FbSmartPtr.h" />
 		<Unit filename="../MyRuLib/FbStringHash.h" />
 		<Unit filename="../MyRuLib/FbThread.cpp" />
 		<Unit filename="../MyRuLib/FbThread.h" />
@@ -280,8 +280,6 @@
 		<Unit filename="../MyRuLib/MyRuLibApp.h" />
 		<Unit filename="../MyRuLib/VacuumThread.cpp" />
 		<Unit filename="../MyRuLib/VacuumThread.h" />
-		<Unit filename="../MyRuLib/ZipReader.cpp" />
-		<Unit filename="../MyRuLib/ZipReader.h" />
 		<Unit filename="../MyRuLib/controls/FbChoiceCtrl.cpp" />
 		<Unit filename="../MyRuLib/controls/FbChoiceCtrl.h" />
 		<Unit filename="../MyRuLib/controls/FbComboBox.cpp" />
@@ -295,6 +293,8 @@
 		<Unit filename="../MyRuLib/controls/FbNotebook.h" />
 		<Unit filename="../MyRuLib/controls/FbSearchCombo.cpp" />
 		<Unit filename="../MyRuLib/controls/FbSearchCombo.h" />
+		<Unit filename="../MyRuLib/controls/FbSearchCtrl.cpp" />
+		<Unit filename="../MyRuLib/controls/FbSearchCtrl.h" />
 		<Unit filename="../MyRuLib/controls/FbToolBar.cpp" />
 		<Unit filename="../MyRuLib/controls/FbToolBar.h" />
 		<Unit filename="../MyRuLib/controls/FbTreeModel.cpp" />

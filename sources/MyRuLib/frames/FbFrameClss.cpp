@@ -2,6 +2,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "FbClientData.h"
 #include "dialogs/FbExportDlg.h"
 #include "FbMainMenu.h"
@@ -32,7 +33,7 @@ FbFrameClss::FbFrameClss(wxAuiNotebook * parent, wxSQLite3ResultSet & result, bo
 	, m_code(result.GetInt(wxT("id")))
 {
 	m_MasterList = new FbMasterViewCtrl;
-	m_MasterList->Create(this, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES|fbTR_DIRECTORY);
+	m_MasterList->Create(this, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style(wxBORDER_SUNKEN | fbTR_DIRECTORY));
 	CreateColumns();
 
 	CreateBooksPanel(this);
@@ -55,8 +56,8 @@ void FbFrameClss::CreateModel(wxSQLite3ResultSet & result)
 
 void FbFrameClss::CreateColumns()
 {
-	m_MasterList->AddColumn(0, _("Classifier"), 40, wxALIGN_LEFT);
-	m_MasterList->AddColumn(1, _("Num."), 10, wxALIGN_RIGHT);
+	m_MasterList->AddColumn(0, _("Classifier"), -10, wxALIGN_LEFT);
+	m_MasterList->AddColumn(1, _("Num."), 6, wxALIGN_RIGHT);
 }
 
 void FbFrameClss::OnBooksCount(FbCountEvent& event)

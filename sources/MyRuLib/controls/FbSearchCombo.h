@@ -30,6 +30,10 @@ class FbSearchCombo: public wxComboCtrl
 			SetButtonBitmaps(RenderButtonBitmap(), true);
 		}
 
+		void DoEvent(wxEvent& event) {
+			GetEventHashTable().HandleEvent(event, this);
+		}
+
 		virtual void OnButtonClick()
 		{
 			wxCommandEvent event(wxEVT_COMMAND_BUTTON_CLICKED,  GetId());
@@ -43,6 +47,7 @@ class FbSearchCombo: public wxComboCtrl
 		void Init() {}
 	private:
 		wxBitmap RenderButtonBitmap();
+		DECLARE_CLASS(FbSearchCombo)
 };
 
 #endif // __FBSEARCHCOMBO_H__

@@ -7,11 +7,12 @@
 #include "FbConst.h"
 #include "FbBookEvent.h"
 #include "FbParamsDlg.h"
-#include "ZipReader.h"
 #include "MyRuLibApp.h"
 #include "FbViewerDlg.h"
 #include "FbLocale.h"
+#include "FbString.h"
 #include "FbDatabase.h"
+#include "FbFileReader.h"
 #include "controls/FbChoiceCtrl.h"
 #include "controls/FbComboBox.h"
 #include "controls/FbToolBar.h"
@@ -40,19 +41,7 @@ void * FbParamsDlg::LoadThread::Entry()
 
 void FbParamsDlg::LoadThread::LoadTypes(wxSQLite3Database &database)
 {
-	wxString sql = wxT("\
-		SELECT \
-			b.file_type, t.command, CASE WHEN b.file_type='fb2' THEN 1 ELSE 2 END AS key\
-		FROM ( \
-			 SELECT DISTINCT LOWER(file_type) AS file_type FROM books GROUP BY file_type \
-			 UNION SELECT DISTINCT file_type FROM config.types \
-			 UNION SELECT 'fb2' \
-			 UNION SELECT 'pdf' \
-			 UNION SELECT 'djvu' \
-			 UNION SELECT 'txt' \
-		) AS b LEFT JOIN config.types as t ON b.file_type = t.file_type \
-		ORDER BY key, b.file_type \
-	 ");
+	wxString sql = GetCommandSQL(wxT("config"));
 	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
 	if (!result.IsOk()) return;
 	FbListStore * model = new FbListStore;
@@ -93,6 +82,7 @@ wxString FbParamsDlg::TypeData::GetValue(FbModel & model, size_t col) const
 	switch (col) {
 		case 0: return m_type;
 		case 1: return m_command;
+		case 2: return (m_command == wxT('*')) ? fbT("~CR3") : m_command;
 		default: return wxEmptyString;
 	}
 }
@@ -215,8 +205,7 @@ FbParamsDlg::PanelFont::PanelFont(wxWindow *parent)
 	wxBoxSizer* bSizerMain;
 	bSizerMain = new wxBoxSizer( wxVERTICAL );
 
-	wxFlexGridSizer* fgSizerList;
-	fgSizerList = new wxFlexGridSizer(2, 0, 0 );
+	wxFlexGridSizer * fgSizerList = new wxFlexGridSizer( 2 );
 	fgSizerList->AddGrowableCol( 1 );
 	fgSizerList->SetFlexibleDirection( wxBOTH );
 	fgSizerList->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -252,7 +241,7 @@ void FbParamsDlg::PanelFont::AppendItem(wxFlexGridSizer* fgSizer, const wxString
 	wxColourPickerCtrl * cpValue;
 	cpValue = new wxColourPickerCtrl( this, idColour);
 	fgSizer->Add( cpValue, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL, 5 );
-*/	
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -280,7 +269,7 @@ FbParamsDlg::PanelInternet::PanelInternet(wxWindow *parent)
 
 	bSizerMain->Add( bSizerProxy, 0, wxEXPAND, 5 );
 
-	wxFlexGridSizer* fSizerProxy = new wxFlexGridSizer( 2, 0, 0 );
+	wxFlexGridSizer * fSizerProxy = new wxFlexGridSizer( 2 );
 	fSizerProxy->AddGrowableCol( 1 );
 	fSizerProxy->SetFlexibleDirection( wxBOTH );
 	fSizerProxy->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
@@ -315,8 +304,7 @@ FbParamsDlg::PanelInternet::PanelInternet(wxWindow *parent)
 	checkbox = new wxCheckBox( this, ID_DEL_DOWNLOAD, _("Delete downloaded files when download query removed"));
 	bSizerMain->Add( checkbox, 0, wxALL, 5 );
 
-	wxFlexGridSizer* fgSizer;
-	fgSizer = new wxFlexGridSizer(2, 0, 0 );
+	wxFlexGridSizer * fgSizer = new wxFlexGridSizer( 2 );
 	fgSizer->SetFlexibleDirection( wxBOTH );
 	fgSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
@@ -359,9 +347,14 @@ FbParamsDlg::PanelTypes::PanelTypes(wxWindow *parent)
 	bSizerMain->Add( toolbar, 0, wxALL|wxEXPAND, 5 );
 
 	FbTreeViewCtrl * treeview = new FbTreeViewCtrl( this, ID_TYPE_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
-	treeview->AddColumn(0, _("Extension"), 50);
-	treeview->AddColumn(1, _("Program"), 300);
+	treeview->AddColumn(0, _("Extension"), 6);
+	treeview->AddColumn(2, _("Program"), -10);
 	bSizerMain->Add( treeview, 1, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+
+	#ifdef FB_INCLUDE_READER
+	wxCheckBox * checkbox = new wxCheckBox( this, ID_USE_COOLREADER, _("Use builtin CoolReader3"));
+	bSizerMain->Add( checkbox, 0, wxEXPAND|wxALL, 5 );
+	#endif // FB_INCLUDE_READER
 
 	SetSizer( bSizerMain );
 	bSizerMain->Fit( this );
@@ -376,14 +369,15 @@ FbParamsDlg::PanelTypes::PanelTypes(wxWindow *parent)
 FbParamsDlg::PanelInterface::PanelInterface(wxWindow *parent)
 	:wxPanel(parent)
 {
+	wxStaticText * text;
 	wxCheckBox * checkbox;
 	wxBoxSizer * bSizerMain = new wxBoxSizer( wxVERTICAL );
 
 	wxBoxSizer* bSizerLocale = new wxBoxSizer( wxHORIZONTAL );
 
-	wxStaticText * typeText = new wxStaticText( this, wxID_ANY, _("Language"));
-	typeText->Wrap( -1 );
-	bSizerLocale->Add( typeText, 0, wxTOP|wxLEFT|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
+	text = new wxStaticText( this, wxID_ANY, _("Language"));
+	text->Wrap( -1 );
+	bSizerLocale->Add( text, 0, wxTOP|wxLEFT|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
 
 	FbChoiceInt * localeChoice = new FbChoiceInt( this, ID_LANG_LOCALE);
 	FbLocale::Fill(localeChoice, FbParams(FB_LANG_LOCALE));
@@ -394,7 +388,7 @@ FbParamsDlg::PanelInterface::PanelInterface(wxWindow *parent)
 	checkbox = new wxCheckBox( this, ID_SAVE_FULLPATH, _("Save full path of the file when importing"));
 	bSizerMain->Add( checkbox, 0, wxALL, 5 );
 
-	wxStaticText * text = new wxStaticText( this, wxID_ANY, _("Temporary folder:"));
+	text = new wxStaticText( this, wxID_ANY, _("Temporary folder:"));
 	text->Wrap( -1 );
 	bSizerMain->Add( text, 0, wxTOP|wxLEFT|wxRIGHT|wxEXPAND, 5 );
 
@@ -403,19 +397,17 @@ FbParamsDlg::PanelInterface::PanelInterface(wxWindow *parent)
 	bSizerMain->Add( combo, 0, wxALL|wxEXPAND, 5 );
 
 	#ifdef __WXGTK__
-	{
-		wxBoxSizer* bSizerDir = new wxBoxSizer( wxHORIZONTAL );
+	wxBoxSizer* bSizerDir = new wxBoxSizer( wxHORIZONTAL );
 
-		wxStaticText * text = new wxStaticText( this, wxID_ANY, _("Wine temp folder:"));
-		text->Wrap( -1 );
-		bSizerDir->Add( text, 0, wxLEFT|wxTOP|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
+	text = new wxStaticText( this, wxID_ANY, _("Wine temp folder:"));
+	text->Wrap( -1 );
+	bSizerDir->Add( text, 0, wxLEFT|wxTOP|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
 
-		wxTextCtrl * edit = new wxTextCtrl( this, ID_WINE_DIR);
-		edit->SetMinSize( wxSize( 200,-1 ) );
-		bSizerDir->Add( edit, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+	wxTextCtrl * edit = new wxTextCtrl( this, ID_WINE_DIR);
+	edit->SetMinSize( wxSize( 200,-1 ) );
+	bSizerDir->Add( edit, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-		bSizerMain->Add( bSizerDir, 0, wxEXPAND, 5 );
-	}
+	bSizerMain->Add( bSizerDir, 0, wxEXPAND, 5 );
 	#endif
 
 	checkbox = new wxCheckBox( this, ID_TEMP_DEL, _("Delete temporary files when you exit the program"));
@@ -430,16 +422,33 @@ FbParamsDlg::PanelInterface::PanelInterface(wxWindow *parent)
 	checkbox = new wxCheckBox( this, ID_GRAY_FONT, _("Use a gray font for missing books"));
 	bSizerMain->Add( checkbox, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizerImage = new wxBoxSizer( wxHORIZONTAL );
+	checkbox = new wxCheckBox( this, ID_GRID_HRULES, _("Draws light horizontal rules between rows"));
+	bSizerMain->Add( checkbox, 0, wxALL, 5 );
 
-	wxStaticText * imageText = new wxStaticText( this, wxID_ANY, _("Maximum width of the cover image"));
-	typeText->Wrap( -1 );
-	bSizerImage->Add( imageText, 0, wxTOP|wxLEFT|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
+	checkbox = new wxCheckBox( this, ID_GRID_VRULES, _("Draws light vertical rules between columns"));
+	bSizerMain->Add( checkbox, 0, wxALL, 5 );
 
-	wxSpinCtrl * number = new wxSpinCtrl( this, ID_IMAGE_WIDTH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 999, 0 );
-	bSizerImage->Add( number, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	wxSpinCtrl * number;
 
-	bSizerMain->Add( bSizerImage, 0, wxALL, 5 );
+	wxFlexGridSizer * fgSizer = new wxFlexGridSizer( 2 );
+	fgSizer->SetFlexibleDirection( wxBOTH );
+	fgSizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	text = new wxStaticText( this, wxID_ANY, _("Maximum length of file information"));
+	text->Wrap( -1 );
+	fgSizer->Add( text, 0, wxTOP|wxLEFT|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
+
+	number = new wxSpinCtrl( this, ID_FILE_LENGTH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 16, 9999, 0 );
+	fgSizer->Add( number, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	text = new wxStaticText( this, wxID_ANY, _("Maximum width of the cover image"));
+	text->Wrap( -1 );
+	fgSizer->Add( text, 0, wxTOP|wxLEFT|wxBOTTOM|wxALIGN_CENTER_VERTICAL, 5 );
+
+	number = new wxSpinCtrl( this, ID_IMAGE_WIDTH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 50, 999, 0 );
+	fgSizer->Add( number, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	bSizerMain->Add( fgSizer);
 
 	SetSizer( bSizerMain );
 	bSizerMain->Fit( this );
@@ -570,8 +579,8 @@ FbParamsDlg::PanelScripts::PanelScripts(wxWindow *parent)
 	bSizerMain->Add( toolbar, 0, wxALL|wxEXPAND, 5 );
 
 	FbTreeViewCtrl * treeview = new FbTreeViewCtrl( this, ID_SCRIPT_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
-	treeview->AddColumn(0, _("Extension"), 10);
-	treeview->AddColumn(1, _("Export script"), 40);
+	treeview->AddColumn(0, _("Extension"), 6);
+	treeview->AddColumn(1, _("Export script"), -10);
 	bSizerMain->Add( treeview, 1, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
 
 	SetSizer( bSizerMain );
@@ -688,7 +697,13 @@ void FbParamsDlg::Assign(bool write)
 		{FB_LANG_LOCALE, ID_LANG_LOCALE},
 		{FB_WEB_TIMEOUT, ID_WEB_TIMEOUT},
 		{FB_WEB_ATTEMPT, ID_WEB_ATTEMPT},
+		{FB_FILE_LENGTH, ID_FILE_LENGTH},
 		{FB_IMAGE_WIDTH, ID_IMAGE_WIDTH},
+		{FB_GRID_HRULES, ID_GRID_HRULES},
+		{FB_GRID_VRULES, ID_GRID_VRULES},
+		#ifdef FB_INCLUDE_READER
+		{FB_USE_COOLREADER, ID_USE_COOLREADER},
+		#endif // FB_INCLUDE_READER
 	};
 
 	const size_t idsCount = sizeof(ids) / sizeof(Struct);

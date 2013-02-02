@@ -2,6 +2,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "FbClientData.h"
 #include "dialogs/FbExportDlg.h"
 #include "dialogs/FbAuthorDlg.h"
@@ -126,7 +127,7 @@ FbFrameAuth::FbFrameAuth(wxAuiNotebook * parent, bool select)
 	m_LetterList->Create(panel, ID_MASTER_FIND, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxCB_READONLY);
 
 	m_MasterList = new FbAuthViewCtrl;
-	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
+	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style());
 	m_MasterList->SetSortedColumn(1);
 	CreateColumns();
 
@@ -141,25 +142,31 @@ FbFrameAuth::FbFrameAuth(wxAuiNotebook * parent, bool select)
 	SplitVertically(panel, m_BooksPanel);
 
 	CreateControls(select);
+	Update();
 }
 
 void FbFrameAuth::CreateColumns()
 {
-	m_MasterList->AddColumn(0, _("Author"), 40, wxALIGN_LEFT);
-	m_MasterList->AddColumn(1, _("Num."), 10, wxALIGN_RIGHT);
+	m_MasterList->AddColumn(0, _("Author"), -10, wxALIGN_LEFT);
+	m_MasterList->AddColumn(1, _("Num."), 6, wxALIGN_RIGHT);
 }
 
 void FbFrameAuth::OnChoiceLetter(wxCommandEvent& event)
 {
-	int selection = m_LetterList->GetSelection();
-	if (selection == wxNOT_FOUND) return;
+	FbModelItem selection = m_LetterList->GetCurrent();
+	if (!selection) return;
 	if (event.GetId() == ID_INIT_LETTER && m_info) return;
-	wxString letter = m_LetterList->GetString(selection).Left(1);
+	wxString letter = selection[0];
 	if (letter.IsEmpty()) return;
 	FbParams(FB_LAST_LETTER) = letter;
 	m_info = (wxChar)letter[0];
 	CreateMasterThread();
 	m_LetterList->SetText();
+}
+
+wxString FbFrameAuth::GetCountSQL()
+{
+	return wxT("SELECT id_author, COUNT(DISTINCT id) FROM books WHERE 1 %s GROUP BY id_author");
 }
 
 void FbFrameAuth::CreateMasterThread()
@@ -172,6 +179,7 @@ void FbFrameAuth::CreateMasterThread()
 	wxDELETE(m_MasterThread);
 
 	m_MasterThread = new FbAuthListThread(this, m_info, m_MasterList->GetSortedColumn(), m_MasterFile);
+	m_MasterThread->SetCountSQL(GetCountSQL(), m_filter);
 	m_MasterThread->Execute();
 }
 
@@ -179,6 +187,12 @@ void FbFrameAuth::UpdateFonts(bool refresh)
 {
 	m_LetterList->SetFont(FbParams(FB_FONT_MAIN));
 	FbFrameBase::UpdateFonts(refresh);
+}
+
+void FbFrameAuth::UpdateMaster()
+{
+	if (m_LetterList) m_LetterList->UpdateModel();
+	FbFrameBase::UpdateMaster();
 }
 
 void FbFrameAuth::ActivateAuthors()

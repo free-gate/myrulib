@@ -11,18 +11,11 @@
 
 void * FbDateTreeThread::Entry()
 {
-	FbCommonDatabase database;
-	database.JoinThread(this);
-
+	FbFrameDatabase database(this, m_counter);
 	wxString sql = wxT("SELECT DISTINCT created FROM books ORDER BY 1 DESC");
 	wxSQLite3ResultSet result = database.ExecuteQuery(sql);
 	if (result.IsOk()) MakeModel(result);
-
-	if (m_counter.IsEmpty()) {
-		wxString sql = wxT("SELECT created, COUNT(DISTINCT id) FROM books GROUP BY created");
-		CreateCounter(database, sql);
-	}
-
+	CreateCounter(database, m_sql);
 	return NULL;
 }
 
@@ -140,3 +133,8 @@ int FbDateTreeModel::GetCount(int code)
 	return count;
 }
 
+void FbDateTreeModel::SetCounter(const wxString & filename)
+{
+	if (!filename.IsEmpty()) m_database.Open(filename);
+	m_counter.clear();
+}

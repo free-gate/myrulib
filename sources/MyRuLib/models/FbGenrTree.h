@@ -2,7 +2,7 @@
 #define __FBGENRTREE_H__
 
 #include "controls/FbTreeModel.h"
-#include "FbThread.h"
+#include "FbFrameThread.h"
 
 class wxSQLite3ResultSet;
 
@@ -20,11 +20,14 @@ class FbGenrListData: public FbModelData
 class FbGenrParentData: public FbParentData
 {
 	public:
-		FbGenrParentData(FbModel & model, FbParentData * parent, const wxString &name)
-			: FbParentData(model, parent), m_name(name) {}
+		FbGenrParentData(FbModel & model, FbParentData * parent, const wxString &code, const wxString &name)
+			: FbParentData(model, parent), m_code(code), m_name(name) {}
 		virtual wxString GetValue(FbModel & model, size_t col) const
 			{ return col ? (wxString)wxEmptyString : m_name; }
+		wxString GetCode() const
+			{ return m_code; }
 	private:
+		wxString m_code;
 		wxString m_name;
 		DECLARE_CLASS(FbGenrParentData);
 };
@@ -52,15 +55,14 @@ class FbGenrChildData: public FbChildData
 		DECLARE_CLASS(FbGenrChildData);
 };
 
-class FbGenrListThread: public FbThread
+class FbGenrListThread: public FbFrameThread
 {
 	public:
 		FbGenrListThread(wxEvtHandler * frame)
-			: FbThread(wxTHREAD_JOINABLE), m_frame(frame) {}
+			: FbFrameThread(frame, wxEmptyString) {}
 	protected:
 		virtual void * Entry();
-	private:
-		wxEvtHandler * m_frame;
+		virtual void MakeModel(wxSQLite3ResultSet &result) {}
 };
 
 #endif // __FBGENRTREE_H__

@@ -8,7 +8,7 @@
 #include <wx/wx.h>
 #include <wx/odcombo.h>
 
-class FbListModel;
+#include "controls/FbTreeModel.h"
 
 class FbCustomCombo : public wxComboCtrl
 {
@@ -51,7 +51,7 @@ public:
 			dc.SelectObject(bmp);
 
 			// Draw transparent background
-			wxColour colour(255, 0, 255);
+			wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE);
 			wxBrush brush(colour);
 			dc.SetBrush(brush);
 			dc.SetPen(*wxTRANSPARENT_PEN);
@@ -155,10 +155,7 @@ protected:
 	virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const;
 
 	// This is same as in wxVListBox
-	virtual wxCoord OnMeasureItem( size_t item ) const
-	{
-		return m_itemHeight;
-	}
+	virtual wxCoord OnMeasureItem( size_t item ) const;
 
 	// Return item width, or -1 for calculating from text extent (default)
 	virtual wxCoord OnMeasureItemWidth( size_t item ) const
@@ -209,8 +206,9 @@ private:
 	DECLARE_EVENT_TABLE()
 
 protected:
-	void AssignModel(FbListModel * model);
-	FbListModel * m_model;
+	void AssignModel(FbModel * model);
+	FbModel * GetModel() { return m_model; };
+	FbModel * m_model;
 };
 
 
@@ -272,6 +270,15 @@ public:
 		wxComboCtrl::SetSelection(from, to);
 	}
 
+	virtual wxCoord OnMeasureItem( size_t item ) const
+	{
+		return -1;
+	}
+
+	FbModelItem GetCurrent();
+
+	wxString GetText();
+
 protected:
 
 	// Callback for drawing. Font, background and text colour have been
@@ -279,7 +286,7 @@ protected:
 	// item: item index to be drawn, may be wxNOT_FOUND when painting combo control itself
 	//       and there is no valid selection
 	// flags: wxODCB_PAINTING_CONTROL is set if painting to combo control instead of list
-	virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const;
+	virtual void OnDrawItem( wxDC& dc, const wxRect& rect, int index, FbModelItem item, int flags ) const;
 
 	// Callback for background drawing. Flags are same as with
 	// OnDrawItem.
@@ -301,11 +308,12 @@ private:
 	DECLARE_CLASS(FbComboBox)
 
 public:
-	void AssignModel(FbListModel * m_model);
+	void AssignModel(FbModel * m_model);
+	FbModel * GetModel() const;
 
 private:
 	// temporary storage for the initial model
-	FbListModel * m_initModel;
+	FbModel * m_initModel;
 };
 
 #endif // __FBCOMBOBOX_H__

@@ -1,4 +1,5 @@
 #include "FbViewData.h"
+#include "FbViewThread.h"
 #include "FbColumns.h"
 #include "FbDatabase.h"
 #include "FbGenres.h"
@@ -97,21 +98,27 @@ void FbViewData::Push(const wxString &filename, const wxImage &image)
 	wxMemoryFSHandler::AddFile(filename, result, wxBITMAP_TYPE_PNG);
 }
 
-void FbViewData::AddImage(wxString &filename, wxString &imagedata)
+void FbViewData::AddImage(FbViewThread &thread, const wxString &filename, const wxString &imagedata)
+{
+	wxMemoryBuffer buffer = wxBase64Decode(imagedata, wxBase64DecodeMode_SkipWS);
+	wxMemoryInputStream stream(buffer.GetData(), buffer.GetDataLen());
+	AddImage(thread, filename, stream);
+}
+
+void FbViewData::AddImage(FbViewThread &thread, const wxString &filename, wxInputStream &stream)
 {
 	if (m_images.Index(filename) != wxNOT_FOUND) return;
 	m_images.Add(filename);
 
 	wxString imagename = GetImage(filename);
-	wxMemoryBuffer buffer = wxBase64Decode(imagedata, wxBase64DecodeMode_SkipWS);
-	wxMemoryInputStream stream(buffer.GetData(), buffer.GetDataLen());
 	wxImage image(stream);
 
-	#ifdef __WXMSW__
+#ifdef __WXMSW__
 	Push(imagename, image);
-	#else
-	FbImageEvent(wxID_ANY, image, imagename).Post(&wxGetApp());
-	#endif // __WXMSW__
+	thread.SendHTML(*this);
+#else
+	FbImageEvent(wxID_ANY, image, m_id, imagename).Post(&wxGetApp());
+#endif // __WXMSW__
 }
 
 wxString FbViewData::GetComments(const FbViewContext &ctx, const FbCacheBook &book) const
@@ -156,10 +163,11 @@ wxString FbViewData::GetTitle(const FbCacheBook &book) const
 {
 	wxString html = wxString::Format(wxT("<font size=4><b>%s</b></font>"), HTML(book.GetValue(BF_AUTH)).c_str());
 
+	html << wxString::Format(wxT("<br><font size=5><b>%s</b></font>"), HTML(book.GetValue(BF_NAME)).c_str());
+	html << GetText(SEQN);
+
 	wxString genres = book.GetValue(BF_GENR);
 	if (!genres.IsEmpty()) html << wxString::Format(wxT("<br><font size=3>%s</font>"), HTML(genres).c_str());
-
-	html << wxString::Format(wxT("<br><font size=5><b>%s</b></font>"), HTML(book.GetValue(BF_NAME)).c_str());
 
 	return html;
 }

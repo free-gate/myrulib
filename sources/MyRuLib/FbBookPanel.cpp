@@ -3,11 +3,11 @@
 #include "FbConst.h"
 #include "frames/FbFrameHtml.h"
 #include "FbMainFrame.h"
+#include "FbFileReader.h"
 #include "FbBookMenu.h"
 #include "MyRuLibApp.h"
 #include "FbDownloader.h"
 #include "FbEditBook.h"
-#include "ZipReader.h"
 #include "controls/FbHtmlWindow.h"
 #include "FbMasterThread.h"
 #include "models/FbBookList.h"
@@ -15,6 +15,14 @@
 #include "FbInternetBook.h"
 #include "FbDeleteThread.h"
 #include "dialogs/FbTitleDlg.h"
+
+static void DoCopyText(const wxString &text)
+{
+	if (text.IsEmpty()) return;
+	wxClipboardLocker locker;
+	if (!locker) return;
+	wxTheClipboard->SetData( new wxTextDataObject(text) );
+}
 
 //-----------------------------------------------------------------------------
 //  FbBookViewCtrl
@@ -24,7 +32,9 @@ IMPLEMENT_CLASS(FbBookViewCtrl, FbTreeViewCtrl)
 
 BEGIN_EVENT_TABLE(FbBookViewCtrl, FbTreeViewCtrl)
 	EVT_MENU(wxID_ANY, FbBookViewCtrl::OnMenu)
+	EVT_MENU(wxID_CUT, FbBookViewCtrl::OnCopy)
 	EVT_MENU(wxID_COPY, FbBookViewCtrl::OnCopy)
+	EVT_MENU(wxID_DELETE, FbBookViewCtrl::OnDelete)
 	EVT_MENU(wxID_SELECTALL, FbBookViewCtrl::OnSelect)
 	EVT_MENU(ID_UNSELECTALL, FbBookViewCtrl::OnUnselect)
 	EVT_UPDATE_UI(wxID_CUT, FbBookViewCtrl::OnDisableUI)
@@ -36,13 +46,12 @@ END_EVENT_TABLE()
 
 void FbBookViewCtrl::OnCopy(wxCommandEvent& event)
 {
-	wxString text = GetText();
-	if (text.IsEmpty()) return;
+	DoCopyText(GetText());
+}
 
-	wxClipboardLocker locker;
-	if (!locker) return;
-
-	wxTheClipboard->SetData( new wxTextDataObject(text) );
+void FbBookViewCtrl::OnDelete(wxCommandEvent& event)
+{
+	if (FbBookPanel * panel = wxDynamicCast(GetParent(), FbBookPanel)) { panel->DoEvent(event); }
 }
 
 void FbBookViewCtrl::OnMenu(wxCommandEvent& event)
@@ -53,6 +62,7 @@ void FbBookViewCtrl::OnMenu(wxCommandEvent& event)
 			case FbMenu::AUTH: FbOpenEvent(ID_BOOK_AUTH, code, GetBook()).Post(); break;
 			case FbMenu::SEQN: FbOpenEvent(ID_BOOK_SEQN, code, GetBook()).Post(); break;
 			case FbMenu::FLDR: ((FbBookPanel*)GetParent())->DoFolderAdd(code); break;
+			case FbMenu::CLSS: break;
 		}
 	} else event.Skip();
 }
@@ -74,6 +84,7 @@ BEGIN_EVENT_TABLE(FbBookPanel, wxSplitterWindow)
 	EVT_MENU(ID_SPLIT_NOTHING, FbBookPanel::OnChangeView)
 	EVT_MENU(ID_OPEN_BOOK, FbBookPanel::OnOpenBook)
 	EVT_MENU(ID_BOOK_PAGE, FbBookPanel::OnBookPage)
+	EVT_MENU(ID_COPY_URL, FbBookPanel::OnCopyUrl)
 	EVT_MENU(ID_DOWNLOAD_BOOK, FbBookPanel::OnDownloadBook)
 	EVT_MENU(ID_SYSTEM_DOWNLOAD, FbBookPanel::OnSystemDownload)
 	EVT_MENU(ID_DELETE_DOWNLOAD, FbBookPanel::OnDeleteDownload)
@@ -103,7 +114,8 @@ FbBookPanel::FbBookPanel(wxWindow *parent, const wxSize& size, wxWindowID id)
 	Connect( wxEVT_IDLE, wxIdleEventHandler( FbBookPanel::OnIdleSplitter ), NULL, this );
 	SetMinimumPaneSize(50);
 
-	long substyle = wxBORDER_SUNKEN | fbTR_VRULES | fbTR_MULTIPLE | fbTR_CHECKBOX;
+
+	long substyle = FbParams.Style(wxBORDER_SUNKEN | fbTR_MULTIPLE | fbTR_CHECKBOX);
 	m_BookList.Create(this, ID_BOOKLIST_CTRL, wxDefaultPosition, wxDefaultSize, substyle);
 	m_BookInfo.Create(this, ID_PREVIEW_CTRL, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
 
@@ -118,11 +130,11 @@ FbBookPanel::FbBookPanel(wxWindow *parent, const wxSize& size, wxWindowID id)
 	switch (m_owner) {
 		case ID_FRAME_FIND: {
 			m_listmode = FB2_MODE_LIST;
-			m_BookList.SetSortedColumn(BF_NAME);
+			m_BookList.SetSortedColumn(BF_NAME + 1);
 		} break;
 		case ID_FRAME_NODE: {
 			m_listmode = FB2_MODE_TREE;
-			m_BookList.SetSortedColumn(BF_NUMB);
+			m_BookList.SetSortedColumn(BF_NUMB + 1);
 		} break;
 		default: {
 			m_listmode = FbParams(m_owner, FB_LIST_MODE) ? FB2_MODE_TREE : FB2_MODE_LIST;
@@ -245,24 +257,23 @@ void FbBookPanel::OnBooksListActivated(wxTreeEvent & event)
 {
 	FbModelItem item = m_BookList.GetCurrent();
 
-	int book = item.GetBook();
-	if (book) {
-		FbBookData(book).Open();
+	if (int book = item.GetBook()) {
+		FbFileReader(book).Open();
 		return;
-	} 
-	
+	}
+
 	FbAuthParentData * auth = wxDynamicCast(&item, FbAuthParentData);
 	if (auth) {
 		FbOpenEvent(ID_BOOK_AUTH, auth->GetCode()).Post();
 		return;
 	}
-		
+
 	FbSeqnParentData * seqn = wxDynamicCast(&item, FbSeqnParentData);
 	if (seqn) {
 		FbOpenEvent(ID_BOOK_SEQN, seqn->GetCode()).Post();
 		return;
 	}
-		
+
 }
 
 void FbBookPanel::OnSubmenu(wxCommandEvent& event)
@@ -294,7 +305,7 @@ void FbBookPanel::ShowContextMenu(const wxPoint& pos)
 void FbBookPanel::OnOpenBook(wxCommandEvent & event)
 {
 	int id = m_BookList.GetBook();
-	if (id) FbBookData(id).Open();
+	if (id) FbFileReader(id).Open();
 }
 
 void FbBookPanel::OnFavoritesAdd(wxCommandEvent & event)
@@ -589,6 +600,25 @@ void FbBookPanel::DoFolderAdd(int folder)
 	FbFolderEvent(ID_UPDATE_FOLDER, folder, FT_FOLDER).Post();
 }
 
+void FbBookPanel::OnCopyUrl(wxCommandEvent & event)
+{
+	wxString str;
+	wxArrayInt items;
+	GetSelected(items);
+	size_t count = items.Count();
+	for (size_t i = 0; i < count; i++) {
+		int book = items[i];
+		if (book > 0) {
+			str += FbInternetBook::GetURL(book);
+			#ifdef __WXMSW__
+			str << wxT("\r");
+			#endif
+			str << wxT("\n");
+		}
+	}
+	DoCopyText(str);
+}
+
 void FbBookPanel::DoPopupMenu(wxWindowID id)
 {
 /*
@@ -621,8 +651,17 @@ void FbBookPanel::UpdateMaster(FbMasterEvent & event)
 
 void FbBookPanel::OnEditBook(wxCommandEvent & event)
 {
-	int book = m_BookList.GetBook();
-	if (book) FbTitleDlg::Execute(book);
+    int book = m_BookList.GetBook();
+    if (book) FbSingleTitleDlg::Execute(book);
+    return;
+
+	wxArrayInt items;
+	GetSelected(items);
+	switch (items.Count()) {
+		case 0: break;
+		case 1: FbSingleTitleDlg::Execute(items[0]); break;
+		default: FbGroupTitleDlg::Execute(items); break;
+	}
 }
 
 void FbBookPanel::OnIdleSplitter( wxIdleEvent& )

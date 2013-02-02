@@ -10,18 +10,13 @@
 
 void * FbAuthListThread::Entry()
 {
-	wxString sql = wxT("SELECT id_author, COUNT(id) FROM books GROUP BY id_author");
+	bool calculate = m_counter.IsEmpty();
+	FbFrameDatabase database(this, m_counter);
 
-	FbCommonDatabase database;
-	database.JoinThread(this);
-
-	if (abs(m_order) > 1) {
-		if (m_counter.IsEmpty()) {
-			CreateCounter(database, sql);
-		} else {
-			AttachCounter(database, m_counter);
-		}
+	if (calculate && abs(m_order) > 1) {
+		CreateCounter(database, m_sql);
 		if (IsClosed()) return NULL;
+		calculate = false;
 	}
 
 	if (m_info.m_string.IsEmpty()) {
@@ -32,8 +27,8 @@ void * FbAuthListThread::Entry()
 		DoString(database);
 	}
 
-	if (m_counter.IsEmpty()) {
-		CreateCounter(database, sql);
+	if (calculate) {
+		CreateCounter(database, m_sql);
 	}
 
 	return NULL;
@@ -55,7 +50,7 @@ void FbAuthListThread::DoString(wxSQLite3Database &database)
 {
 	wxString sql = wxT("SELECT id, full_name FROM authors");
 	sql << GetJoin();
-	sql << wxT("WHERE SEARCH(search_name)");
+	sql << wxT("WHERE SEARCH(full_name)");
 	sql << GetOrder();
 	FbSearchFunction search(m_info.m_string);
 	database.CreateFunction(wxT("SEARCH"), 1, search);
@@ -69,8 +64,8 @@ void FbAuthListThread::DoFullText(wxSQLite3Database &database)
 	sql << GetJoin();
 	sql << wxT("WHERE fts_auth MATCH ?");
 	sql << GetOrder();
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
-	stmt.Bind(1, FbSearchFunction::AddAsterisk(m_info.m_string));
+	FbSQLite3Statement stmt = database.PrepareStatement(sql);
+	stmt.FTS(1, m_info.m_string);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	MakeModel(result);
 }
@@ -85,7 +80,7 @@ void FbAuthListThread::MakeModel(wxSQLite3ResultSet &result)
 	while (result.NextRow()) {
 		if (IsClosed()) return;
 		int code = result.GetInt(0);
-		if (id == ID_MODEL_CREATE) FbCollection::AddAuth(code, result.GetString(1));
+		if (id == ID_MODEL_CREATE) FbCollection::AddAuth(code, result.GetString(1).Trim(true));
 		items.Add(code);
 		count++;
 		if (count == length) {
@@ -101,7 +96,7 @@ void FbAuthListThread::MakeModel(wxSQLite3ResultSet &result)
 
 wxString FbAuthListThread::GetJoin()
 {
-	return abs(m_order) > 1 ? wxT(" LEFT JOIN cnt.numb ON id=numb.key ") : wxString(wxT(' '));
+	return abs(m_order) > 1 ? wxT(" LEFT JOIN numb ON id=numb.key ") : wxString(wxT(' '));
 }
 
 wxString FbAuthListThread::GetOrder()
@@ -135,10 +130,14 @@ wxString FbAuthListData::GetValue(FbModel & model, size_t col) const
 
 IMPLEMENT_CLASS(FbAuthListModel, FbListModel)
 
-FbAuthListModel::FbAuthListModel(const wxArrayInt &items)
+FbAuthListModel::FbAuthListModel(const wxArrayInt &items, int code)
 {
-	m_position = items.Count() == 0 ? 0 : 1;
+	m_position = items.Count() ? 1 : 0;
 	Append(items);
+	if (code) {
+		int i = items.Index(code);
+		if (i != wxNOT_FOUND) m_position = (size_t)i + 1;
+	}
 }
 
 FbAuthListModel::~FbAuthListModel(void)
@@ -204,3 +203,8 @@ int FbAuthListModel::GetCount(int code)
 	return count;
 }
 
+void FbAuthListModel::SetCounter(const wxString & filename)
+{ 
+	if (!filename.IsEmpty()) m_database.Open(filename); 
+	m_counter.clear(); 
+}

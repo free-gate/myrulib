@@ -4,6 +4,7 @@
 #include <wx/wx.h>
 #include <wx/aui/tabmdi.h>
 #include "FbMainMenu.h"
+#include "FbThread.h"
 #include "controls/FbHtmlWindow.h"
 
 class FbFrameInfo
@@ -11,10 +12,14 @@ class FbFrameInfo
 {
 	public:
 		static void Execute(wxEvtHandler * owner);
-		FbFrameInfo(wxAuiNotebook * parent);
+		FbFrameInfo(wxAuiNotebook * parent, bool select);
 		virtual wxString GetTitle() const { return _("Information"); };
 		void Load(const wxString & html);
 		virtual void UpdateFonts(bool refresh = true);
+	public:
+		void DoEvent(wxEvent& event) {
+			GetEventHashTable().HandleEvent(event, this);
+		}
 	private:
 		void OnSave(wxCommandEvent& event);
 		DECLARE_CLASS(FbFrameInfo)

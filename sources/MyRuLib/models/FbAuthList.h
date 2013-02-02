@@ -13,7 +13,7 @@ class FbAuthListInfo: public wxObject
 				{ if (letter == wxT('*')) m_letter = 0; }
 		FbAuthListInfo(const wxString &string)
 			: m_letter(0), m_string(string)
-				{ if (string.Len() == 1) { m_letter = string[0]; m_string.Empty(); } }
+				{ if (string.Len() == 1) { m_letter = Upper(string)[0]; m_string.Empty(); } }
 		FbAuthListInfo(const FbAuthListInfo & info)
 			: m_letter(info.m_letter), m_string(info.m_string) {}
 		bool IsFullText() const
@@ -62,7 +62,7 @@ class FbAuthListData: public FbModelData
 class FbAuthListModel: public FbListModel
 {
 	public:
-		FbAuthListModel(const wxArrayInt &items);
+		FbAuthListModel(const wxArrayInt &items, int code = 0);
 		virtual ~FbAuthListModel(void);
 		virtual void Append(FbModelData * data);
 		virtual void Replace(FbModelData * data);
@@ -76,8 +76,7 @@ class FbAuthListModel: public FbListModel
 			{ return m_items.Count(); }
 		virtual FbModelItem GetCurrent()
 			{ return GetData(m_position); };
-		void SetCounter(const wxString & filename)
-			{ if (!filename.IsEmpty()) m_database.Open(filename); }
+		void SetCounter(const wxString & filename);
 	protected:
 		virtual FbModelItem DoGetData(size_t row, int &level);
 	private:

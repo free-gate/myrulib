@@ -5,6 +5,7 @@
 #include "FbParams.h"
 #include "FbGenres.h"
 #include "FbDateTime.h"
+#include "FbFileReader.h"
 
 #include <wx/filename.h>
 #include <wx/fs_mem.h>
@@ -22,16 +23,10 @@
 
 IMPLEMENT_CLASS(FbBookAuths, wxObject)
 
-FbBookAuths::FbBookAuths(int code, wxSQLite3Database &database)
+FbBookAuths::FbBookAuths(int code, FbDatabase & database)
 	: m_code(code)
 {
-	wxString sql = wxT("SELECT AGGREGATE(DISTINCT full_name) FROM authors WHERE id IN(SELECT id_author FROM books WHERE id=?)");
-
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
-	stmt.Bind(1, code);
-	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
-	if (result.NextRow()) m_name = result.GetString(0);
+	m_name = database.Str(code, wxT("SELECT AGGREGATE(DISTINCT full_name) FROM authors WHERE id IN(SELECT id_author FROM books WHERE id=?)"));
 }
 
 wxString FbBookAuths::operator[](size_t col) const
@@ -55,11 +50,9 @@ FbBookSeqns::FbBookSeqns(int code, wxSQLite3Database &database)
 	: m_code(code)
 {
 	wxString sql = wxT("SELECT AGGREGATE(DISTINCT value), MAX(bookseq.number) FROM bookseq LEFT JOIN sequences ON id_seq=id WHERE id_book=?");
-
 	wxSQLite3Statement stmt = database.PrepareStatement(sql);
 	stmt.Bind(1, code);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
-
 	if (result.NextRow()) {
 		m_name = result.GetString(0);
 		m_numb = result.GetInt(1);
@@ -103,6 +96,7 @@ FbParamHash FbCollection::sm_params;
 
 FbCollection::FbCollection(const wxString &filename)
 	: m_thread(NULL)
+	, m_downs(NULL)
 {
 	m_database.Open(filename);
 	m_database.AttachConfig();
@@ -114,6 +108,7 @@ FbCollection::FbCollection(const wxString &filename)
 FbCollection::~FbCollection()
 {
 	if (m_thread) m_thread->Close();
+	wxDELETE(m_downs);
 }
 
 bool FbCollection::IsOk() const
@@ -149,7 +144,7 @@ wxString FbCollection::GetSeqn(int code, size_t col)
 	} else {
 		wxString sql = wxT("SELECT value FROM sequences WHERE id="); sql << code;
 		wxSQLite3ResultSet result = collection->m_database.ExecuteQuery(sql);
-		wxString name = result.NextRow() ? result.GetString(0) : wxString();
+		wxString name = result.NextRow() ? result.GetString(0).Trim(true) : wxString();
 		collection->m_seqns[code] = name;
 		return name;
 	}
@@ -168,7 +163,7 @@ wxString FbCollection::GetAuth(int code, size_t col)
 	} else {
 		wxString sql = wxT("SELECT full_name, number FROM authors WHERE id="); sql << code;
 		wxSQLite3ResultSet result = collection->m_database.ExecuteQuery(sql);
-		wxString name = result.NextRow() ? result.GetString(0) : wxString();
+		wxString name = result.NextRow() ? result.GetString(0).Trim(true) : wxString();
 		collection->m_auths[code] = name;
 		return name;
 	}
@@ -373,8 +368,12 @@ wxArrayString FbCollection::sm_icons;
 
 wxArrayString FbCollection::sm_noico;
 
-void FbCollection::LoadIcon(const wxString &extension)
+void FbCollection::LoadIcon(int book)
 {
+	if (!book) return;
+
+	wxString ext = GetBook(book, BF_TYPE);
+
 	wxCriticalSectionLocker locker(sm_section);
 
 	if (!sm_icons.Count()) {
@@ -382,29 +381,29 @@ void FbCollection::LoadIcon(const wxString &extension)
 		AddIcon((wxString)wxT("pdf"), wxBitmap(ico_pdf_xpm));
 	}
 
-	if (extension.IsEmpty() || extension == wxT("fb2")) return;
-	if (sm_icons.Index(extension) != wxNOT_FOUND) return;
-	if (sm_noico.Index(extension) != wxNOT_FOUND) return;
+	if (ext.IsEmpty() || ext == wxT("fb2")) return;
+	if (sm_icons.Index(ext) != wxNOT_FOUND) return;
+	if (sm_noico.Index(ext) != wxNOT_FOUND) return;
 
 	#ifdef __WXMSW__
-	wxFileType *ft = wxTheMimeTypesManager->GetFileTypeFromExtension(extension);
+	wxFileType * ft = wxTheMimeTypesManager->GetFileTypeFromExtension(ext);
 	if ( ft ) {
-		wxIconLocation location;
-		if ( ft->GetIcon(&location) && location.IsOk() ) {
+		wxIconLocation loc;
+		if ( ft->GetIcon(&loc) && loc.IsOk() ) {
 			wxLogNull log;
-			wxIcon icon(location);
+			wxIcon icon(loc);
 			if (icon.IsOk()) {
 				wxBitmap bitmap;
 				bitmap.CopyFromIcon(icon);
-				wxString filename = wxT("icon.") + extension;
+				wxString filename = wxT("icon.") + ext;
 				wxMemoryFSHandler::AddFile(filename, bitmap, wxBITMAP_TYPE_PNG);
-				sm_icons.Add(extension);
+				sm_icons.Add(ext);
 				return;
 			}
 		}
 	}
 	#endif // __WXMSW__
-	sm_noico.Add(extension);
+	sm_noico.Add(ext);
 }
 
 wxString FbCollection::GetIcon(const wxString &extension)
@@ -450,28 +449,40 @@ void FbCollection::LoadParams()
 
 int FbCollection::GetParamInt(int param)
 {
-	wxCriticalSectionLocker locker(sm_section);
 	if (param >= 100) {
-		if (sm_params.count(param)) return sm_params[param].m_int;
+		wxCriticalSectionLocker locker(sm_section);
+		FbParamHash::const_iterator it = sm_params.find(param);
+		if (it != sm_params.end()) return it->second.m_int;
+		return FbParamItem::DefaultInt(param);
 	} else {
+		wxCriticalSectionLocker locker(sm_section);
 		FbCollection * collection = GetCollection();
-		if (collection && collection->m_params.count(param))
-			return collection->m_params[param].m_int;
+		if (collection) {
+			FbParamHash::const_iterator it = collection->m_params.find(param);
+			if (it != collection->m_params.end()) return it->second.m_int;
+			return collection->DefaultInt(param);
+		}
+		return 0;
 	}
-	return FbParamItem::DefaultInt(param);
 }
 
 wxString FbCollection::GetParamStr(int param)
 {
-	wxCriticalSectionLocker locker(sm_section);
 	if (param >= 100) {
-		if (sm_params.count(param)) return sm_params[param].m_str;
+		wxCriticalSectionLocker locker(sm_section);
+		FbParamHash::const_iterator it = sm_params.find(param);
+		if (it != sm_params.end()) return it->second.m_str;
+		return FbParamItem::DefaultStr(param);
 	} else {
+		wxCriticalSectionLocker locker(sm_section);
 		FbCollection * collection = GetCollection();
-		if (collection && collection->m_params.count(param))
-			return collection->m_params[param].m_str;
+		if (collection) {
+			FbParamHash::const_iterator it = collection->m_params.find(param);
+			if (it != collection->m_params.end()) return it->second.m_str;
+			return collection->DefaultStr(param);
+		}
+        return wxEmptyString;
 	}
-	return FbParamItem::DefaultStr(param);
 }
 
 void FbCollection::SetParamInt(int param, int value)
@@ -532,6 +543,38 @@ void FbCollection::SetParamStr(int param, const wxString &value)
 	}
 }
 
+int FbCollection::DefaultInt(int param)
+{
+	switch (param) {
+		default: return 0;
+	}
+};
+
+wxString FbCollection::DefaultStr(int param)
+{
+	switch (param) {
+		case DB_LIBRARY_DIR:
+			return wxT('.');
+		case DB_DOWNLOAD_HOST:
+			return wxT("flibusta.net");
+		case DB_DOWNLOAD_ADDR:
+			if (IsGenesis()) {
+				return wxT("http://%h/get?nametype=orig&md5=%s");
+			} else {
+				return wxT("http://%h/b/%i/download");
+			}
+		default:
+			return wxEmptyString;
+	}
+};
+
+bool FbCollection::IsGenesis() const
+{
+	FbParamHash::const_iterator it = sm_params.find(DB_LIBRARY_TYPE);
+	if (it == sm_params.end()) return false;
+	return it->second.m_str == wxT("GENESIS");
+}
+
 void FbCollection::ResetParam(int param)
 {
 	wxCriticalSectionLocker locker(sm_section);
@@ -550,4 +593,39 @@ void FbCollection::ResetParam(int param)
 	wxSQLite3Statement stmt = collection->m_database.PrepareStatement(sql);
 	stmt.Bind(1, param);
 	stmt.ExecuteUpdate();
+}
+
+void FbCollection::GetDown(wxArrayInt & items)
+{
+	items.Clear();
+	{
+		wxCriticalSectionLocker locker(sm_section);
+		FbCollection * collection = GetCollection();
+		if (collection == NULL) return;
+		if (collection->m_downs) {
+			WX_APPEND_ARRAY(items, *(collection->m_downs))
+			return;
+		}
+	}
+	FbSmartPtr<wxArrayInt> downs = new wxArrayInt;
+	{
+		FbCommonDatabase database;
+		database.AttachConfig();
+		wxString sql = wxT("SELECT DISTINCT id,download FROM states INNER JOIN books ON books.md5sum=states.md5sum WHERE download<0 ORDER BY 2 DESC");
+		wxSQLite3ResultSet result = database.ExecuteQuery(sql);
+		while (result.NextRow()) downs->Add(result.GetInt(0));
+	}
+	WX_APPEND_ARRAY(items, *downs);
+	{
+		wxCriticalSectionLocker locker(sm_section);
+		FbCollection * collection = GetCollection();
+		if (collection == NULL) return;
+		if (collection->m_downs) wxDELETE(collection->m_downs);
+		collection->m_downs = downs.Reset();
+	}
+}
+
+int FbCollection::GetDown(size_t index)
+{
+	return 0;
 }

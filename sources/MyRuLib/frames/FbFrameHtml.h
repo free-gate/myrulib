@@ -6,7 +6,7 @@
 #include <wx/aui/tabmdi.h>
 #include <wx/splitter.h>
 #include <wx/html/htmlwin.h>
-#include "FbBookData.h"
+#include "FbThread.h"
 #include "FbWindow.h"
 #include "controls/FbHtmlWindow.h"
 
@@ -21,6 +21,10 @@ class FbFrameHtml :
 		static void Execute();
 		virtual void UpdateFonts(bool refresh = true);
 		virtual void Localize(bool bUpdateMenu);
+	public:
+		void DoEvent(wxEvent& event) {
+			GetEventHashTable().HandleEvent(event, this);
+		}
 	private:
 		void CreateControls();
 		static wxString GetMd5sum(const int id);

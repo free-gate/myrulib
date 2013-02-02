@@ -1,6 +1,7 @@
 #include "FbBookMenu.h"
 #include "FbMenu.h"
 #include "FbConst.h"
+#include "FbString.h"
 #include "FbDatabase.h"
 #include "FbBookEvent.h"
 #include "FbMasterInfo.h"
@@ -47,6 +48,7 @@ void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 	AppendSeparator();
 
 	AppendImg(wxID_COPY, _("Copy") + (wxString)wxT("\tCtrl+C"), wxART_COPY);
+	Append(ID_COPY_URL, _("Copy URL"));
 	Append(wxID_SELECTALL, _("Select all") + (wxString)wxT("\tCtrl+A"));
 	Append(ID_UNSELECTALL, _("Undo selection"));
 	Append(ID_SHOW_COLUMNS, _("Table columns"));
@@ -56,8 +58,9 @@ void FbBookMenu::Init(const FbMasterInfo &master, bool bShowOrder)
 	AppendSeparator();
 
 	if (bShowOrder) Append(wxID_ANY, _("Sort by"), new FbMenuSort);
-	Append(ID_FILTER_SET, _("Filter setup"));
+	Append(ID_FILTER_SET, _("Filter setup..."));
 	AppendCheckItem(ID_FILTER_USE, _("Use filter"));
+	AppendCheckItem(ID_FILTER_DEL, _("Show deleted"));
 	AppendSeparator();
 
 	AppendAuth();
@@ -81,7 +84,7 @@ void FbBookMenu::AppendAuth()
 	wxString text = _("Jump to author");
 	FbMenu * submenu = NULL;
 
-	wxString sql = wxT("SELECT id, full_name FROM authors WHERE %s ORDER BY search_name");
+	wxString sql = fbT("SELECT id, full_name FROM authors WHERE %s ORDER BY 2") << fbCOLLATE_CYR;
 	if (m_book) {
 		sql = wxString::Format(sql, wxT("id IN (SELECT id_author FROM books WHERE id=%d)"));
 		sql = wxString::Format(sql, m_book);

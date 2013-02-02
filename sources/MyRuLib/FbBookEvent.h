@@ -3,7 +3,6 @@
 
 #include <wx/wx.h>
 #include <wx/wxsqlite3.h>
-#include "FbBookData.h"
 #include "FbBookTypes.h"
 #include "FbMasterInfo.h"
 #include "FbMasterTypes.h"
@@ -19,6 +18,7 @@ DECLARE_LOCAL_EVENT_TYPE( fbEVT_ARRAY_ACTION,    8 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_COUNT_ACTION,    9 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_IMAGE_ACTION,   10 )
 DECLARE_LOCAL_EVENT_TYPE( fbEVT_LETTERS_ACTION, 11 )
+DECLARE_LOCAL_EVENT_TYPE( fbEVT_INIT_FRAMES,    12 )
 
 class FbModel;
 
@@ -36,21 +36,6 @@ class FbCommandEvent: public wxCommandEvent
 	public:
 		void Post(wxEvtHandler *dest);
 		void Post();
-};
-
-class FbBookEvent: public FbCommandEvent
-{
-	public:
-		FbBookEvent(wxWindowID id, BookTreeItemData * data, const wxString &sting = wxEmptyString)
-			: FbCommandEvent(fbEVT_BOOK_ACTION, id, sting), m_data(data) {};
-
-		FbBookEvent(const FbBookEvent & event)
-			: FbCommandEvent(event), m_data(event.m_data) {};
-
-		virtual wxEvent *Clone() const { return new FbBookEvent(*this); }
-
-	public:
-		BookTreeItemData m_data;
 };
 
 class FbModelEvent: public FbCommandEvent
@@ -207,8 +192,8 @@ class FbImageEvent: public FbCommandEvent
 		FbImageEvent(const FbImageEvent & event)
 			: FbCommandEvent(event), m_image(event.m_image) {}
 
-		FbImageEvent(wxWindowID winid, const wxImage & image, const wxString &str = wxEmptyString)
-			: FbCommandEvent(fbEVT_IMAGE_ACTION, winid, str), m_image(image) {}
+		FbImageEvent(wxWindowID winid, const wxImage & image, int id, const wxString &str = wxEmptyString)
+			: FbCommandEvent(fbEVT_IMAGE_ACTION, winid, id, str), m_image(image) {}
 
 		virtual wxEvent *Clone() const
 			{ return new FbImageEvent(*this); }
@@ -246,8 +231,6 @@ class FbLettersEvent: public FbCommandEvent
 		int m_position;
 		int m_divider;
 };
-
-typedef void (wxEvtHandler::*FbBookEventFunction)(FbBookEvent&);
 
 typedef void (wxEvtHandler::*FbModelEventFunction)(FbModelEvent&);
 

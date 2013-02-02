@@ -53,8 +53,11 @@ class WXDLLEXPORT FbTreeViewCtrl : public wxControl
 					const wxString& name = FbTreeViewCtrlNameStr );
 
 		void Refresh(bool erase=TRUE, const wxRect* rect=NULL);
-		
+
+		void DoEvent(wxEvent& event) { GetEventHashTable().HandleEvent(event, this); }
+
 		void SetScrollPos(int position) { m_position = position; }
+
 		int GetScrollPos() { return m_position; }
 
 		// overridden base class virtuals
@@ -69,8 +72,7 @@ class WXDLLEXPORT FbTreeViewCtrl : public wxControl
 		void AddColumn (size_t model_column,
 						const wxString& text = wxEmptyString,
 						int width = DEFAULT_COL_WIDTH,
-						int flag = wxALIGN_LEFT,
-						int fixed = 0);
+						int flag = wxALIGN_LEFT);
 
 		void EmptyColumns();
 
@@ -120,9 +122,8 @@ class WXDLLEXPORT FbTreeViewCtrl : public wxControl
 
 	private:
 		int m_position;
-		DECLARE_DYNAMIC_CLASS(FbTreeViewCtrl)
+		DECLARE_CLASS(FbTreeViewCtrl)
 		DECLARE_EVENT_TABLE()
 };
 
 #endif // __FBTREEVIEW_H__
-

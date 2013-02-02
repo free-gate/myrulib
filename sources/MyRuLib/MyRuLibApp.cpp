@@ -9,7 +9,6 @@
 #include "FbLocale.h"
 #include "FbParams.h"
 #include "FbGenres.h"
-#include "ZipReader.h"
 #include "dialogs/FbDataOpenDlg.h"
 #include "FbCollection.h"
 
@@ -56,7 +55,7 @@ void MyRuLibApp::Localize()
 	m_locale = new FbLocale;
 	m_locale->Init(language);
 
-	FbMainFrame * frame = wxDynamicCast(wxGetApp().GetTopWindow(), FbMainFrame);
+	FbMainFrame * frame = wxDynamicCast(GetTopWindow(), FbMainFrame);
 	if (frame) frame->Localize(language);
 
 	FbGenres::Init();
@@ -65,7 +64,7 @@ void MyRuLibApp::Localize()
 bool MyRuLibApp::OnInit()
 {
 	wxRegisterId(ID_MENU_HIGHEST);
-	
+
 	#ifdef FB_SYSLOG_LOGGING
 	wxLog::SetActiveTarget(new FbLogSyslog);
 	#endif // FB_SYSLOG_LOGGING
@@ -212,4 +211,39 @@ void MyRuLibApp::UpdateLibPath()
 void MyRuLibApp::OnImageEvent(FbImageEvent & event)
 {
 	FbViewData::Push(event.GetString(), event.GetImage());
+	FbMainFrame * frame = wxDynamicCast(GetTopWindow(), FbMainFrame);
+	if (frame) frame->UpdateBook(event.GetInt());
 }
+
+#ifdef __WXMSW__
+
+static bool Wheel(wxEvent & event)
+{
+	wxMouseEvent * mouse = wxDynamicCast(&event, wxMouseEvent);
+	if (!mouse) return false;
+
+	wxWindow * object = wxDynamicCast(mouse->GetEventObject(), wxWindow);
+	if (!object) return false;
+
+	wxPoint pt = object->ClientToScreen(mouse->GetPosition());
+	wxWindow * window = wxFindWindowAtPoint(pt);
+	if (!window || window == object) return false;
+
+	if (window->HasScrollbar(wxVERTICAL)) {
+		int delta = mouse->GetLinesPerAction();
+		if (window->GetId() == ID_FRAME_READ) delta = 1;
+		if (mouse->GetWheelRotation() > 0 ) delta *= -1;
+		window->ScrollLines(delta);
+		return true;
+	}
+
+	return false;
+}
+
+int MyRuLibApp::FilterEvent(wxEvent & event)
+{
+	if (event.GetEventType() == wxEVT_MOUSEWHEEL && Wheel(event)) return 1;
+	return wxApp::FilterEvent(event);
+}
+
+#endif // __WXMSW__

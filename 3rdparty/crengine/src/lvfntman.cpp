@@ -35,6 +35,9 @@
 #define DEBUG_FONT_MAN_LOG_FILE "/tmp/font_man.log"
 #endif
 
+#define GAMMA_TABLES_IMPL
+#include "../include/gammatbl.h"
+
 #if (USE_FREETYPE==1)
 
 //#include <ft2build.h>
@@ -67,6 +70,61 @@
 
 
 LVFontManager * fontMan = NULL;
+
+static double gammaLevel = 1.0;
+static int gammaIndex = GAMMA_LEVELS/2;
+
+/// fills array with list of available gamma levels
+void LVFontManager::GetGammaLevels(LVArray<double> dst) {
+    dst.clear();
+    for ( int i=0; i<GAMMA_LEVELS; i++ )
+        dst.add(cr_gamma_levels[i]);
+}
+
+/// returns current gamma level index
+int  LVFontManager::GetGammaIndex() {
+    return gammaIndex;
+}
+
+/// sets current gamma level index
+void LVFontManager::SetGammaIndex( int index ) {
+    if ( index<0 )
+        index = 0;
+    if ( index>=GAMMA_LEVELS )
+        index = GAMMA_LEVELS-1;
+    if ( gammaIndex!=index ) {
+        CRLog::trace("FontManager gamma index changed from %d to %d", gammaIndex, index);
+        gammaIndex = index;
+        gammaLevel = cr_gamma_levels[index];
+        clearGlyphCache();
+    }
+}
+
+/// returns current gamma level
+double LVFontManager::GetGamma() {
+    return gammaLevel;
+}
+
+/// sets current gamma level
+void LVFontManager::SetGamma( double gamma ) {
+//    gammaLevel = cr_ft_gamma_levels[GAMMA_LEVELS/2];
+//    gammaIndex = GAMMA_LEVELS/2;
+    int oldGammaIndex = gammaIndex;
+    for ( int i=0; i<GAMMA_LEVELS; i++ ) {
+        double diff1 = cr_gamma_levels[i] - gamma;
+        if ( diff1<0 ) diff1 = -diff1;
+        double diff2 = gammaLevel - gamma;
+        if ( diff2<0 ) diff2 = -diff2;
+        if ( diff1 < diff2 ) {
+            gammaLevel = cr_gamma_levels[i];
+            gammaIndex = i;
+        }
+    }
+    if ( gammaIndex!=oldGammaIndex ) {
+        CRLog::trace("FontManager gamma index changed from %d to %d", oldGammaIndex, gammaIndex);
+        clearGlyphCache();
+    }
+}
 
 
 /**
@@ -358,6 +416,9 @@ static LVFontGlyphCacheItem * newItem( LVFontLocalGlyphCache * local_cache, lCha
         } else {
 #endif
             memcpy( item->bmp, bitmap->buffer, w*h );
+            // correct gamma
+            if ( gammaIndex!=GAMMA_LEVELS/2 )
+                cr_correct_gamma_buf(item->bmp, w*h, gammaIndex);
 //            }
     }
     item->origin_x =   (lInt8)slot->bitmap_left;
@@ -495,7 +556,10 @@ static lUInt16 char_flags[] = {
 };
 
 #define GET_CHAR_FLAGS(ch) \
-     (ch<48?char_flags[ch]:(ch==UNICODE_SOFT_HYPHEN_CODE?LCHAR_ALLOW_WRAP_AFTER:0))
+     (ch<48?char_flags[ch]: \
+        (ch==UNICODE_SOFT_HYPHEN_CODE?LCHAR_ALLOW_WRAP_AFTER: \
+        (ch==UNICODE_NO_BREAK_SPACE?LCHAR_DEPRECATED_WRAP_AFTER|LCHAR_IS_SPACE: \
+        (ch==UNICODE_HYPHEN?LCHAR_DEPRECATED_WRAP_AFTER:0))))
 
 class LVFreeTypeFace : public LVFont
 {
@@ -508,7 +572,8 @@ protected:
     FT_Face       _face;
     FT_GlyphSlot  _slot;
     FT_Matrix     _matrix;                 /* transformation matrix */
-    int           _size; // height in pixels
+    int           _size; // caracter height in pixels
+    int           _height; // full line height in pixels
     int           _hyphen_width;
     int           _baseline;
     int            _weight;
@@ -636,8 +701,9 @@ public:
             0,        /* pixel_width           */
             (size * targetheight + nheight/2)/ nheight );  /* pixel_height          */
 #endif
+        _height = _face->size->metrics.height >> 6;
         _size = size; //(_face->size->metrics.height >> 6);
-        _baseline = _size + (_face->size->metrics.descender >> 6);
+        _baseline = _height + (_face->size->metrics.descender >> 6);
         _weight = _face->style_flags & FT_STYLE_FLAG_BOLD ? 700 : 400;
         _italic = _face->style_flags & FT_STYLE_FLAG_ITALIC ? 1 : 0;
 
@@ -933,6 +999,12 @@ public:
     /// returns font height
     virtual int getHeight() const
     {
+        return _height;
+    }
+
+    /// returns font character size
+    virtual int getSize() const
+    {
         return _size;
     }
 
@@ -983,7 +1055,7 @@ public:
         lvRect clip;
         buf->GetClipRect( &clip );
         updateTransform();
-        if ( y + _size < clip.top || y >= clip.bottom )
+        if ( y + _height < clip.top || y >= clip.bottom )
             return;
 
         int error;
@@ -1057,7 +1129,8 @@ public:
                 buf->FillRect( x0, liney, x, liney+h, cl );
             }
             if ( flags & LTEXT_TD_LINE_THROUGH ) {
-                int liney = y + _size/2 - h/2;
+//                int liney = y + _baseline - _size/4 - h/2;
+                int liney = y + _baseline - _size*2/7;
                 buf->FillRect( x0, liney, x, liney+h, cl );
             }
         }
@@ -1091,7 +1164,8 @@ class LVFontBoldTransform : public LVFont
     int _hyphWidth;
     int _hShift;
     int _vShift;
-    int           _size; // height in pixels
+    int           _size;   // glyph height in pixels
+    int           _height; // line height in pixels
     //int           _hyphen_width;
     int           _baseline;
     LVFontLocalGlyphCache _glyph_cache;
@@ -1112,10 +1186,10 @@ public:
     LVFontBoldTransform( LVFontRef baseFont, LVFontGlobalGlyphCache * globalCache )
         : _baseFontRef( baseFont ), _baseFont( baseFont.get() ), _hyphWidth(-1), _glyph_cache(globalCache)
     {
-        int h = _baseFont->getHeight();
-        _hShift = h <= 36 ? 1 : 2;
-        _vShift = h <= 36 ? 0 : 1;
-        _size = _baseFont->getHeight();
+        _size = _baseFont->getSize();
+        _height = _baseFont->getHeight();
+        _hShift = _size <= 36 ? 1 : 2;
+        _vShift = _size <= 36 ? 0 : 1;
         _baseline = _baseFont->getBaseline();
     }
 
@@ -1319,6 +1393,12 @@ public:
     /// returns font height
     virtual int getHeight() const
     {
+        return _height;
+    }
+
+    /// returns font character size
+    virtual int getSize() const
+    {
         return _size;
     }
 
@@ -1359,7 +1439,7 @@ public:
             letter_spacing = 0;
         lvRect clip;
         buf->GetClipRect( &clip );
-        if ( y + _size < clip.top || y >= clip.bottom )
+        if ( y + _height < clip.top || y >= clip.bottom )
             return;
 
         //int error;
@@ -1411,7 +1491,7 @@ public:
                 buf->FillRect( x0, liney, x, liney+h, cl );
             }
             if ( flags & LTEXT_TD_LINE_THROUGH ) {
-                int liney = y + _size/2 - h/2;
+                int liney = y + _height/2 - h/2;
                 buf->FillRect( x0, liney, x, liney+h, cl );
             }
         }
@@ -1466,7 +1546,7 @@ public:
 //}
 
 static LVFontRef dumpFontRef( LVFontRef fnt ) {
-    CRLog::trace("%s %d w=%d %s", fnt->getTypeFace().c_str(), fnt->getHeight(), fnt->getWeight(), fnt->getItalic()?"italic":"" );
+    CRLog::trace("%s %d (%d) w=%d %s", fnt->getTypeFace().c_str(), fnt->getSize(), fnt->getHeight(), fnt->getWeight(), fnt->getItalic()?"italic":"" );
     return fnt;
 };
 
@@ -1497,8 +1577,8 @@ public:
             if ( !item )
                 face.clear();
             _fallbackFontFace = face;
-            return !_fallbackFontFace.empty();
         }
+        return !_fallbackFontFace.empty();
     }
 
     /// get fallback font face (returns empty string if no fallback font is set)
@@ -1945,10 +2025,10 @@ public:
                 ref = LVFontRef( new LVFontBoldTransform( ref, &_globalCache ) );
                 _cache.update( &newDef, ref );
             }
-            int rsz = ref->getHeight();
-            if ( rsz!=size ) {
-                size++;
-            }
+//            int rsz = ref->getSize();
+//            if ( rsz!=size ) {
+//                size++;
+//            }
             //delete def;
             return ref;
         }
@@ -2369,6 +2449,7 @@ public:
         
         return res!=0;
     }
+
     virtual void getFaceList( lString16Collection & list )
     {
         _cache.getFaceList(list);
@@ -2399,7 +2480,7 @@ int CALLBACK LVWin32FontEnumFontFamExProc(
             for (int i=0; chars[i]; i++)
             {
                 LVFont::glyph_info_t glyph;
-                if (!fnt.getGlyphInfo( chars[i], &glyph, L' ' ))
+                if (!fnt.getGlyphInfo( chars[i], &glyph, L' ' )) //def_char
                     return 1;
             }
             fontman->RegisterFont( lf ); //&lpelfe->elfLogFont
@@ -2808,7 +2889,7 @@ void LVFontCache::gc()
         CRLog::debug("LVFontCache::gc() : %d fonts still used, %d fonts dropped", usedCount, droppedCount );
 }
 
-#if !defined(__SYMBIAN32__) && defined(_WIN32)
+#if !defined(__SYMBIAN32__) && defined(_WIN32) && USE_FREETYPE!=1
 void LVBaseWin32Font::Clear() 
 {
     if (_hfont)
@@ -3454,7 +3535,7 @@ bool operator == (const LVFont & r1, const LVFont & r2)
 {
     if ( &r1 == &r2 )
         return true;
-    return r1.getHeight()==r2.getHeight()
+    return r1.getSize()==r2.getSize()
             && r1.getWeight()==r2.getWeight()
             && r1.getItalic()==r2.getItalic()
             && r1.getFontFamily()==r2.getFontFamily()

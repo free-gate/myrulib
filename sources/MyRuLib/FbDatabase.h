@@ -14,6 +14,10 @@ wxString & MakeLower(wxString & data);
 
 wxString & MakeUpper(wxString & data);
 
+int FbCompare(const wxString& text1, const wxString& text2);
+
+bool IsAlphaNumeric(wxChar ch);
+
 enum FbDatabaseKey {
 	DB_LIBRARY_TITLE = 1,
 	DB_LIBRARY_VERSION = 2,
@@ -73,11 +77,9 @@ class FbSearchFunction: public wxSQLite3ScalarFunction
 	public:
 		FbSearchFunction(const wxString & input);
 		static bool IsFullText(const wxString &text);
-		static wxString AddAsterisk(const wxString &text);
 	protected:
 		virtual void Execute(wxSQLite3FunctionContext& ctx);
 	private:
-		static void Decompose(const wxString &text, wxArrayString &list);
 		wxArrayString m_masks;
 };
 
@@ -85,22 +87,36 @@ class FbCyrillicCollation: public wxSQLite3Collation
 {
 	public:
 		virtual int Compare(const wxString& text1, const wxString& text2);
+	public:
+		FbCyrillicCollation();
+		virtual ~FbCyrillicCollation();
+	private:
+		void * m_collator;
 };
 
 class FbDatabase: public wxSQLite3Database
 {
 	public:
+		static FbCyrillicCollation sm_collation;
 		int NewId(const int iParam, int iIncrement = 1);
 		wxString GetText(int param);
 		void SetText(int param, const wxString & text);
 		static const wxString & GetConfigName();
 		static wxString GetConfigPath();
+		void AttachCommon();
 		void AttachConfig();
 		void JoinThread(FbThread * thread);
+	public:
+		wxString Str(int id, const wxString & sql, const wxString & null = wxEmptyString);
+		wxString Str(const wxString & id, const wxString & sql, const wxString & null = wxEmptyString);
+		int Int(int id, const wxString & sql, int null = 0);
+		int Int(const wxString & id, const wxString & sql, int null = 0);
 	protected:
-		static FbCyrillicCollation sm_collation;
+		void InitFunctions();
 	private:
 		static wxCriticalSection sm_queue;
+		FbLetterFunction m_letter_func;
+		FbLowerFunction	m_lower_func;
 };
 
 class FbAutoCommit
@@ -112,6 +128,14 @@ class FbAutoCommit
 			{ m_database.Commit(); }
 	private:
 		wxSQLite3Database & m_database;
+};
+
+class FbSQLite3Statement: public wxSQLite3Statement
+{
+	public:
+		FbSQLite3Statement(const wxSQLite3Statement& statement)
+			: wxSQLite3Statement(statement) {}
+		void FTS(int index, const wxString& value);
 };
 
 class FbCommonDatabase: public FbDatabase
@@ -161,6 +185,7 @@ class FbMainDatabase: public FbMasterDatabase
 		virtual wxString GetMaster() { return wxT("params"); };
 	private:
 		void CreateDatabase();
+		void CreateTableFTS(const wxString & name, const wxString & table, const wxString & field);
 };
 
 #endif // __FBDATABASE_H__

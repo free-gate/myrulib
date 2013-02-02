@@ -2,6 +2,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include "FbConst.h"
+#include "FbBookPanel.h"
 #include "FbClientData.h"
 #include "dialogs/FbExportDlg.h"
 #include "FbMainMenu.h"
@@ -97,11 +98,11 @@ FbFrameSeqn::FbFrameSeqn(wxAuiNotebook * parent, bool select)
 
 	wxBoxSizer * sizer = new wxBoxSizer( wxVERTICAL );
 
-	m_FindText = new FbSearchCombo( panel, ID_MASTER_FIND, wxEmptyString, wxDefaultPosition, wxSize(200, -1), wxTE_PROCESS_ENTER );
+	m_FindText = new FbSearchCombo( panel, ID_MASTER_FIND, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER );
 	m_FindText->SetMinSize( wxSize( 200,-1 ) );
 
 	m_MasterList = new FbSeqnViewCtrl;
-	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN|fbTR_VRULES);
+	m_MasterList->Create(panel, ID_MASTER_LIST, wxDefaultPosition, wxDefaultSize, FbParams.Style());
 	m_MasterList->SetSortedColumn(1);
 	CreateColumns();
 
@@ -122,8 +123,13 @@ FbFrameSeqn::FbFrameSeqn(wxAuiNotebook * parent, bool select)
 
 void FbFrameSeqn::CreateColumns()
 {
-	m_MasterList->AddColumn(0, _("Ser."), 40, wxALIGN_LEFT);
-	m_MasterList->AddColumn(1, _("Num."), 10, wxALIGN_RIGHT);
+	m_MasterList->AddColumn(0, _("Ser."), -10, wxALIGN_LEFT);
+	m_MasterList->AddColumn(1, _("Num."), 6, wxALIGN_RIGHT);
+}
+
+wxString FbFrameSeqn::GetCountSQL()
+{
+	return wxT("SELECT id_seq, COUNT(DISTINCT id) FROM books INNER JOIN bookseq ON books.id=bookseq.id_book WHERE 1 %s GROUP BY id_seq");
 }
 
 void FbFrameSeqn::CreateMasterThread()
@@ -135,6 +141,7 @@ void FbFrameSeqn::CreateMasterThread()
 		wxDELETE(m_MasterThread);
 	}
 	m_MasterThread = new FbSeqnListThread(this, m_info, m_MasterList->GetSortedColumn(), m_MasterFile);
+	m_MasterThread->SetCountSQL(GetCountSQL(), m_filter);
 	m_MasterThread->Execute();
 }
 

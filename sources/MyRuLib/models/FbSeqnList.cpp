@@ -15,17 +15,13 @@ bool FbSeqnListThread::IsFullText(wxSQLite3Database &database) const
 
 void * FbSeqnListThread::Entry()
 {
-	wxString sql = wxT("SELECT id_seq, COUNT(DISTINCT id_book) FROM bookseq GROUP BY id_seq");
+	bool calculate = m_counter.IsEmpty();
+	FbFrameDatabase database(this, m_counter);
 
-	FbCommonDatabase database;
-	database.JoinThread(this);
-
-	if (abs(m_order) > 1) {
-		if (m_counter.IsEmpty()) {
-			CreateCounter(database, sql);
-		} else {
-			AttachCounter(database, m_counter);
-		}
+	if (calculate && abs(m_order) > 1) {
+		CreateCounter(database, m_sql);
+		if (IsClosed()) return NULL;
+		calculate = false;
 	}
 
 	if (!m_string.IsEmpty() && IsFullText(database)) {
@@ -34,8 +30,8 @@ void * FbSeqnListThread::Entry()
 		DoString(database);
 	}
 
-	if (m_counter.IsEmpty()) {
-		CreateCounter(database, sql);
+	if (calculate) {
+		CreateCounter(database, m_sql);
 	}
 
 	return NULL;
@@ -59,8 +55,8 @@ void FbSeqnListThread::DoFullText(wxSQLite3Database &database)
 	sql << GetJoin();
 	sql << wxT("WHERE fts_seqn MATCH ?");
 	sql << GetOrder();
-	wxSQLite3Statement stmt = database.PrepareStatement(sql);
-	stmt.Bind(1, FbSearchFunction::AddAsterisk(m_string));
+	FbSQLite3Statement stmt = database.PrepareStatement(sql);
+	stmt.FTS(1, m_string);
 	wxSQLite3ResultSet result = stmt.ExecuteQuery();
 	MakeModel(result);
 }
@@ -125,10 +121,14 @@ wxString FbSeqnListData::GetValue(FbModel & model, size_t col) const
 
 IMPLEMENT_CLASS(FbSeqnListModel, FbListModel)
 
-FbSeqnListModel::FbSeqnListModel(const wxArrayInt &items)
+FbSeqnListModel::FbSeqnListModel(const wxArrayInt &items, int code)
 {
-	m_position = items.Count() == 0 ? 0 : 1;
+	m_position = items.Count() ? 1 : 0;
 	Append(items);
+	if (code) {
+		int i = items.Index(code);
+		if (i != wxNOT_FOUND) m_position = (size_t)i + 1;
+	}
 }
 
 FbSeqnListModel::~FbSeqnListModel(void)
@@ -194,3 +194,8 @@ int FbSeqnListModel::GetCount(int code)
 	return count;
 }
 
+void FbSeqnListModel::SetCounter(const wxString & filename)
+{ 
+	if (!filename.IsEmpty()) m_database.Open(filename); 
+	m_counter.clear(); 
+}

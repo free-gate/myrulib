@@ -19,15 +19,17 @@
 #include <wx/dialog.h>
 #include "models/FbBookList.h"
 #include "controls/FbTreeView.h"
-#include "FbBookData.h"
 #include "FbConst.h"
 #include "FbDatabase.h"
 #include "FbWindow.h"
 #include "controls/FbChoiceCtrl.h"
+#include "controls/FbComboBox.h"
 
 class FbBookPanel;
 
 class FbConvertArray;
+
+class FbExportTreeModel;
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbExportDlg
@@ -39,15 +41,15 @@ class FbExportDlg : public FbDialog
 		~FbExportDlg();
 		static bool Execute(wxWindow* parent, FbBookPanel * books, int iAuthor = 0);
 	private:
+		FbModel * CreateModel();
 		void FullBySequences(wxTreeItemId root, const wxString &selections, bool bUseLetter);
 		void FullNoSequences(wxTreeItemId root, const wxString &selections, bool bUseLetter);
 		wxTreeItemId AppendFolder(const wxTreeItemId &parent, const wxString & name);
-		void AppendBook(const wxTreeItemId &parent, BookTreeItemData &data);
 		void ChangeFilesExt(const wxTreeItemId &parent);
 		void FillFilelist(const wxTreeItemId &parent, FbConvertArray &filelist, const wxString &dir = wxEmptyString);
+		void ChangeFormat(FbExportTreeModel * model);
 		bool ExportBooks();
 		void LoadFormats();
-		void ChangeFormat();
 		wxString GetExt(int format);
 	private:
 		wxString m_selections;
@@ -58,17 +60,22 @@ class FbExportDlg : public FbDialog
 		enum
 		{
 			ID_DIR_TXT = 1000,
-			ID_DIR_BTN,
+			ID_STRUCT,
 			ID_BOOKS,
 			ID_FORMAT,
 			ID_AUTHOR,
+			ID_DIR,
+			ID_FILE,
 		};
-		wxTextCtrl * m_textDir;
+		FbCustomCombo * m_folder;
+		wxComboBox * m_struct;
 		FbTreeViewCtrl * m_books;
 		FbChoiceInt * m_format;
 		wxCheckBox * m_checkAuthor;
+		wxCheckBox * m_transDir;
+		wxCheckBox * m_transFile;
 	private:
-		void OnSelectDir( wxCommandEvent& event );
+        void OnSelectDir( wxCommandEvent& event );
 		void OnBookCollapsing( wxTreeEvent & event );
 		void OnChangeFormat( wxCommandEvent& event );
 		void OnCheckAuthor( wxCommandEvent& event );
