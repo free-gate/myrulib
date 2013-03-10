@@ -139,6 +139,11 @@ static int CompareAuthors(AuthorItem ** n1, AuthorItem ** n2)
 
 void FbImportReader::Convert(FbDatabase & database)
 {
+	m_title = m_title.Trim(false).Trim(true);
+	m_lang = Lower(m_lang).Trim(false).Trim(true);
+	m_dscr = m_dscr.Trim(false).Trim(true);
+	m_isbn = m_isbn.Trim(false).Trim(true);
+
 	for (size_t i = 0; i < m_authors.Count(); i++)
 		m_authors[i].Convert(database);
 
@@ -153,8 +158,6 @@ void FbImportReader::Convert(FbDatabase & database)
 
 	if (m_sequences.Count() == 0)
 		m_sequences.Add(new SequenceItem);
-
-	m_lang = Lower(m_lang);
 }
 
 void FbImportReader::OnError(wxLogLevel level, const wxString &msg, int line)
@@ -187,6 +190,7 @@ FbHandlerXML * FbImportReaderFB2::DscrHandler::NewNode(const wxString &name, con
 FB2_BEGIN_KEYHASH(FbImportReaderFB2::TitleHandler)
 	KEY( "book-title"   , Title    );
 	KEY( "author"       , Author   );
+	KEY( "annotation"   , Annot    );
 	KEY( "sequence"     , Sequence );
 	KEY( "genre"        , Genre    );
 	KEY( "lang"         , Lang     );
@@ -197,6 +201,7 @@ FbHandlerXML * FbImportReaderFB2::TitleHandler::NewNode(const wxString &name, co
 	switch (toKeyword(name)) {
 		case Author   : return new AuthorHandler(m_reader, name);
 		case Title    : return new TextHandler(name, m_reader.m_title);
+		case Annot    : return new AnnotHandler(m_reader, name);
 		case Sequence : return new SeqnHandler(m_reader, name, atts);
 		case Genre    : return new GenrHandler(m_reader, name);
 		case Lang     : return new TextHandler(name, m_reader.m_lang);
@@ -229,6 +234,26 @@ FbHandlerXML * FbImportReaderFB2::AuthorHandler::NewNode(const wxString &name, c
 		default     : return NULL;
 	}
 	return FbHandlerXML::NewNode(name, atts);
+}
+
+//-----------------------------------------------------------------------------
+//  FbImportReaderFB2::AnnotHandler
+//-----------------------------------------------------------------------------
+
+FbHandlerXML * FbImportReaderFB2::AnnotHandler::NewNode(const wxString &name, const FbStringHash &atts)
+{
+	if (name == wxT('p')) m_reader.m_dscr << wxT('<') << name << wxT('>');
+	return new AnnotHandler(*this, name);
+}
+
+void FbImportReaderFB2::AnnotHandler::TxtNode(const wxString &text)
+{
+	m_reader.m_dscr << text;
+}
+
+void FbImportReaderFB2::AnnotHandler::EndNode(const wxString &name)
+{
+	if (name == wxT('p')) m_reader.m_dscr << wxT('<') << wxT('/') << name << wxT('>');
 }
 
 //-----------------------------------------------------------------------------
