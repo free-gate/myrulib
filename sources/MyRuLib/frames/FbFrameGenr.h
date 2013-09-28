@@ -8,7 +8,7 @@
 #include <wx/textctrl.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
-#include <wx/wxsqlite3.h>
+#include "wx/FbSQLite3.h"
 #include "FbFrameBase.h"
 #include "FbBookEvent.h"
 #include "FbSmartPtr.h"
@@ -17,7 +17,6 @@ class FbFrameGenr : public FbFrameBase
 {
 	public:
 		FbFrameGenr(wxAuiNotebook * parent, bool select = false);
-		virtual wxString GetTitle() const { return _("Genres"); };
 	protected:
 		virtual FbFrameThread * CreateCounter();
 		virtual wxString GetCountSQL();
