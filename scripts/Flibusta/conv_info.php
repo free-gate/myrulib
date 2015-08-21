@@ -26,6 +26,7 @@ function author_info($mysql_db, $sqlite_db, $min)
     $insert->execute(array($body, $row['AvtorId']));
     $insert->closeCursor();
   }
+  $query->free_result();
 
   $sqlite_db->query("commit;");
 }
@@ -54,6 +55,7 @@ function book_info($mysql_db, $sqlite_db, $min)
     $insert->execute(array($body, $row['BookId']));
     $insert->closeCursor();
   }
+  $query->free_result();
 
   $sqlite_db->query("commit;");
 }

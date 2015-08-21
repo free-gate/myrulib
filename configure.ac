@@ -26,12 +26,12 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_CXXCPP
 
-dnl AC_PROG_INTLTOOL
-dnl AM_GNU_GETTEXT
-
-AM_OPTIONS_WXCONFIG
-
-AM_PATH_WXCONFIG($WXWIDGETS_VERSION, WXFOUND=1, WXFOUND=0, [aui,adv,html,core,net], [--unicode=yes])
+WX_CONFIG_OPTIONS
+WX_STANDARD_OPTIONS([debug,unicode,shared,toolkit,wxshared])
+WX_UNICODE=yes
+WX_CONVERT_STANDARD_OPTIONS_TO_WXCONFIG_FLAGS
+WX_CONFIG_CHECK($WXWIDGETS_VERSION, WXFOUND=1, WXFOUND=0, [aui,adv,html,core,net], [$WXCONFIG_FLAGS])
+WX_DETECT_STANDARD_OPTION_VALUES
 
 if test "$WXFOUND" != 1; then
     AC_MSG_ERROR([
@@ -94,7 +94,7 @@ AC_ARG_WITH([sqlite], [AS_HELP_STRING([--with-sqlite], [Use builtin SQLite3 libr
 AC_MSG_RESULT([$USE_SQLITE])
 
 AC_MSG_CHECKING([for --with-wxsqlite])
-AC_ARG_WITH([wxsqlite], [AS_HELP_STRING([--with-wxsqlite], [Use builtin wxSQLite3 library])], USE_WXSQL="$withval", USE_WXSQL="yes")
+AC_ARG_WITH([wxsqlite], [AS_HELP_STRING([--with-wxsqlite], [Use builtin wxSQLite3 library])], USE_WXSQL="$withval", USE_WXSQL="no")
 AC_MSG_RESULT([$USE_WXSQL])
 
 AC_MSG_CHECKING([for --with-icu])
@@ -276,11 +276,17 @@ dnl =================
 dnl === USE_WXSQL ===
 dnl =================
 
+if test "x$USE_WXSQL" != "xbuiltin" ; then 
+  WX_LIKE_LIBNAME([WXSQLITE3LIB], [wxcode], [wxsqlite3])
+  AC_CHECK_LIB($WXSQLITE3LIB, [main], , [USE_WXSQL="builtin"])
+fi
+
 if test "x$USE_WXSQL" = "xbuiltin" ; then 
   WX_CXXFLAGS="-I\$(srcdir)/3rdparty/wxsqlite3/include $WX_CXXFLAGS"
   WX_LIBS="-lmrl_wxsqlite3 $WX_LIBS"
 else
-  WX_LIBS="`pkg-config --libs wxsqlite3-2.8` $WX_LIBS"
+  WX_LIKE_LIBNAME([WXSQLITE3LIB], [wxcode], [wxsqlite3])
+  WX_LIBS="-l$WXSQLITE3LIB $WX_LIBS"
 fi
 
 dnl ==================

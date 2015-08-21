@@ -55,6 +55,11 @@ BEGIN_EVENT_TABLE(FbMainFrame, wxFrame)
 	EVT_MENU(wxID_ABOUT, FbMainFrame::OnAbout)
 	EVT_MENU_RANGE(wxID_FILE1, wxID_FILE5, FbMainFrame::OnMenuRecent)
 
+	EVT_UPDATE_UI(wxID_NEW, FbMainFrame::OnReadOnlyUpdate)
+	EVT_UPDATE_UI(wxID_OPEN, FbMainFrame::OnReadOnlyUpdate)
+	EVT_UPDATE_UI(ID_MENU_VACUUM, FbMainFrame::OnReadOnlyUpdate)
+	EVT_UPDATE_UI(ID_MENU_UPDATE, FbMainFrame::OnReadOnlyUpdate)
+
 	EVT_SEARCHCTRL_SEARCH_BTN(ID_AUTHOR_TXT, FbMainFrame::OnFindAuthor)
 	EVT_SEARCHCTRL_SEARCH_BTN(ID_TITLE_TXT, FbMainFrame::OnFindTitle)
 
@@ -314,6 +319,7 @@ bool FbMainFrame::Create(wxWindow * parent, wxWindowID id, const wxString & titl
 void FbMainFrame::SetAccelerators()
 {
 	wxAcceleratorEntry entries[] = {
+		wxAcceleratorEntry(wxACCEL_CTRL , (int) wxT('Q')   , wxID_EXIT      ),
 		wxAcceleratorEntry(wxACCEL_CTRL , (int) wxT('F')   , wxID_FIND      ),
 		wxAcceleratorEntry(wxACCEL_CTRL , (int) WXK_F4     , wxID_CLOSE     ),
 		wxAcceleratorEntry(wxACCEL_SHIFT, (int) WXK_DELETE , wxID_CUT       ),
@@ -476,7 +482,7 @@ wxToolBar * FbMainFrame::CreateToolBar()
 
 	m_FindTitle = new wxSearchCtrl(toolbar, ID_TITLE_TXT, wxEmptyString, wxDefaultPosition, wxSize(180, -1), wxTE_PROCESS_ENTER);
 	m_FindTitle->SetDescriptiveText(_("Title"));
-	m_FindTitle->SetFont(font);
+	m_FindTitle->ShowCancelButton(true);
 	toolbar->AddControl( m_FindTitle );
 
 	toolbar->AddTool(ID_MODE_TREE, _("Hierarchy"), wxBitmap(path + wxT("format-justify-right.png"), wxBITMAP_TYPE_PNG), _("Hierarchy of authors and series"));
@@ -729,6 +735,11 @@ wxWindow * FbMainFrame::FindFrameById(const int id, bool bActivate)
 void FbMainFrame::OnMenuNothing(wxCommandEvent& event)
 {
 	wxMessageBox(_("This function is not available yet in this version."));
+}
+
+void FbMainFrame::OnReadOnlyUpdate(wxUpdateUIEvent& event)
+{
+	event.Enable(!FbCollection::IsReadOnly());
 }
 
 void FbMainFrame::OnDatabaseInfo(wxCommandEvent & event)

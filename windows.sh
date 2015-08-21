@@ -5,7 +5,7 @@
 #                                                                #
 ##################################################################
 
-WXW_VERSION="2.8.12"   # Version wxWidgets
+WXW_VERSION="3.0.0"   # Version wxWidgets
 FT2_VERSION="2.4.11"   # Version FreeType2
 
 ##################################################################
@@ -46,14 +46,17 @@ if test "x$EXISTS_WXW" != "x$WXW_VERSION" ; then
   ../configure \
 	  --prefix=$BUILD_DIR \
 	  --host=i686-w64-mingw32 \
+	  --enable-monolithic \
 	  --enable-unicode \
+	  --disable-shared \
+	  --disable-richtext \
 	  --without-expat \
 	  --without-regex \
 	  --without-libtiff \
 	  --with-libjpeg=builtin \
 	  --with-libpng=builtin \
 	  --with-zlib=builtin \
-	  --disable-shared
+
   make
   make install
 
@@ -96,6 +99,7 @@ LDFLAGS="-static-libgcc -static-libstdc++" ../configure \
     --with-expat \
     --with-wx-prefix=$BUILD_DIR \
     --host=i686-w64-mingw32 \
+    --disable-shared \
     --with-locale
 make
 zip $BUILD_DIR/myrulib_$MRL_VERSION-win32.exe.zip myrulib.exe
@@ -115,6 +119,7 @@ CXXFLAGS="-I$BUILD_DIR/$WXW_FILENAME/src/\
     --with-wx-prefix=$BUILD_DIR \
     --with-ft-prefix=$BUILD_DIR \
     --disable-freetypetest \
+    --disable-shared \
     --with-locale \
     --with-reader
 make
